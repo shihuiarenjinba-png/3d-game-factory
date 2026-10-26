@@ -9,3 +9,7 @@ Event types: PROVISIONED (repository_full_name), BUILD_PASSED (build_run_id), AU
 **Do not run scheduled GitHub Actions workflows that write ephemeral local state files.** A durable, compare-and-swap backed store/queue and a single active lease per request are prerequisites. This CLI uses atomic local file replacement but not distributed locking. Configure a cloud-backed Windows GPU build worker and trusted evidence adapters separately. 3D asset storage must be external and garbage collection explicitly scoped to disposable build data; approved archives are protected. No project files need persist on the user's local PC except a human QA copy.
 
 Provisioner-3D remains locally owned and may have a different contract: adapt only after its reviewed handoff. Avoid creating repositories or moving to a new stage based on a synthetic event. UI project specifications intentionally remain out of scope.
+
+## 15-minute cadence simulation
+
+The controller now accepts idempotent TICK heartbeat events. The unit suite simulates 480 quarter-hour ticks across 120 hours, then the first overdue tick. This confirms deadline transitions **in an offline simulation only**. It is not evidence of GitHub scheduled delivery, distributed locks, API costs, an active five-day run, or a Windows worker. Schedule activation remains HOLD until durable state, compare-and-swap/lease coordination, authentication, quotas, and a monitored Windows engine worker are proven.
