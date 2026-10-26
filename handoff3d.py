@@ -85,7 +85,7 @@ def build_provisioner_job(root: Path, slug: str, branch: str,
     """
     if (not isinstance(display_name, str) or not display_name
             or len(display_name) > 100
-            or any(char in display_name for char in "\\r\\n\\x00")):
+            or any(char in display_name for char in "\r\n\x00")):
         raise ValueError("invalid product display name")
     if type(dry_run) is not bool:
         raise ValueError("dry_run must be a boolean")
