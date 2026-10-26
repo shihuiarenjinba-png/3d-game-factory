@@ -1,0 +1,74 @@
+name: 3D Store MSIX candidate build
+
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: Existing Factory product slug with reviewed Partner Center identity
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      slug:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-msix:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install official Godot 4.3 and export templates
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $godotZip = Join-Path $env:RUNNER_TEMP 'godot.zip'
+          $templatesTpz = Join-Path $env:RUNNER_TEMP 'godot-templates.tpz'
+          $templatesZip = Join-Path $env:RUNNER_TEMP 'godot-templates.zip'
+          $godotDir = Join-Path $env:RUNNER_TEMP 'godot'
+          $templateExtract = Join-Path $env:RUNNER_TEMP 'godot-template-extract'
+
+          Invoke-WebRequest -UseBasicParsing -Uri 'https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_win64.exe.zip' -OutFile $godotZip
+          Invoke-WebRequest -UseBasicParsing -Uri 'https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz' -OutFile $templatesTpz
+          Copy-Item -LiteralPath $templatesTpz -Destination $templatesZip
+
+          Expand-Archive -LiteralPath $godotZip -DestinationPath $godotDir -Force
+          Expand-Archive -LiteralPath $templatesZip -DestinationPath $templateExtract -Force
+
+          $godot = Get-ChildItem -LiteralPath $godotDir -Filter 'Godot_v4.3-stable_win64.exe' -Recurse | Select-Object -First 1
+          if ($null -eq $godot) { throw 'HOLD: official Godot executable not found after extraction' }
+
+          $templateSource = Join-Path $templateExtract 'templates'
+          $templateDestination = Join-Path $env:APPDATA 'Godot\export_templates\4.3.stable'
+          New-Item -ItemType Directory -Force -Path $templateDestination | Out-Null
+          Copy-Item -Path (Join-Path $templateSource '*') -Destination $templateDestination -Recurse -Force
+
+          $releaseTemplate = Join-Path $templateDestination 'windows_release_x86_64.exe'
+          if (-not (Test-Path -LiteralPath $releaseTemplate -PathType Leaf)) {
+            throw 'HOLD: Godot Windows x64 export template not installed'
+          }
+
+          "GODOT_EXE=$($godot.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Build real Godot payload and unsigned MSIX
+        shell: pwsh
+        run: |
+          ./tools/build_godot_store_msix.ps1 -Slug '${{ inputs.slug }}'
+
+      - name: Upload Store candidate for downstream QA only
+        uses: actions/upload-artifact@v4
+        with:
+          name: 3d-store-msix-qa-unsigned-${{ inputs.slug }}
+          path: |
+            dist/*.msix
+            dist/msix-evidence.json
+          if-no-files-found: error
+          retention-days: 5
