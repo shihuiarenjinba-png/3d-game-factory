@@ -17,7 +17,10 @@ jobs:
           python-version: '3.12'
       - name: Run five-day factory gate tests
         run: |
-          python -m py_compile factory3d.py
+          python -m py_compile factory3d.py handoff3d.py tools/pipeline_progress.py
+          python tools/pipeline_progress.py validate
+          python tools/pipeline_progress.py check-report
+          python tools/pipeline_progress.py next
           python -m unittest discover -s tests -v
       - name: Parse MSIX PowerShell build script
         shell: pwsh
