@@ -1,0 +1,21 @@
+name: 3D factory quality gates
+on:
+  pull_request:
+  push:
+    branches: ['codex/3d-factory-bootstrap-20261026']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  python-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run five-day factory gate tests
+        run: |
+          python -m py_compile factory3d.py
+          python -m unittest discover -s tests -v
