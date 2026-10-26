@@ -122,7 +122,7 @@ class HandoffTests(unittest.TestCase):
             self.root, self.slug, BRANCH, "Demo 3D Game"))
 
     def test_provisioner_job_rejects_missing_or_unsafe_display_name(self):
-        for value in (None, "", "x" * 101, "bad\\nname", "bad\\rname", "bad\\x00name"):
+        for value in (None, "", "x" * 101, "bad\nname", "bad\rname", "bad\x00name"):
             with self.subTest(value=repr(value)):
                 with self.assertRaisesRegex(ValueError, "display name"):
                     build_provisioner_job(self.root, self.slug, BRANCH, value)
