@@ -23,6 +23,7 @@ class HandoffTests(unittest.TestCase):
         p = self.root / "products" / self.slug
         for rel, data in {
             "project.godot": '[application]\nrun/main_scene="res://scenes/main.tscn"\n',
+            "export_presets.cfg": '[preset.0]\nname="Windows Desktop"\nplatform="Windows Desktop"\n',
             "scenes/main.tscn": "[gd_scene format=3]\n",
             "scripts/main.gd": "extends Node3D\n",
             "tests/test_smoke.gd": "func test_run(): pass\n",
@@ -52,6 +53,22 @@ class HandoffTests(unittest.TestCase):
     def test_missing_committed_project_rejected(self):
         with self.assertRaisesRegex(ValueError, "missing, symlinked"):
             build_handoff(self.root, "missing-game", BRANCH)
+
+    def test_missing_windows_export_preset_rejected(self):
+        preset = self.root / "products" / self.slug / "export_presets.cfg"
+        preset.unlink()
+        self.run("add", "-u", "products")
+        self.run("commit", "-m", "remove export preset")
+        with self.assertRaisesRegex(ValueError, "missing, symlinked"):
+            build_handoff(self.root, self.slug, BRANCH)
+
+    def test_non_windows_export_preset_rejected(self):
+        preset = self.root / "products" / self.slug / "export_presets.cfg"
+        preset.write_text('[preset.0]\\nname="Linux"\\nplatform="Linux"\\n')
+        self.run("add", "products")
+        self.run("commit", "-m", "wrong export preset")
+        with self.assertRaisesRegex(ValueError, "Windows Desktop export preset"):
+            build_handoff(self.root, self.slug, BRANCH)
 
     def test_branch_and_sha_rejected(self):
         with self.assertRaisesRegex(ValueError, "branch mismatch"):
