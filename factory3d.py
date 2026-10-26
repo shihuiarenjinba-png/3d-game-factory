@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import shutil
 import sys
+import tempfile
 
 ROOT=Path(__file__).resolve().parent
 EXTENSIONS={".godot",".gd",".tscn",".tres",".md",".json"}
@@ -87,23 +88,50 @@ def validate(root=ROOT):
     return snap
 
 def accept(root=ROOT):
-    snap=validate(root)
-    state=read(root/"factory/state.json")
-    # Planning is not a lock: recheck the 120-hour gate at commit time.
-    # This blocks stale plans after another run records a completion.
-    if not due(state, datetime.now(timezone.utc)):
-        raise ValueError("not due for another 3D generation")
-    slug="experimental-3d-"+str(state["cycle"])
-    if not NAME.fullmatch(slug):raise ValueError("invalid game slug")
-    dest=root/"products"/slug
-    if dest.exists():raise ValueError("cannot overwrite existing game")
-    dest.parent.mkdir(exist_ok=True)
-    shutil.copytree(root/".candidate/project",dest)
-    now=datetime.now(timezone.utc)
-    state["last_completed_utc"]=now.isoformat()
-    state["cycle"]+=1
-    (root/"factory/state.json").write_text(json.dumps(state,indent=2)+"\n")
-    return slug
+    # A directory lock prevents two accept processes from passing the same
+    # five-day gate concurrently. Stale locks require explicit inspection.
+    runtime=root/".runtime"
+    lock=runtime/"accept.lock"
+    try:
+        lock.mkdir()
+    except FileExistsError as exc:
+        raise ValueError("3D acceptance already in progress; inspect stale lock") from exc
+    try:
+        snap=validate(root)
+        state_path=root/"factory/state.json"
+        state=read(state_path)
+        if not due(state, datetime.now(timezone.utc)):
+            raise ValueError("not due for another 3D generation")
+        slug="experimental-3d-"+str(state["cycle"])
+        if not NAME.fullmatch(slug):raise ValueError("invalid game slug")
+        dest=root/"products"/slug
+        if dest.exists():raise ValueError("cannot overwrite existing game")
+        dest.parent.mkdir(exist_ok=True)
+        # Never publish a partially copied product if copying fails.
+        with tempfile.TemporaryDirectory(prefix="accept-",dir=runtime) as stage:
+            staged=Path(stage)/"project"
+            shutil.copytree(root/".candidate/project",staged)
+            if dest.exists():raise ValueError("cannot overwrite existing game")
+            staged.rename(dest)
+        # Replace the state file atomically; a failure after publication
+        # leaves the product visible and forces HOLD on the next attempt,
+        # rather than silently duplicating it or corrupting the state JSON.
+        state["last_completed_utc"]=datetime.now(timezone.utc).isoformat()
+        state["cycle"]+=1
+        temp_state=None
+        try:
+            with tempfile.NamedTemporaryFile(mode="w",encoding="utf-8",
+                    prefix=".state-",suffix=".tmp",dir=state_path.parent,
+                    delete=False) as stream:
+                temp_state=Path(stream.name)
+                stream.write(json.dumps(state,indent=2)+"\\n")
+            temp_state.replace(state_path)
+        finally:
+            if temp_state is not None:
+                temp_state.unlink(missing_ok=True)
+        return slug
+    finally:
+        lock.rmdir()
 
 def main():
     parser=argparse.ArgumentParser()
