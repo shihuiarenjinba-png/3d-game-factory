@@ -5,10 +5,12 @@ This is NOT proof of remote GitHub HEAD, Store registration, Windows QA or MSIX.
 from __future__ import annotations
 import argparse
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import subprocess
 import sys
+
+from factory3d import EXTENSIONS
 
 FACTORY = "shihuiarenjinba-png/3d-game-factory"
 BRANCH = "codex/3d-provisioner-job-contract-20261027"
@@ -26,6 +28,44 @@ def git(root: Path, *args: str) -> str:
     return result.stdout.strip()
 
 
+def verify_committed_product_tree(root: Path, sha: str, product: str) -> None:
+    """Reject oversized, unapproved or linked files in the exact committed product.
+
+    Checking only the six required paths is insufficient: extra native binaries,
+    giant assets or symlinks would otherwise pass the source-only handoff.
+    """
+    entries = git(root, "ls-tree", "-r", "-l", "-z", sha, "--", product)
+    count = 0
+    total = 0
+    for entry in entries.split("\x00"):
+        if not entry:
+            continue
+        header, sep, path = entry.partition("\t")
+        parts = header.split()
+        if not sep or len(parts) != 4:
+            raise ValueError("invalid committed product tree")
+        mode, kind, _blob_sha, size = parts
+        if mode not in ("100644", "100755") or kind != "blob" or not size.isdecimal():
+            raise ValueError("missing, symlinked or invalid committed product file")
+        if not path.startswith(product + "/"):
+            raise ValueError("committed product path escapes its slug")
+        relative = path[len(product) + 1:]
+        components = relative.split("/")
+        if (not relative or any(not part or part in (".", "..") or part.startswith(".")
+                                for part in components)
+                or "\\" in relative or "\r" in relative or "\n" in relative):
+            raise ValueError("unsafe committed product path")
+        extension = PurePosixPath(relative).suffix.lower()
+        if extension not in EXTENSIONS or (extension == ".cfg" and relative != "export_presets.cfg"):
+            raise ValueError("disallowed committed product file: " + relative)
+        count += 1
+        total += int(size)
+        if count > 40 or total > 180_000:
+            raise ValueError("committed product exceeds source quota; use Git LFS/Artifact management")
+    if count == 0:
+        raise ValueError("missing, symlinked or invalid committed product file")
+
+
 def build_handoff(root: Path, slug: str, branch: str, expected_sha: str | None = None) -> dict:
     if not isinstance(slug, str) or not SLUG.fullmatch(slug):
         raise ValueError("invalid product slug")
@@ -40,6 +80,7 @@ def build_handoff(root: Path, slug: str, branch: str, expected_sha: str | None =
     product = f"products/{slug}"
     if git(root, "status", "--porcelain", "--", product):
         raise ValueError("uncommitted product changes; refuse handoff")
+    verify_committed_product_tree(root, sha, product)
     for rel in REQUIRED:
         # Inspect the exact committed Git tree: symlinks are not valid products.
         entry = git(root, "ls-tree", sha, "--", f"{product}/{rel}")

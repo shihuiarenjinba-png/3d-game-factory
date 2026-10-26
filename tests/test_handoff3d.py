@@ -102,6 +102,48 @@ class HandoffTests(unittest.TestCase):
                                "--output", str(output)]), 2)
 
 
+    def test_rejects_oversized_committed_asset(self):
+        path = self.root / "products" / self.slug / "README.md"
+        path.write_text("x" * 180_001)
+        self.run("add", "products")
+        self.run("commit", "-m", "oversized source")
+        with self.assertRaisesRegex(ValueError, "source quota"):
+            build_handoff(self.root, self.slug, BRANCH)
+
+    def test_rejects_unapproved_committed_binary(self):
+        path = self.root / "products" / self.slug / "bin" / "native.exe"
+        path.parent.mkdir(parents=True)
+        path.write_bytes(b"MZ")
+        self.run("add", "products")
+        self.run("commit", "-m", "unapproved binary")
+        with self.assertRaisesRegex(ValueError, "disallowed committed product file"):
+            build_handoff(self.root, self.slug, BRANCH)
+
+    def test_rejects_extra_committed_symlink(self):
+        path = self.root / "products" / self.slug / "assets" / "link.md"
+        path.parent.mkdir(parents=True)
+        path.symlink_to("../README.md")
+        self.run("add", "products")
+        self.run("commit", "-m", "linked asset")
+        with self.assertRaisesRegex(ValueError, "symlink"):
+            build_handoff(self.root, self.slug, BRANCH)
+
+    def test_rejects_extra_committed_cfg(self):
+        path = self.root / "products" / self.slug / "unsafe.cfg"
+        path.write_text("unexpected=true")
+        self.run("add", "products")
+        self.run("commit", "-m", "extra config")
+        with self.assertRaisesRegex(ValueError, "disallowed committed product file"):
+            build_handoff(self.root, self.slug, BRANCH)
+
+    def test_rejects_hidden_committed_file(self):
+        path = self.root / "products" / self.slug / ".hidden.json"
+        path.write_text("{}")
+        self.run("add", "products")
+        self.run("commit", "-m", "hidden file")
+        with self.assertRaisesRegex(ValueError, "unsafe committed product path"):
+            build_handoff(self.root, self.slug, BRANCH)
+
     def test_provisioner_v1_job_contract(self):
         job = build_provisioner_job(self.root, self.slug, BRANCH, "Demo 3D Game")
         self.assertEqual(set(job), {
