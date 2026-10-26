@@ -6,7 +6,7 @@ Use the explicit `--format provisioner-job` option to generate a validated, SHA-
 
 ## Safe dry-run (default)
 
-From the approved Factory work branch `codex/3d-factory-bootstrap-20261026`, with a committed `products/<slug>` Godot project:
+From the approved Factory work branch `codex/3d-provisioner-job-contract-20261027`, with a committed `products/<slug>` Godot project:
 
 ```powershell
 python handoff3d.py --slug <approved-slug> --display-name "<actual product name>" --format provisioner-job --output local-provisioner-job.json
@@ -22,7 +22,7 @@ python handoff3d.py --slug <approved-slug> --display-name "<actual product name>
 
 `--live` is rejected without `--expected-sha`. The local Provisioner must **independently** check GitHub remote HEAD and source tree before any build or Identity return. The generated job requests `BUILD_WINDOWS`, `INSPECT_PACKAGE`, `LOOKUP_OFFICIAL_IDENTITY`, and `PROPOSE_GITHUB_RETURN`, but these actions can HOLD individually if Godot, a valid MSIX, an authenticated Partner Center evidence export, or required GitHub write permission is unavailable.
 
-The return destination is the allowlisted work branch `codex/3d-factory-bootstrap-20261026`, path `products/<slug>/store/approved-identity.json`. Never write directly to main/release or claim Store readiness without a signed, verified, actual MSIX and Windows GPU QA.
+The return destination is the allowlisted work branch `codex/3d-provisioner-job-contract-20261027`, path `products/<slug>/store/approved-identity.json`. Never write directly to main/release or claim Store readiness without a signed, verified, actual MSIX and Windows GPU QA.
 
 ## Scope and validation
 
