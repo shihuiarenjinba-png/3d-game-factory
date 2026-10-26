@@ -1,0 +1,202 @@
+{
+  "schema_version": "1.0",
+  "lane": "3d-game",
+  "updated_at_utc": "2026-10-26T23:40:00Z",
+  "policy": {
+    "new_product_min_interval_hours": 120,
+    "store_submission_allowed": false,
+    "identity_guessing_allowed": false,
+    "openai_api_required": false,
+    "ollama_required": false,
+    "main_release_write_allowed": false,
+    "unsigned_msix_is_store_ready": false
+  },
+  "generation_gate": {
+    "last_accepted_candidate_utc": null,
+    "state": "HOLD",
+    "reason": "No accepted 3D candidate baseline is recorded; scheduler must improve QA/build/transport instead of generating a new game."
+  },
+  "repositories": {
+    "factory": {
+      "repo": "shihuiarenjinba-png/3d-game-factory",
+      "branch": "codex/3d-real-msix-build-path-20261027",
+      "head": "bf80da05a01bea502ee12aaa1968f9bc61f016b3",
+      "ci_run_id": 40419346456
+    },
+    "provisioner": {
+      "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
+      "branch": "codex/3d-pck-payload-guard-20261027",
+      "head": "fa2852c735a5fa74f27ae509dc272ed212b96e1a",
+      "ci_run_id": 40409424715
+    },
+    "template": {
+      "repo": "shihuiarenjinba-png/3d-game-template",
+      "branch": "codex/3d-template-godot-bootstrap-20261026",
+      "head": "e5462d0aa1f5d0a50fa484ad1544c11ce8a6085a",
+      "ci_run_id": 40360649193,
+      "artifact": "godot-3d-windows-x64-qa-unsigned"
+    },
+    "qa": {
+      "repo": "shihuiarenjinba-png/3d-build-qa",
+      "branch": "codex/3d-msix-executable-payload-20261027",
+      "head": "04f2b1f74674159197cc3f8fa7503705b4febcfb",
+      "ci_run_id": 40417351553
+    },
+    "intake": {
+      "repo": "shihuiarenjinba-png/Windows-all-auto",
+      "branch": "codex/3d-identity-source-sha-20261027",
+      "head": "bbf0f6f17a3f431e1f93c363d353b1c0613aacad",
+      "ci_run_id": 40419153935
+    }
+  },
+  "stage_order": [
+    "template_windows_export",
+    "factory_product_materialization",
+    "provisioner_windows_build",
+    "official_identity_roundtrip",
+    "factory_msix_build",
+    "msix_byte_qa",
+    "windows_all_auto_intake",
+    "local_windows_gpu_qa",
+    "signing_and_store_validation",
+    "local_submission_automation"
+  ],
+  "stages": {
+    "template_windows_export": {
+      "state": "DONE",
+      "auto_actionable": false,
+      "owner_repo": "shihuiarenjinba-png/3d-game-template",
+      "result": "Godot 4.3 Windows x64 EXE/PCK export succeeds and produces a real QA artifact.",
+      "evidence": [
+        "run:40360649193",
+        "artifact:godot-3d-windows-x64-qa-unsigned"
+      ],
+      "remaining": []
+    },
+    "factory_product_materialization": {
+      "state": "HOLD",
+      "auto_actionable": true,
+      "owner_repo": "shihuiarenjinba-png/3d-game-factory",
+      "result": "Factory has no committed products/<slug>/ product yet on the active work branch.",
+      "evidence": [
+        "factory-head:bf80da05a01bea502ee12aaa1968f9bc61f016b3"
+      ],
+      "remaining": [
+        "Promote an existing accepted 3D candidate into products/<slug>/ without creating a new product unless the 120-hour gate permits it.",
+        "Add product package metadata and Store asset placeholders only when they are real product assets; do not fabricate Identity."
+      ]
+    },
+    "provisioner_windows_build": {
+      "state": "IN_PROGRESS",
+      "auto_actionable": true,
+      "owner_repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
+      "result": "Pinned product-scoped Godot export and EXE/PCK completeness guards are implemented.",
+      "evidence": [
+        "head:fa2852c735a5fa74f27ae509dc272ed212b96e1a",
+        "run:40409424715"
+      ],
+      "remaining": [
+        "Run against one real Factory products/<slug>/ checkout and preserve build evidence."
+      ]
+    },
+    "official_identity_roundtrip": {
+      "state": "IN_PROGRESS",
+      "auto_actionable": true,
+      "owner_repo": "shihuiarenjinba-png/Windows-all-auto",
+      "result": "Identity routing/atomic return exists and now records verified_source_sha.",
+      "evidence": [
+        "head:bbf0f6f17a3f431e1f93c363d353b1c0613aacad",
+        "run:40419153935"
+      ],
+      "remaining": [
+        "Use authenticated local Partner Center evidence for one real product; Store ID/Identity/Publisher must not be guessed.",
+        "Return approved-identity.json to the exact Factory work branch and verify expected HEAD."
+      ]
+    },
+    "factory_msix_build": {
+      "state": "IN_PROGRESS",
+      "auto_actionable": true,
+      "owner_repo": "shihuiarenjinba-png/3d-game-factory",
+      "result": "A fail-closed Godot -> AppxManifest -> MakeAppx unsigned MSIX workflow is implemented and syntax-tested.",
+      "evidence": [
+        "head:bf80da05a01bea502ee12aaa1968f9bc61f016b3",
+        "run:40419346456",
+        "workflow:.github/workflows/msix-export.yml",
+        "script:tools/build_godot_store_msix.ps1"
+      ],
+      "remaining": [
+        "Run the workflow with a real products/<slug>/ and reviewed approved-identity.json.",
+        "Upload a real 3d-store-msix-qa-unsigned-<slug> artifact."
+      ]
+    },
+    "msix_byte_qa": {
+      "state": "IN_PROGRESS",
+      "auto_actionable": true,
+      "owner_repo": "shihuiarenjinba-png/3d-build-qa",
+      "result": "MSIX SHA/manifest/Identity/executable payload checks are implemented.",
+      "evidence": [
+        "head:04f2b1f74674159197cc3f8fa7503705b4febcfb",
+        "run:40417351553"
+      ],
+      "remaining": [
+        "Run against the exact Factory MSIX artifact; current tests do not prove installability."
+      ]
+    },
+    "windows_all_auto_intake": {
+      "state": "IN_PROGRESS",
+      "auto_actionable": true,
+      "owner_repo": "shihuiarenjinba-png/Windows-all-auto",
+      "result": "3d-game lane is separated from app/game intake and source provenance is checked.",
+      "evidence": [
+        "head:bbf0f6f17a3f431e1f93c363d353b1c0613aacad",
+        "run:40419153935"
+      ],
+      "remaining": [
+        "Ingest one real Factory 3D MSIX artifact and emit verified local-QA handoff evidence."
+      ]
+    },
+    "local_windows_gpu_qa": {
+      "state": "HOLD",
+      "auto_actionable": false,
+      "owner_repo": "local-windows",
+      "result": "Not executed.",
+      "evidence": [],
+      "remaining": [
+        "Install candidate on a real Windows GPU machine and verify launch/render/input/save/restart/UI/performance."
+      ]
+    },
+    "signing_and_store_validation": {
+      "state": "HOLD",
+      "auto_actionable": false,
+      "owner_repo": "local-windows",
+      "result": "Not executed.",
+      "evidence": [],
+      "remaining": [
+        "Perform required local QA signing/validation only with authorized certificates and official Identity.",
+        "Do not treat QA_UNSIGNED as Store-ready."
+      ]
+    },
+    "local_submission_automation": {
+      "state": "OUT_OF_SCOPE",
+      "auto_actionable": false,
+      "owner_repo": "local-windows",
+      "result": "Final upload is intentionally local after download and preflight.",
+      "evidence": [],
+      "remaining": [
+        "Local automation may upload only after GitHub QA passes and operator-required declarations are supplied."
+      ]
+    }
+  },
+  "next_action": {
+    "stage_id": "factory_product_materialization",
+    "repo": "shihuiarenjinba-png/3d-game-factory",
+    "branch": "codex/3d-real-msix-build-path-20261027",
+    "goal": "Materialize one existing accepted 3D candidate under products/<slug>/ so the real Provisioner/MSIX path can be exercised.",
+    "acceptance": [
+      "No new 3D product is generated unless the 120-hour policy gate is satisfied.",
+      "Committed product contains a real Godot project and Windows Desktop export preset.",
+      "Source SHA is pinned and can be handed to Repository-Provisioner-3D.",
+      "No Store Identity, price, security declaration, or certification result is fabricated."
+    ]
+  }
+}
