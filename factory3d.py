@@ -89,6 +89,10 @@ def validate(root=ROOT):
 def accept(root=ROOT):
     snap=validate(root)
     state=read(root/"factory/state.json")
+    # Planning is not a lock: recheck the 120-hour gate at commit time.
+    # This blocks stale plans after another run records a completion.
+    if not due(state, datetime.now(timezone.utc)):
+        raise ValueError("not due for another 3D generation")
     slug="experimental-3d-"+str(state["cycle"])
     if not NAME.fullmatch(slug):raise ValueError("invalid game slug")
     dest=root/"products"/slug
