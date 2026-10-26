@@ -27,7 +27,7 @@ jobs:
       - name: Verify five-day cooldown and opt-in
         id: gate
         env:
-          ENABLED: ${{ vars.3D_FACTORY_ENABLED }}
+          ENABLED: ${{ vars.FACTORY_3D_ENABLED }}
           OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}
         shell: bash
         run: |
