@@ -60,8 +60,10 @@ jobs:
 
       - name: Build real Godot payload and unsigned MSIX
         shell: pwsh
+        env:
+          GAME_SLUG: ${{ inputs.slug }}
         run: |
-          ./tools/build_godot_store_msix.ps1 -Slug '${{ inputs.slug }}'
+          ./tools/build_godot_store_msix.ps1 -Slug $env:GAME_SLUG
 
       - name: Upload Store candidate for downstream QA only
         uses: actions/upload-artifact@v4
