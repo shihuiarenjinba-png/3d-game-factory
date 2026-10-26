@@ -88,10 +88,10 @@ class FiveDayTests(unittest.TestCase):
             prepare(root)
             project=root/".candidate/project"
             for name,text in {
-                "project.godot":'[application]\\nrun/main_scene="res://scenes/main.tscn"\\n',
-                "scenes/main.tscn":'[gd_scene format=3]\\n[node name="Main" type="Node3D"]\\n',
-                "scripts/main.gd":"extends Node3D\\n",
-                "tests/test_smoke.gd":"func test_run():\\n  pass\\n",
+                "project.godot":'[application]\nrun/main_scene="res://scenes/main.tscn"\n',
+                "scenes/main.tscn":'[gd_scene format=3]\n[node name="Main" type="Node3D"]\n',
+                "scripts/main.gd":"extends Node3D\n",
+                "tests/test_smoke.gd":"func test_run():\n  pass\n",
                 "README.md":"3D QA candidate"
             }.items():
                 path=project/name
