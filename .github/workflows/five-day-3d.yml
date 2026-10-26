@@ -12,7 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: codex/3d-factory-bootstrap-20261026
+          # Test the commit that triggered this run, never an older work branch.
+          ref: ${{ github.sha }}
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
@@ -23,6 +24,7 @@ jobs:
           python -m unittest discover -s tests -v
       - name: Explain 3D cadence
         run: |
-          echo "ChatGPT 45-minute-slot task checks the 120-hour 3D cooldown."
-          echo "No model or API is started by GitHub Actions."
-          echo "3D MSIX, real Windows 3D QA, and Store submission are not claimed."
+          echo "The ChatGPT 3D improvement slots do not generate a new game every 30 minutes."
+          echo "A candidate is accepted only after the 120-hour gate."
+          echo "No model or paid API is started by GitHub Actions."
+          echo "3D MSIX, real Windows GPU QA, and Store submission are not claimed."
