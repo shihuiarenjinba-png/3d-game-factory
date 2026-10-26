@@ -14,6 +14,7 @@ ROUTES = {
     ("AUTO_QA", "AUTO_QA_PASSED"): "WAIT_HUMAN_QA",
     ("WAIT_HUMAN_QA", "HUMAN_APPROVED"): "HANDOFF_REVIEW",
 }
+REPO = re.compile(r"^[A-Za-z0-9-]+/[A-Za-z0-9_.-]+$")
 REQUIRED = {"PROVISIONED": "repository_full_name", "BUILD_PASSED": "build_run_id",
             "AUTO_QA_PASSED": "qa_run_id", "HUMAN_APPROVED": "approval_reference"}
 
@@ -73,7 +74,8 @@ def advance(state, event, now_at):
         if not next_phase:
             raise ValueError(f"invalid transition from {phase}")
         required = REQUIRED[event["type"]]
-        if not _id(event.get(required)):
+        if not (_id(event.get(required)) if required != "repository_full_name" else
+                isinstance(event.get(required), str) and REPO.fullmatch(event[required])):
             raise ValueError(f"{required} is required")
         updated["phase"] = next_phase
         updated["evidence"][event["type"]] = event[required]
