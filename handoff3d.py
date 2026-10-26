@@ -14,8 +14,8 @@ FACTORY = "shihuiarenjinba-png/3d-game-factory"
 BRANCH = "codex/3d-factory-bootstrap-20261026"
 SLUG = re.compile(r"^[a-z][a-z0-9-]{3,39}$")
 SHA = re.compile(r"^[a-f0-9]{40}$")
-REQUIRED = ("project.godot", "scenes/main.tscn", "scripts/main.gd",
-            "tests/test_smoke.gd", "README.md")
+REQUIRED = ("project.godot", "export_presets.cfg", "scenes/main.tscn",
+            "scripts/main.gd", "tests/test_smoke.gd", "README.md")
 
 
 def git(root: Path, *args: str) -> str:
@@ -49,6 +49,10 @@ def build_handoff(root: Path, slug: str, branch: str, expected_sha: str | None =
     project_text = git(root, "show", f"{sha}:{product}/project.godot")
     if "run/main_scene" not in project_text:
         raise ValueError("committed Godot project has no main scene")
+    preset_text = git(root, "show", f"{sha}:{product}/export_presets.cfg")
+    if ('platform="Windows Desktop"' not in preset_text
+            or 'name="Windows Desktop"' not in preset_text):
+        raise ValueError("committed Godot project has no Windows Desktop export preset")
     return {
         "schema_version": 1,
         "request_id": f"3d-{slug}-{sha[:12]}",
