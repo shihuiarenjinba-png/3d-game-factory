@@ -73,6 +73,44 @@ def build_handoff(root: Path, slug: str, branch: str, expected_sha: str | None =
     }
 
 
+
+def build_provisioner_job(root: Path, slug: str, branch: str,
+                          display_name: str, expected_sha: str | None = None,
+                          *, dry_run: bool = True) -> dict:
+    """Convert a verified 3D source handoff into the local Provisioner v1.0 job.
+
+    The original source-only handoff remains available for existing consumers.
+    This is an instruction to the local Provisioner, not proof of Store ID,
+    Windows build, GitHub remote HEAD or Microsoft Store readiness.
+    """
+    if (not isinstance(display_name, str) or not display_name
+            or len(display_name) > 100
+            or any(char in display_name for char in "\\r\\n\\x00")):
+        raise ValueError("invalid product display name")
+    if type(dry_run) is not bool:
+        raise ValueError("dry_run must be a boolean")
+    source = build_handoff(root, slug, branch, expected_sha)
+    return {
+        "schema_version": "1.0",
+        "request_id": source["request_id"],
+        "product_type": "GAME_3D",
+        "source_factory": "3d-game-factory",
+        "source_repository": FACTORY,
+        "source_branch": branch,
+        "source_sha": source["source_sha"],
+        "slug": slug,
+        "display_name": display_name,
+        "target_owner": "shihuiarenjinba-png",
+        "dry_run": dry_run,
+        "requested_actions": [
+            "BUILD_WINDOWS",
+            "INSPECT_PACKAGE",
+            "LOOKUP_OFFICIAL_IDENTITY",
+            "PROPOSE_GITHUB_RETURN",
+        ],
+    }
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--slug", required=True)
@@ -80,16 +118,32 @@ def main(argv=None) -> int:
     parser.add_argument("--expected-sha")
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parent)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--format", choices=("source-handoff", "provisioner-job"),
+                        default="source-handoff")
+    parser.add_argument("--display-name",
+                        help="Required for provisioner-job; never guessed from slug")
+    parser.add_argument("--live", action="store_true",
+                        help="Explicitly request a non-dry-run Provisioner job")
     args = parser.parse_args(argv)
     try:
-        result = build_handoff(args.root, args.slug, args.branch, args.expected_sha)
+        if args.format == "provisioner-job":
+            if args.live and not args.expected_sha:
+                raise ValueError("live Provisioner job requires --expected-sha")
+            result = build_provisioner_job(
+                args.root, args.slug, args.branch, args.display_name,
+                args.expected_sha, dry_run=not args.live)
+        else:
+            if args.live or args.display_name is not None:
+                raise ValueError("--live/--display-name require --format provisioner-job")
+            result = build_handoff(args.root, args.slug, args.branch, args.expected_sha)
         if args.output.exists():
             raise ValueError("handoff destination exists; refuse overwrite")
         args.output.parent.mkdir(parents=True, exist_ok=True)
         with args.output.open("x", encoding="utf-8") as stream:
             json.dump(result, stream, ensure_ascii=False, indent=2)
             stream.write("\n")
-        print("SOURCE_HANDOFF_CREATED; remote HEAD and Store identity remain HOLD")
+        print("PROVISIONER_JOB_CREATED" if args.format == "provisioner-job" else "SOURCE_HANDOFF_CREATED",
+              "; remote HEAD and Store identity remain HOLD")
         return 0
     except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
         print("HANDOFF_HOLD:", str(exc), file=sys.stderr)
