@@ -12,7 +12,7 @@ import sys
 import tempfile
 
 ROOT=Path(__file__).resolve().parent
-EXTENSIONS={".godot",".gd",".tscn",".tres",".md",".json"}
+EXTENSIONS={".godot",".gd",".tscn",".tres",".md",".json",".cfg"}
 NAME=re.compile(r"^[a-z][a-z0-9-]{3,40}$")
 
 def read(path):
@@ -39,7 +39,7 @@ def prepare(root=ROOT):
     (root/".candidate").mkdir(exist_ok=True)
     (runtime/"snapshot.json").write_text(json.dumps(snapshot,indent=2))
     prompt="""Write ONE original small but playable Godot 4 3D game under .candidate/project.
-    Include project.godot, scenes/main.tscn, scripts/main.gd, tests/test_smoke.gd and README.md.
+    Include project.godot, export_presets.cfg (Windows Desktop preset), scenes/main.tscn, scripts/main.gd, tests/test_smoke.gd and README.md.
     The game must have controls, objectives, restart, failure/success, accessible UI,
     English/Japanese labels when possible, and no third-party assets without licenses.
     Do not write anything outside .candidate/project.
@@ -69,14 +69,21 @@ def validate(root=ROOT):
             raise ValueError("unexpected candidate path")
         if not path.is_file() or path.suffix.lower() not in EXTENSIONS:
             raise ValueError("disallowed file type")
+        # Godot Windows export requires this single known configuration file.
+        # Do not permit arbitrary .cfg files to expand the candidate surface.
+        if path.suffix.lower()==".cfg" and rel.as_posix()!="project/export_presets.cfg":
+            raise ValueError("unexpected Godot configuration file")
         files.append(rel)
         size+=path.stat().st_size
     if not files or len(files)>35 or size>180000:
         raise ValueError("3D candidate exceeded quotas")
-    for file in ("project.godot","scenes/main.tscn","scripts/main.gd","tests/test_smoke.gd","README.md"):
+    for file in ("project.godot","export_presets.cfg","scenes/main.tscn","scripts/main.gd","tests/test_smoke.gd","README.md"):
         path=project/file
         if not path.is_file() or not path.read_text(encoding="utf-8").strip():
             raise ValueError("missing Godot file: "+file)
+    preset_text=(project/"export_presets.cfg").read_text(encoding="utf-8")
+    if 'platform="Windows Desktop"' not in preset_text or 'name="Windows Desktop"' not in preset_text:
+        raise ValueError("Windows Desktop export preset missing")
     project_text=(project/"project.godot").read_text()
     if "run/main_scene" not in project_text:
         raise ValueError("Godot main scene not configured")
