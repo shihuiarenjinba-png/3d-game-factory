@@ -46,7 +46,7 @@ def verify_committed_product_tree(root: Path, sha: str, product: str) -> None:
             raise ValueError("invalid committed product tree")
         mode, kind, _blob_sha, size = parts
         if mode not in ("100644", "100755") or kind != "blob" or not size.isdecimal():
-            raise ValueError("committed product contains symlink or non-file")
+            raise ValueError("missing, symlinked or invalid committed product file")
         if not path.startswith(product + "/"):
             raise ValueError("committed product path escapes its slug")
         relative = path[len(product) + 1:]
@@ -63,7 +63,7 @@ def verify_committed_product_tree(root: Path, sha: str, product: str) -> None:
         if count > 40 or total > 180_000:
             raise ValueError("committed product exceeds source quota; use Git LFS/Artifact management")
     if count == 0:
-        raise ValueError("committed product tree is empty")
+        raise ValueError("missing, symlinked or invalid committed product file")
 
 
 def build_handoff(root: Path, slug: str, branch: str, expected_sha: str | None = None) -> dict:
