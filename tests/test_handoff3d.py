@@ -64,7 +64,7 @@ class HandoffTests(unittest.TestCase):
 
     def test_non_windows_export_preset_rejected(self):
         preset = self.root / "products" / self.slug / "export_presets.cfg"
-        preset.write_text('[preset.0]\\nname="Linux"\\nplatform="Linux"\\n')
+        preset.write_text('[preset.0]\nname="Linux"\nplatform="Linux"\n')
         self.run("add", "products")
         self.run("commit", "-m", "wrong export preset")
         with self.assertRaisesRegex(ValueError, "Windows Desktop export preset"):
