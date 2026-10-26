@@ -124,7 +124,7 @@ def accept(root=ROOT):
                     prefix=".state-",suffix=".tmp",dir=state_path.parent,
                     delete=False) as stream:
                 temp_state=Path(stream.name)
-                stream.write(json.dumps(state,indent=2)+"\\n")
+                stream.write(json.dumps(state,indent=2)+"\n")
             temp_state.replace(state_path)
         finally:
             if temp_state is not None:
