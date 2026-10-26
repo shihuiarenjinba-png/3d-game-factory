@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime, timedelta
 from controller import advance, initialize
 
 
@@ -48,6 +49,31 @@ class ProjectTest(unittest.TestCase):
         s = advance(self.state, ev, "2026-10-26T10:00:00+09:00")
         with self.assertRaises(ValueError):
             advance(s, {**ev, "repository_full_name": "other/repo"}, "2026-10-26T10:05:00+09:00")
+
+    def test_480_quarter_hour_ticks_and_expiry(self):
+        s = self.state
+        start = datetime.fromisoformat(self.start)
+        for index in range(1, 481):
+            ts = (start + timedelta(minutes=15 * index)).isoformat()
+            s = advance(s, {"event_id": f"tick-{index}", "type": "TICK"}, ts)
+        self.assertEqual(s["phase"], "PROVISIONING")
+        self.assertEqual(len(s["seen_events"]), 480)
+        overdue = (start + timedelta(minutes=15 * 481)).isoformat()
+        s = advance(s, {"event_id": "tick-481", "type": "TICK"}, overdue)
+        self.assertEqual(s["phase"], "HOLD")
+        self.assertFalse(s["submission_authorized"])
+
+    def test_weekend_wait_is_not_auto_rejected(self):
+        s = self.state
+        for event, key, val, ts in [
+            ("PROVISIONED", "repository_full_name", "org/repo", "2026-10-27T09:00:00+09:00"),
+            ("BUILD_PASSED", "build_run_id", "run-1", "2026-10-28T09:00:00+09:00"),
+            ("AUTO_QA_PASSED", "qa_run_id", "qa-1", "2026-10-30T09:00:00+09:00"),
+        ]:
+            s = advance(s, {"event_id": event, "type": event, key: val}, ts)
+        s = advance(s, {"event_id": "weekend-tick", "type": "TICK"},
+                    "2026-11-01T09:00:00+09:00")
+        self.assertEqual(s["phase"], "WAIT_HUMAN_QA")
 
     def test_timezone_required(self):
         with self.assertRaises(ValueError):
