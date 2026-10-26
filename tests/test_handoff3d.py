@@ -4,10 +4,13 @@ import subprocess
 import tempfile
 import unittest
 
-from handoff3d import BRANCH, build_handoff, main
+from handoff3d import BRANCH, build_handoff, build_provisioner_job, main
 
 
 class HandoffTests(unittest.TestCase):
+    def test_active_factory_branch_contract(self):
+        self.assertEqual(BRANCH, "codex/3d-provisioner-job-contract-20261027")
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -97,6 +100,53 @@ class HandoffTests(unittest.TestCase):
         self.assertEqual(data["source_factory"], "shihuiarenjinba-png/3d-game-factory")
         self.assertEqual(main(["--root", str(self.root), "--slug", self.slug,
                                "--output", str(output)]), 2)
+
+
+    def test_provisioner_v1_job_contract(self):
+        job = build_provisioner_job(self.root, self.slug, BRANCH, "Demo 3D Game")
+        self.assertEqual(set(job), {
+            "schema_version", "request_id", "product_type", "source_factory",
+            "source_repository", "source_branch", "source_sha", "slug",
+            "display_name", "target_owner", "dry_run", "requested_actions",
+        })
+        self.assertEqual(job["schema_version"], "1.0")
+        self.assertEqual(job["product_type"], "GAME_3D")
+        self.assertEqual(job["source_factory"], "3d-game-factory")
+        self.assertEqual(job["source_repository"], "shihuiarenjinba-png/3d-game-factory")
+        self.assertEqual(job["source_branch"], BRANCH)
+        self.assertEqual(job["display_name"], "Demo 3D Game")
+        self.assertTrue(job["dry_run"])
+        self.assertEqual(job["requested_actions"], [
+            "BUILD_WINDOWS", "INSPECT_PACKAGE",
+            "LOOKUP_OFFICIAL_IDENTITY", "PROPOSE_GITHUB_RETURN",
+        ])
+        self.assertNotIn("store_id", job)
+        self.assertEqual(job, build_provisioner_job(
+            self.root, self.slug, BRANCH, "Demo 3D Game"))
+
+    def test_provisioner_job_rejects_missing_or_unsafe_display_name(self):
+        for value in (None, "", "x" * 101, "bad\nname", "bad\rname", "bad\x00name"):
+            with self.subTest(value=repr(value)):
+                with self.assertRaisesRegex(ValueError, "display name"):
+                    build_provisioner_job(self.root, self.slug, BRANCH, value)
+
+    def test_provisioner_cli_requires_explicit_live_sha(self):
+        output = self.root / "provisioner-job.json"
+        args = ["--root", str(self.root), "--slug", self.slug, "--output", str(output),
+                "--format", "provisioner-job", "--display-name", "Demo 3D Game"]
+        self.assertEqual(main(args + ["--live"]), 2)
+        self.assertFalse(output.exists())
+        self.assertEqual(main(args), 0)
+        self.assertTrue(json.loads(output.read_text())["dry_run"])
+        output.unlink()
+        sha = build_handoff(self.root, self.slug, BRANCH)["source_sha"]
+        self.assertEqual(main(args + ["--live", "--expected-sha", sha]), 0)
+        self.assertFalse(json.loads(output.read_text())["dry_run"])
+
+    def test_provisioner_job_rejects_uncommitted_product(self):
+        (self.root / "products" / self.slug / "README.md").write_text("dirty")
+        with self.assertRaisesRegex(ValueError, "uncommitted"):
+            build_provisioner_job(self.root, self.slug, BRANCH, "Demo 3D Game")
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@ name: 3D factory quality gates
 on:
   pull_request:
   push:
-    branches: ['codex/3d-factory-bootstrap-20261026']
+    branches: ['codex/3d-factory-bootstrap-20261026', 'codex/3d-provisioner-job-contract-20261027']
   workflow_dispatch:
 permissions:
   contents: read
