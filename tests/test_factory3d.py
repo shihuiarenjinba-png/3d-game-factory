@@ -46,6 +46,17 @@ class FiveDayTests(unittest.TestCase):
                "README.md":"Basic simulated 3D game"
             }.items():
                 p=proj/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text)
+            # A concurrent or resumed run can complete the previous cycle after
+            # prepare() but before accept(); acceptance must recheck the gate.
+            state_path=root/"factory/state.json"
+            state=json.loads(state_path.read_text())
+            state["last_completed_utc"]=(datetime.now(timezone.utc)-timedelta(hours=1)).isoformat()
+            state_path.write_text(json.dumps(state))
+            with self.assertRaisesRegex(ValueError,"not due"):
+                accept(root)
+            self.assertFalse((root/"products"/"experimental-3d-1").exists())
+            state["last_completed_utc"]=None
+            state_path.write_text(json.dumps(state))
             validate(root)
             slug=accept(root)
             self.assertTrue((root/"products"/slug/"project.godot").exists())
