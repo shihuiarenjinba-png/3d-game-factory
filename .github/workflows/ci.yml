@@ -2,7 +2,7 @@ name: 3D factory quality gates
 on:
   pull_request:
   push:
-    branches: ['codex/3d-factory-bootstrap-20261026', 'codex/3d-provisioner-job-contract-20261027']
+    branches: ['codex/3d-factory-bootstrap-20261026', 'codex/3d-provisioner-job-contract-20261027', 'codex/3d-real-msix-build-path-20261027']
   workflow_dispatch:
 permissions:
   contents: read
@@ -19,3 +19,16 @@ jobs:
         run: |
           python -m py_compile factory3d.py
           python -m unittest discover -s tests -v
+      - name: Parse MSIX PowerShell build script
+        shell: pwsh
+        run: |
+          $errors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path './tools/build_godot_store_msix.ps1'),
+            [ref]$null,
+            [ref]$errors
+          )
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
