@@ -41,6 +41,7 @@ class FiveDayTests(unittest.TestCase):
             proj=root/".candidate/project"
             for name,text in {
                "project.godot":'[application]\nrun/main_scene="res://scenes/main.tscn"\n',
+               "export_presets.cfg":'[preset.0]\nname="Windows Desktop"\nplatform="Windows Desktop"\n',
                "scenes/main.tscn":'[gd_scene format=3]\n[node name="Main" type="Node3D"]\n',
                "scripts/main.gd":"extends Node3D\n",
                "tests/test_smoke.gd":"func test_run():\n  pass\n",
@@ -58,6 +59,18 @@ class FiveDayTests(unittest.TestCase):
             self.assertFalse((root/"products"/"experimental-3d-1").exists())
             state["last_completed_utc"]=None
             state_path.write_text(json.dumps(state))
+            # Missing Windows preset must not be accepted as build-ready.
+            preset=proj/"export_presets.cfg"
+            original=preset.read_text()
+            preset.unlink()
+            with self.assertRaisesRegex(ValueError,"missing Godot file: export_presets.cfg"):
+                validate(root)
+            preset.write_text(original)
+            extra=proj/"unsafe.cfg"
+            extra.write_text("[unexpected]\\n")
+            with self.assertRaisesRegex(ValueError,"unexpected Godot configuration file"):
+                validate(root)
+            extra.unlink()
             validate(root)
             slug=accept(root)
             self.assertTrue((root/"products"/slug/"project.godot").exists())
@@ -89,6 +102,7 @@ class FiveDayTests(unittest.TestCase):
             project=root/".candidate/project"
             for name,text in {
                 "project.godot":'[application]\nrun/main_scene="res://scenes/main.tscn"\n',
+                "export_presets.cfg":'[preset.0]\nname="Windows Desktop"\nplatform="Windows Desktop"\n',
                 "scenes/main.tscn":'[gd_scene format=3]\n[node name="Main" type="Node3D"]\n',
                 "scripts/main.gd":"extends Node3D\n",
                 "tests/test_smoke.gd":"func test_run():\n  pass\n",
