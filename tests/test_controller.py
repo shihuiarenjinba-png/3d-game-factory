@@ -14,7 +14,7 @@ class ProjectTest(unittest.TestCase):
     def test_happy_path_waits_for_human(self):
         s = self.state
         events = [
-            ("PROVISIONED", "repository_full_name", "demo-repo", "2026-10-26T10:00:00+09:00"),
+            ("PROVISIONED", "repository_full_name", "org/demo-repo", "2026-10-26T10:00:00+09:00"),
             ("BUILD_PASSED", "build_run_id", "run-123", "2026-10-27T10:00:00+09:00"),
             ("AUTO_QA_PASSED", "qa_run_id", "qa-123", "2026-10-30T10:00:00+09:00"),
         ]
