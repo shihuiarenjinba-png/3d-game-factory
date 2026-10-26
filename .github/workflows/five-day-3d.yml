@@ -1,154 +1,28 @@
-name: Five-day Godot 3D factory
+name: Godot 3D candidate quality checks (MCP orchestrated)
 on:
-  schedule:
-    - cron: '15 18 * * *'
   workflow_dispatch:
-concurrency:
-  group: godot-3d-five-day
-  cancel-in-progress: false
+
+permissions:
+  contents: read
+
 jobs:
-  generate:
+  verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-    permissions:
-      contents: read
-    outputs:
-      ready: ${{ steps.gate.outputs.ready }}
-      source_sha: ${{ steps.gate.outputs.source_sha }}
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
         with:
           ref: codex/3d-factory-bootstrap-20261026
-          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Verify five-day cooldown and opt-in
-        id: gate
-        env:
-          ENABLED: ${{ vars.FACTORY_3D_ENABLED }}
-          OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}
-        shell: bash
+      - name: Verify five-day cooldown and candidate controls
         run: |
-          set -euo pipefail
-          echo "ready=false" >> "$GITHUB_OUTPUT"
-          echo "source_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          if [ "$ENABLED" != true ] || [ -z "$OPENAI_KEY" ]; then
-            echo 'HOLD: enable 3D_FACTORY_ENABLED and OPENAI_API_KEY'
-            exit 0
-          fi
-          if python factory3d.py due; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo 'HOLD: next 3D game not due; or invalid state'
-          fi
-      - name: Prepare bounded Godot candidate
-        if: steps.gate.outputs.ready == 'true'
-        run: python factory3d.py plan
-      - uses: actions/upload-artifact@v4
-        if: steps.gate.outputs.ready == 'true'
-        with:
-          name: three-d-trusted-plan
-          path: .runtime/
-          include-hidden-files: true
-          if-no-files-found: error
-          retention-days: 7
-      - name: Create one small playable 3D game using Codex
-        if: steps.gate.outputs.ready == 'true'
-        uses: openai/codex-action@v1
-        with:
-          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
-          permission-profile: ':workspace'
-          prompt-file: .runtime/PROMPT.md
-      - name: Reject tracked or unapproved writes
-        if: steps.gate.outputs.ready == 'true'
+          python -m py_compile factory3d.py
+          python -m unittest discover -s tests -v
+      - name: Explain 3D cadence
         run: |
-          git diff --exit-code
-          git diff --cached --exit-code
-          test -z "$(git ls-files --others --exclude-standard)"
-      - uses: actions/upload-artifact@v4
-        if: steps.gate.outputs.ready == 'true'
-        with:
-          name: three-d-candidate
-          path: .candidate/
-          include-hidden-files: true
-          if-no-files-found: error
-          retention-days: 7
-  audit:
-    needs: generate
-    if: needs.generate.outputs.ready == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.generate.outputs.source_sha }}
-          persist-credentials: false
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - uses: actions/download-artifact@v4
-        with:
-          name: three-d-trusted-plan
-          path: .runtime
-      - uses: actions/download-artifact@v4
-        with:
-          name: three-d-candidate
-          path: .candidate
-      - name: Static 3D game schema and file audit
-        run: python factory3d.py validate
-      - uses: solarlabyrinth/action-setup-godot@v3
-        with:
-          version: 4.7-stable
-          export-templates: false
-      - name: Import and smoke-run Godot 4 project headlessly
-        shell: bash
-        run: |
-          set -euo pipefail
-          timeout 150s godot --headless --path .candidate/project --editor --quit
-          timeout 60s godot --headless --path .candidate/project --quit-after 60
-  accept:
-    needs: [generate, audit]
-    if: needs.audit.result == 'success'
-    runs-on: ubuntu-latest
-    timeout-minutes: 12
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.generate.outputs.source_sha }}
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - uses: actions/download-artifact@v4
-        with:
-          name: three-d-trusted-plan
-          path: .runtime
-      - uses: actions/download-artifact@v4
-        with:
-          name: three-d-candidate
-          path: .candidate
-      - name: Save one 3D prototype on a dedicated branch
-        env:
-          EXPECTED_SHA: ${{ needs.generate.outputs.source_sha }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          git fetch origin codex/3d-factory-bootstrap-20261026
-          if [ "$(git rev-parse FETCH_HEAD)" != "$EXPECTED_SHA" ]; then
-            echo 'HOLD: 3D branch changed during test'
-            exit 1
-          fi
-          slug=$(python factory3d.py accept)
-          git switch -c "three-d-$GITHUB_RUN_ID"
-          git add -- factory/state.json products/
-          if git diff --cached --quiet; then exit 1; fi
-          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
-            commit -m "3d: completed candidate $slug"
-          git push origin HEAD:refs/heads/codex/3d-factory-bootstrap-20261026
-          echo '3D source checkpointed; Windows export/MSIX and Store are still HOLD'
+          echo "ChatGPT 45-minute-slot task checks the 120-hour 3D cooldown."
+          echo "No model or API is started by GitHub Actions."
+          echo "3D MSIX, real Windows 3D QA, and Store submission are not claimed."
