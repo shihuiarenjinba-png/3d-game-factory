@@ -11,7 +11,7 @@ import subprocess
 import sys
 
 FACTORY = "shihuiarenjinba-png/3d-game-factory"
-BRANCH = "codex/3d-factory-bootstrap-20261026"
+BRANCH = "codex/3d-provisioner-job-contract-20261027"
 SLUG = re.compile(r"^[a-z][a-z0-9-]{3,39}$")
 SHA = re.compile(r"^[a-f0-9]{40}$")
 REQUIRED = ("project.godot", "export_presets.cfg", "scenes/main.tscn",
