@@ -66,6 +66,9 @@ def advance(state, event, now_at):
     if now > deadline and phase not in ("WAIT_HUMAN_QA", "HANDOFF_REVIEW", "HOLD"):
         updated["phase"] = "HOLD"
         updated["hold_reason"] = "five-day development window expired"
+    elif event.get("type") == "TICK":
+        # Pure heartbeat; does not assert that any build/provisioner work ran.
+        pass
     elif event.get("type") == "FAIL":
         updated["phase"] = "HOLD"
         updated["hold_reason"] = str(event.get("reason", "manual investigation needed"))[:256]
