@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T04:23:00Z",
+  "updated_at_utc": "2026-10-27T06:25:49Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -20,15 +20,19 @@
   "repositories": {
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
-      "branch": "codex/3d-qa-zip-ledger-20261027-1235",
-      "head": "06092247b5bb99b1192ee5527cfb2c22650becac",
-      "ci_run_id": 40445037518
+      "branch": "codex/3d-dispatch-guard-integration-20261027-1452",
+      "head": "273b4bcd750432e2ba899414107de7177166848d",
+      "ci_run_id": 40457985405,
+      "draft_pr": 11,
+      "ledger_branch": "codex/3d-qa-zip-ledger-20261027-1235",
+      "ledger_pr": 10
     },
     "provisioner": {
       "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
-      "branch": "codex/3d-local-identity-provenance-20261027",
-      "head": "a1727307884176bfa97f714c47705281240d83c3",
-      "ci_run_id": 40431389877
+      "branch": "codex/e2e-belt-connection-20261027",
+      "head": "70600e77f2dd4278a989604314eebfa662e05c33",
+      "ci_run_id": 40454089167,
+      "draft_pr": 7
     },
     "template": {
       "repo": "shihuiarenjinba-png/3d-game-template",
@@ -40,14 +44,17 @@
     "qa": {
       "repo": "shihuiarenjinba-png/3d-build-qa",
       "branch": "codex/3d-msix-zip-path-safety-20261027-1235",
-      "head": "12e776978b00f5eb65ca39b95b8facc4048d635d",
-      "ci_run_id": 40449263074
+      "head": "ea6540037e359860775fbfd423244ea3f9ffeee6",
+      "ci_run_id": 40461036388,
+      "draft_pr": 4
     },
     "intake": {
       "repo": "shihuiarenjinba-png/Windows-all-auto",
-      "branch": "codex/3d-identity-active-branch-cas-20261027-1235",
-      "head": "681538cb65ffecc9959fec1f021f8a49ee22810c",
-      "ci_run_id": 40444979139
+      "branch": "codex/e2e-belt-connection-20261027",
+      "head": "cca585d07eaa1e7e1e5b82d63613f59667989184",
+      "ci_run_id": 40458042620,
+      "draft_pr": 14,
+      "compare_against_3d_cas": "diverged: 31 ahead / 20 behind; no automatic merge"
     },
     "windows_data": {
       "repo": "shihuiarenjinba-png/Windows-data",
@@ -133,7 +140,9 @@
         "run:40431389877",
         "pr:6",
         "commit:d106231a2520ae055829ba49c55132ae821c550b",
-        "commit:52ac8a90789a33ca38ef9606a6c450e987a4d9e3"
+        "commit:52ac8a90789a33ca38ef9606a6c450e987a4d9e3",
+        "pr:7:HEAD:70600e77f2dd4278a989604314eebfa662e05c33",
+        "run:40454089167:SUCCESS"
       ],
       "remaining": [
         "Run the Provisioner against one real accepted Factory products/<slug>/ checkout and retain the actual EXE/PCK SHA/signature evidence.",
@@ -171,7 +180,9 @@
         "run:40431771427",
         "commit:9a1c734fb3b3bc16390a79080edbe90e3d788bf8",
         "commit:dced8d5a2091d6b4d895f72826114fcc2cca81a1",
-        "workflow:.github/workflows/msix-export.yml"
+        "workflow:.github/workflows/msix-export.yml",
+        "pr:11:HEAD:273b4bcd750432e2ba899414107de7177166848d",
+        "run:40457985405:SUCCESS-dispatch-guard"
       ],
       "remaining": [
         "Commit one accepted 3D product, real Store assets and authenticated approved-identity.json.",
@@ -182,7 +193,7 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/3d-build-qa",
-      "result": "3D MSIX QA rejects unsafe Windows ZIP paths/collisions, symlinks, Unix device/FIFO/socket entries, file-type/directory-marker conflicts, encrypted/unsupported entries and expansion bombs. Synthetic offline tests and CI pass; no actual Factory 3D MSIX has been produced or inspected, so byte QA and real-device QA remain HOLD for a real product.",
+      "result": "3D MSIX QA rejects unsafe Windows ZIP paths/collisions, symlinks, Unix device/FIFO/socket entries, file-type/directory-marker conflicts, encrypted/unsupported entries and expansion bombs. Synthetic offline tests and CI pass; no actual Factory 3D MSIX has been produced or inspected, so byte QA and real-device QA remain HOLD for a real product. Latest guard now also rejects Win32 COM¹/²/³ and LPT¹/²/³ device names inside ZIP paths; regression tests pass on PR #4 HEAD ea6540037e35 (CI 40461036388). Still no real Factory 3D MSIX.",
       "evidence": [
         "head:04f2b1f74674159197cc3f8fa7503705b4febcfb",
         "run:40417351553",
@@ -195,7 +206,10 @@
         "commit:7e9ced13c7f986c5e14aa7582b3b3a0c0aebfe8b",
         "commit:c624564f6b6121ca1d05084037627c2fb5b0751a",
         "commit:12e776978b00f5eb65ca39b95b8facc4048d635d",
-        "run:40449263074:SUCCESS-special-file-ZIP-tests"
+        "run:40449263074:SUCCESS-special-file-ZIP-tests",
+        "commit:bd5019d009d145c33d41269c96b01d3efe05d96f",
+        "commit:ea6540037e359860775fbfd423244ea3f9ffeee6",
+        "run:40461036388:SUCCESS-Windows-superscript-reserved-path-regression"
       ],
       "remaining": [
         "Acquire a real, accepted Factory 3D candidate MSIX with original request_id/source_sha, authenticated Partner Center Identity, and actual artifact SHA; no such MSIX exists.",
@@ -214,7 +228,10 @@
         "run:40431368563",
         "pr:8",
         "commit:fa92983a13758a5674599f0ab0e7d454b15e5d50",
-        "commit:d0ad76c0312669e9cb8ff67dfd893dd61539388b"
+        "commit:d0ad76c0312669e9cb8ff67dfd893dd61539388b",
+        "pr:14:HEAD:cca585d07eaa1e7e1e5b82d63613f59667989184",
+        "run:40458042620:SUCCESS",
+        "compare:3d-cas-to-crosslane:diverged-ahead31-behind20:do-not-merge"
       ],
       "remaining": [
         "Receive one real Factory 3D MSIX Artifact and prove byte/Identity/source/build-head correlation through the local-QA queue.",
@@ -257,15 +274,16 @@
     "stage_id": "msix_byte_qa",
     "repo": "shihuiarenjinba-png/3d-build-qa",
     "branch": "codex/3d-msix-zip-path-safety-20261027-1235",
-    "goal": "Continue the isolated 3D MSIX exact-byte QA gate on PR #4 HEAD 12e776978b00f5eb65ca39b95b8facc4048d635d (CI 40449263074 success). The next E2E evidence step is the first authentic Factory 3D MSIX from an independently reviewed playable source and authenticated Partner Center Identity; until available, only harden QA/contract/transport and keep byte QA, GPU QA, signing and Store HOLD. Do not generate a new candidate: generation_gate.new_product_allowed=false and active_product=null.",
+    "goal": "PR #4 exact-byte guard now rejects superscript Windows COM/LPT device names (CI 40461036388 SUCCESS). Continue bounded MSIX ZIP/manifest contract QA and verify the Factory PR #11 / Provisioner PR #7 / Windows-all-auto PR #14 integration branches without merging divergent histories. Await independently accepted playable Godot source, authenticated Partner Center Identity, first real Factory 3D MSIX, then byte QA, local GPU and launch QA. No template-as-product, no generation while 120h gate HOLD and new_product_allowed=false.",
     "acceptance": [
       "3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.",
       "All MSIX ZIP entries pass Windows path/collision/symlink/encryption/expansion preflight; package SHA and manifest executable/Identity are checked against real bytes.",
       "Factory→Provisioner→Windows→Factory→MSIX→Windows-all-auto retains request_id, source_repository, source_branch, source_sha and slug; HEAD mismatch is CONFLICT and replay only same request_id plus same source_sha.",
       "Real Factory MSIX Artifact, official Partner Center Identity, GPU QA, signing and Store validation remain individually HOLD until independently evidenced.",
-      "Official Identity return uses only the exact active safe codex/* Factory source branch and expected HEAD CAS; stale hard-coded branch targets are rejected."
+      "Official Identity return uses only the exact active safe codex/* Factory source branch and expected HEAD CAS; stale hard-coded branch targets are rejected.",
+      "Reject Win32 superscript COM¹/²/³ and LPT¹/²/³ device filenames in all ZIP entries, even with extensions; PR #4 CI success is not real MSIX verification."
     ],
-    "expected_head_sha": "12e776978b00f5eb65ca39b95b8facc4048d635d"
+    "expected_head_sha": "ea6540037e359860775fbfd423244ea3f9ffeee6"
   },
   "active_product": null
 }
