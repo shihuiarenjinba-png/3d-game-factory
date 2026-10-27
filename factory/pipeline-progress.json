@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T02:42:15Z",
+  "updated_at_utc": "2026-10-27T03:11:40Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -19,9 +19,9 @@
   "repositories": {
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
-      "branch": "codex/3d-staging-copy-revalidation-20261027",
-      "head": "24f58b9e0450326e05891ad29cc5551bc74910e7",
-      "ci_run_id": 40439905556
+      "branch": "codex/3d-accept-qa-snapshot-20261027-1209",
+      "head": "f5d9ded36e686780c3854e5343328b6990b49e2f",
+      "ci_run_id": 40442744751
     },
     "provisioner": {
       "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
@@ -77,7 +77,7 @@
       "state": "HOLD",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/3d-game-factory",
-      "result": "No reviewed playable 3D source is available. Existing-source staging now re-audits the actual copied snapshot for Windows paths, hidden/cache entries, symlinks, extensions and quotas before publication; symlinks appearing during copy are preserved and rejected instead of followed. Real Godot QA/product acceptance remain HOLD until reviewed playable source is provided.",
+      "result": "No independently reviewed playable 3D source exists. Factory acceptance now preserves late symlinks, re-audits the copied product tree for Windows safety and checks both the copied bytes and original source against the exact real Godot QA digest before publication. Product acceptance and real Godot candidate QA remain HOLD.",
       "evidence": [
         "commit:ce76ce02f265364150ec2fec54a4ec4088753739",
         "commit:225f60087847954e4248d3408c7fb4d1bc9762f8",
@@ -96,14 +96,19 @@
         "run:40439855997:FAILED-test-mock-recursion",
         "commit:24f58b9e0450326e05891ad29cc5551bc74910e7",
         "run:40439905556:SUCCESS-44-tests",
-        "pr:8"
+        "pr:8",
+        "commit:e66338f13d553da33e5c52b0ddb4628d132116ee",
+        "commit:90d736b0a47519c035f61363a27ec56588927c22",
+        "run:40442695931:FAILED-copytree-mock-positional-arguments",
+        "commit:f5d9ded36e686780c3854e5343328b6990b49e2f",
+        "run:40442744751:SUCCESS-46-tests"
       ],
       "remaining": [
-        "Locate an independently reviewed, authorized and genuinely playable Godot 4.3 game source outside this Factory checkout; rotating-cube engine template is not a sellable game.",
-        "Calculate factory3d.candidate_digest of that exact source and run python -m tools.stage_existing_candidate --source <external-path> --expected-sha256 <digest> --source-reviewed; never stage without explicit review.",
-        "Run real Godot 4.3 import, smoke and 60-frame main-scene launch via python factory3d.py qa; Python CI mocks are not a substitute for engine QA.",
-        "Recheck 120-hour gate, accept and commit real products/<slug>/ with factory/state.json; only then request pinned Provisioner Windows build and official Identity.",
-        "No real candidate MSIX or Factory 3D handoff artifact exists; downstream intake remains unproven."
+        "Locate an independently reviewed, authorized and playable Godot 4.3 source outside the Factory; the rotating-cube template is not a sellable product.",
+        "Stage with exact candidate_digest, --source-reviewed, pre/post-copy audits, and real Godot 4.3 import, smoke and 60-frame main-scene QA.",
+        "After QA, acceptance must verify the published source digest equals the QA-bound source digest; do not overwrite, follow symlinks or bypass the 120-hour gate.",
+        "Only after accepted real products/<slug>/ and authenticated Partner Center Identity, execute pinned Provisioner Windows export, MSIX build and actual-byte Windows-all-auto intake.",
+        "No candidate MSIX or factory-msix-handoff artifact exists; downstream E2E remains HOLD."
       ]
     },
     "provisioner_windows_build": {
@@ -224,13 +229,14 @@
   "next_action": {
     "stage_id": "factory_product_materialization",
     "repo": "shihuiarenjinba-png/3d-game-factory",
-    "branch": "codex/3d-staging-copy-revalidation-20261027",
-    "goal": "Locate an independently reviewed, authorized playable Godot 4.3 project outside Factory; stage with exact reviewed SHA-256, pre-copy and post-copy audit, and run real Godot 4.3 import/smoke/60-frame launch before 120-hour-gated acceptance. No such source is available; do not generate a game or promote the rotating-cube template.",
+    "branch": "codex/3d-accept-qa-snapshot-20261027-1209",
+    "goal": "Find an independently reviewed authorized playable Godot 4.3 project outside Factory, stage its exact SHA-256 and run real engine QA before accepting. Acceptance now binds the actual copied product bytes to QA evidence; no reviewed game is available, so continue hardening manufacturing/QA/transport without inventing a candidate.",
     "acceptance": [
-      "Source rights/gameplay are independently reviewed and --source-reviewed is explicitly provided; no source is invented.",
-      "Staging verifies expected SHA-256, quotas, Windows-safe paths, symlink/cache exclusion both before and after copy, 120-hour gate and no overwrite.",
-      "Real Godot 4.3 import, smoke PASS and 60-frame headless main-scene launch produce exact source/cycle-bound QA evidence.",
-      "Only after real QA and 120-hour recheck is a genuine product committed under products/<slug>/; Identity/Store/security claims remain unguessed."
+      "Source ownership, licensing and gameplay are independently reviewed; source_reviewed is explicit and no source is invented.",
+      "Pre/post-copy audits, expected source digest, Windows-safe paths, no symlinks/cache, quotas, 120-hour gate and no overwrite hold.",
+      "Real Godot 4.3 import/smoke/60-frame main-scene QA binds exact source digest to the same cycle.",
+      "Acceptance rechecks the staged product and original source digest against QA evidence before publication; mismatches HOLD with no product or state advancement.",
+      "After real acceptance, proceed to Provisioner/official Identity/MSIX/Artifact intake; never infer Store Identity or declare E2E PASS without real MSIX."
     ]
   }
 }

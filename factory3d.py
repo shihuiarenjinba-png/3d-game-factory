@@ -170,7 +170,7 @@ def verify_candidate_qa(root=ROOT, godot_executable=None):
     return evidence
 
 
-def require_candidate_qa(root: Path, cycle: int) -> None:
+def require_candidate_qa(root: Path, cycle: int) -> str:
     path=root/".runtime/candidate-qa.json"
     if not path.is_file():
         raise ValueError("Godot candidate QA evidence missing; run 'qa' first")
@@ -186,6 +186,7 @@ def require_candidate_qa(root: Path, cycle: int) -> None:
             or not str(evidence.get("godot_version","")).startswith("4.3")
             or evidence.get("candidate_sha256")!=candidate_digest(root/".candidate/project")):
         raise ValueError("Godot candidate QA evidence is stale or mismatched")
+    return evidence["candidate_sha256"]
 
 
 def accept(root=ROOT):
@@ -203,7 +204,7 @@ def accept(root=ROOT):
         state=read(state_path)
         if not due(state, datetime.now(timezone.utc)):
             raise ValueError("not due for another 3D generation")
-        require_candidate_qa(root,snap["cycle"])
+        qa_digest=require_candidate_qa(root,snap["cycle"])
         slug="experimental-3d-"+str(state["cycle"])
         if not NAME.fullmatch(slug):raise ValueError("invalid game slug")
         dest=root/"products"/slug
@@ -212,7 +213,15 @@ def accept(root=ROOT):
         # Never publish a partially copied product if copying fails.
         with tempfile.TemporaryDirectory(prefix="accept-",dir=runtime) as stage:
             staged=Path(stage)/"project"
-            shutil.copytree(root/".candidate/project",staged)
+            # Preserve late symlinks for rejection instead of following them.
+            # Audit the actual published bytes, not only the earlier QA source.
+            shutil.copytree(root/".candidate/project",staged,symlinks=True)
+            from tools.stage_existing_candidate import audit_source_tree
+            audit_source_tree(staged)
+            if candidate_digest(staged)!=qa_digest:
+                raise ValueError("accepted copy differs from Godot QA source digest")
+            if candidate_digest(root/".candidate/project")!=qa_digest:
+                raise ValueError("candidate changed during acceptance copy")
             if dest.exists():raise ValueError("cannot overwrite existing game")
             staged.rename(dest)
         # Replace the state file atomically; a failure after publication

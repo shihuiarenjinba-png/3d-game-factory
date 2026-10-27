@@ -1,4 +1,6 @@
 import json
+import os
+import shutil
 from datetime import datetime,timezone,timedelta
 import tempfile
 import subprocess
@@ -245,7 +247,7 @@ class FiveDayTests(unittest.TestCase):
                 path.parent.mkdir(parents=True,exist_ok=True)
                 path.write_text(text)
             mark_qa(root)
-            def broken_copy(src,dst):
+            def broken_copy(src,dst,**kwargs):
                 dst.mkdir(parents=True)
                 (dst/"partial.txt").write_text("incomplete")
                 raise OSError("simulated copy failure")
@@ -254,6 +256,50 @@ class FiveDayTests(unittest.TestCase):
                     accept(root)
             self.assertFalse((root/"products/experimental-3d-1").exists())
             self.assertFalse((root/".runtime/accept.lock").exists())
+            self.assertEqual(json.loads((root/"factory/state.json").read_text())["cycle"],1)
+
+    def test_accept_rejects_bytes_mutated_during_copy(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            minimal_candidate(root)
+            mark_qa(root)
+            original_copy=shutil.copytree
+            source_project=root/".candidate/project"
+
+            def corrupt_copy(src,dst,*args,**kwargs):
+                copied=original_copy(src,dst,*args,**kwargs)
+                if Path(src)==source_project:
+                    (dst/"README.md").write_text("altered after Godot QA",encoding="utf-8")
+                return copied
+
+            with patch("factory3d.shutil.copytree",side_effect=corrupt_copy):
+                with self.assertRaisesRegex(ValueError,"copy differs from Godot QA"):
+                    accept(root)
+            self.assertFalse((root/"products/experimental-3d-1").exists())
+            self.assertFalse((root/".runtime/accept.lock").exists())
+            self.assertEqual(json.loads((root/"factory/state.json").read_text())["cycle"],1)
+
+    @unittest.skipIf(os.name=="nt","symlink fixture requires Unix")
+    def test_accept_rejects_symlink_in_copied_snapshot(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            minimal_candidate(root)
+            mark_qa(root)
+            original_copy=shutil.copytree
+            source_project=root/".candidate/project"
+            external=root/"outside.gd"
+            external.write_text("not part of reviewed game",encoding="utf-8")
+
+            def inject_link(src,dst,*args,**kwargs):
+                copied=original_copy(src,dst,*args,**kwargs)
+                if Path(src)==source_project:
+                    (dst/"scripts"/"late.gd").symlink_to(external)
+                return copied
+
+            with patch("factory3d.shutil.copytree",side_effect=inject_link):
+                with self.assertRaisesRegex(ValueError,"symlink"):
+                    accept(root)
+            self.assertFalse((root/"products/experimental-3d-1").exists())
             self.assertEqual(json.loads((root/"factory/state.json").read_text())["cycle"],1)
 
 if __name__=="__main__":unittest.main()
