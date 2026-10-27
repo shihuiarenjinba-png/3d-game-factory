@@ -70,6 +70,18 @@ def validate(data: dict) -> None:
     if last is not None and not isinstance(last, str):
         raise LedgerError("invalid last accepted candidate timestamp")
     _require_text(generation.get("reason"), "generation gate reason", 2000)
+    allowed = generation.get("new_product_allowed")
+    if type(allowed) is not bool:
+        raise LedgerError("new_product_allowed must be an explicit boolean")
+    if (generation["state"] == "HOLD" and allowed) or (generation["state"] == "READY" and not allowed):
+        raise LedgerError("generation state and new_product_allowed disagree")
+    if "active_product" not in data:
+        raise LedgerError("active_product field missing")
+    active = data["active_product"]
+    if active is not None and not isinstance(active, dict):
+        raise LedgerError("invalid active_product")
+    if active is not None and allowed:
+        raise LedgerError("cannot authorize new generation while active_product exists")
 
     repos = data.get("repositories")
     if not isinstance(repos, dict) or not repos:
@@ -130,6 +142,8 @@ def validate(data: dict) -> None:
     if repo != stage["owner_repo"]:
         raise LedgerError("next_action repo does not own the selected stage")
     _require_text(next_action.get("branch"), "next_action.branch", 240)
+    if not SHA40.fullmatch(str(next_action.get("expected_head_sha", ""))):
+        raise LedgerError("invalid next_action.expected_head_sha")
     _require_text(next_action.get("goal"), "next_action.goal", 3000)
     acceptance = next_action.get("acceptance")
     if not isinstance(acceptance, list) or not acceptance or not all(isinstance(x, str) and x for x in acceptance):
@@ -149,6 +163,7 @@ def render_report(data: dict) -> str:
         f"- Next stage: `{next_action['stage_id']}`",
         f"- Next repository: `{next_action['repo']}`",
         f"- Next branch: `{next_action['branch']}`",
+        f"- Next HEAD: `{next_action['expected_head_sha']}`",
         "",
         "## Stage status",
         "",
