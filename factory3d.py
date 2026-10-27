@@ -190,11 +190,11 @@ def accept(root=ROOT):
         raise ValueError("3D acceptance already in progress; inspect stale lock") from exc
     try:
         snap=validate(root)
-        require_candidate_qa(root,snap["cycle"])
         state_path=root/"factory/state.json"
         state=read(state_path)
         if not due(state, datetime.now(timezone.utc)):
             raise ValueError("not due for another 3D generation")
+        require_candidate_qa(root,snap["cycle"])
         slug="experimental-3d-"+str(state["cycle"])
         if not NAME.fullmatch(slug):raise ValueError("invalid game slug")
         dest=root/"products"/slug
