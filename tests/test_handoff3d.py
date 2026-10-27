@@ -9,7 +9,7 @@ from handoff3d import BRANCH, build_handoff, build_provisioner_job, main
 
 class HandoffTests(unittest.TestCase):
     def test_active_factory_branch_contract(self):
-        self.assertEqual(BRANCH, "codex/3d-provisioner-job-contract-20261027")
+        self.assertEqual(BRANCH, "codex/3d-real-msix-build-path-20261027")
 
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
