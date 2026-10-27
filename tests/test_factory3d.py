@@ -266,8 +266,8 @@ class FiveDayTests(unittest.TestCase):
             original_copy=shutil.copytree
             source_project=root/".candidate/project"
 
-            def corrupt_copy(src,dst,**kwargs):
-                copied=original_copy(src,dst,**kwargs)
+            def corrupt_copy(src,dst,*args,**kwargs):
+                copied=original_copy(src,dst,*args,**kwargs)
                 if Path(src)==source_project:
                     (dst/"README.md").write_text("altered after Godot QA",encoding="utf-8")
                 return copied
@@ -290,8 +290,8 @@ class FiveDayTests(unittest.TestCase):
             external=root/"outside.gd"
             external.write_text("not part of reviewed game",encoding="utf-8")
 
-            def inject_link(src,dst,**kwargs):
-                copied=original_copy(src,dst,**kwargs)
+            def inject_link(src,dst,*args,**kwargs):
+                copied=original_copy(src,dst,*args,**kwargs)
                 if Path(src)==source_project:
                     (dst/"scripts"/"late.gd").symlink_to(external)
                 return copied
