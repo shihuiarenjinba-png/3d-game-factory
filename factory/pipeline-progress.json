@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T03:09:15Z",
+  "updated_at_utc": "2026-10-27T03:11:40Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -20,8 +20,8 @@
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
       "branch": "codex/3d-accept-qa-snapshot-20261027-1209",
-      "head": "e66338f13d553da33e5c52b0ddb4628d132116ee",
-      "ci_run_id": 40439980424
+      "head": "f5d9ded36e686780c3854e5343328b6990b49e2f",
+      "ci_run_id": 40442744751
     },
     "provisioner": {
       "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
@@ -97,7 +97,11 @@
         "commit:24f58b9e0450326e05891ad29cc5551bc74910e7",
         "run:40439905556:SUCCESS-44-tests",
         "pr:8",
-        "commit:e66338f13d553da33e5c52b0ddb4628d132116ee"
+        "commit:e66338f13d553da33e5c52b0ddb4628d132116ee",
+        "commit:90d736b0a47519c035f61363a27ec56588927c22",
+        "run:40442695931:FAILED-copytree-mock-positional-arguments",
+        "commit:f5d9ded36e686780c3854e5343328b6990b49e2f",
+        "run:40442744751:SUCCESS-46-tests"
       ],
       "remaining": [
         "Locate an independently reviewed, authorized and playable Godot 4.3 source outside the Factory; the rotating-cube template is not a sellable product.",

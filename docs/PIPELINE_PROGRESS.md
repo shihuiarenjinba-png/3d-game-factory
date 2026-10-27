@@ -1,7 +1,7 @@
 # 3D Pipeline Progress
 
 - Ledger schema: `1.0`
-- Updated UTC: `2026-10-27T03:09:15Z`
+- Updated UTC: `2026-10-27T03:11:40Z`
 - New-product gate: **HOLD** — No accepted 3D candidate baseline is recorded; scheduler must improve QA/build/transport instead of generating a new game.
 - Next stage: `factory_product_materialization`
 - Next repository: `shihuiarenjinba-png/3d-game-factory`
@@ -35,7 +35,7 @@ Acceptance:
 
 ## Evidence pins
 
-- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-accept-qa-snapshot-20261027-1209` / `e66338f13d553da33e5c52b0ddb4628d132116ee` / run `40439980424`
+- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-accept-qa-snapshot-20261027-1209` / `f5d9ded36e686780c3854e5343328b6990b49e2f` / run `40442744751`
 - **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/3d-local-identity-provenance-20261027` / `a1727307884176bfa97f714c47705281240d83c3` / run `40431389877`
 - **template** — `shihuiarenjinba-png/3d-game-template` / `codex/3d-template-godot-bootstrap-20261026` / `e5462d0aa1f5d0a50fa484ad1544c11ce8a6085a` / run `40360649193`; artifact `godot-3d-windows-x64-qa-unsigned`
 - **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-executable-payload-20261027` / `04f2b1f74674159197cc3f8fa7503705b4febcfb` / run `40417351553`
