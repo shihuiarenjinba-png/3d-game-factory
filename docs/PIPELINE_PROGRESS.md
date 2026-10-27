@@ -1,7 +1,7 @@
 # 3D Pipeline Progress
 
 - Ledger schema: `1.0`
-- Updated UTC: `2026-10-27T00:10:00Z`
+- Updated UTC: `2026-10-27T00:34:45Z`
 - New-product gate: **HOLD** — No accepted 3D candidate baseline is recorded; scheduler must improve QA/build/transport instead of generating a new game.
 - Next stage: `factory_product_materialization`
 - Next repository: `shihuiarenjinba-png/3d-game-factory`
@@ -12,7 +12,7 @@
 | Stage | State | Auto-actionable | Result |
 | --- | --- | --- | --- |
 | `template_windows_export` | **DONE** | no | Godot 4.3 Windows x64 EXE/PCK export succeeds and produces a real QA artifact. |
-| `factory_product_materialization` | **HOLD** | yes | No accepted 3D candidate or committed products/<slug> exists. Factory acceptance now requires real Godot 4.3 import and smoke QA evidence bound to candidate SHA-256 and cycle. |
+| `factory_product_materialization` | **HOLD** | yes | No accepted 3D candidate or committed products/<slug> exists. Candidate QA now requires real Godot 4.3 import, explicit smoke PASS, error-free 60-frame main-scene launch and source/cycle-bound evidence. Implementation CI 35/35 PASS; no real candidate was available for an engine run. |
 | `provisioner_windows_build` | **IN_PROGRESS** | yes | Pinned Godot Windows export is implemented; Provisioner now allowlists the active Factory MSIX branch and returns verified_source_sha in reviewed Identity JSON. |
 | `official_identity_roundtrip` | **IN_PROGRESS** | yes | Identity routing/atomic return exists and now records verified_source_sha. |
 | `factory_msix_build` | **IN_PROGRESS** | yes | Factory Godot→MakeAppx code now emits QA_UNSIGNED MSIX plus strict two-file handoff (package.msix/handoff.json) with source SHA, embedded Identity, bytes and SHA-256. Code/CI pass; no real product or approved Identity. |
@@ -24,17 +24,17 @@
 
 ## Next action
 
-Locate and validate one existing authorized playable 3D candidate. If none exists, keep product materialization on HOLD and do not promote the rotating-cube template or generate a new game without the 120-hour gate.
+Locate an existing authorized playable 3D candidate and run the strengthened Godot 4.3 import, smoke and 60-frame game-launch QA before 120-hour-gated acceptance. If none exists, keep product materialization HOLD; do not promote the rotating-cube template or generate a new game outside the 120-hour gate.
 
 Acceptance:
-- An existing playable candidate has complete Godot 4.3 sources, Windows Desktop export preset and independent smoke test.
-- Godot 4.3 headless import and smoke test PASS with SHA-256/cycle-bound QA evidence before accept.
-- Factory 120-hour gate is checked again during accept and only the accepted product is committed under products/<slug>/.
+- An existing playable candidate has complete Godot 4.3 sources, Windows Desktop export preset and an independent smoke test that reports PASS: after actual assertions.
+- Godot 4.3 import, smoke and 60-frame headless main-scene launch complete without engine/script errors, with source SHA-256/cycle-bound QA evidence.
+- Factory 120-hour gate is rechecked at accept and only a genuine accepted product is committed under products/<slug>/.
 - No Store Identity, price, security declaration, certification result or Windows GPU QA is fabricated.
 
 ## Evidence pins
 
-- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-real-msix-build-path-20261027` / `acd1ce496c53ae85af094b6dd4af6221440d8d07` / run `40424533287`
+- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-real-msix-build-path-20261027` / `63cd881218a1a1e5387129bbdfb82cdf643be8a8` / run `40427263106`
 - **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/3d-pck-payload-guard-20261027` / `05a525f1b06f62b83c02e683755a84eb4f8a4c14` / run `40424203464`
 - **template** — `shihuiarenjinba-png/3d-game-template` / `codex/3d-template-godot-bootstrap-20261026` / `e5462d0aa1f5d0a50fa484ad1544c11ce8a6085a` / run `40360649193`; artifact `godot-3d-windows-x64-qa-unsigned`
 - **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-executable-payload-20261027` / `04f2b1f74674159197cc3f8fa7503705b4febcfb` / run `40417351553`

@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T00:10:00Z",
+  "updated_at_utc": "2026-10-27T00:34:45Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -20,8 +20,8 @@
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
       "branch": "codex/3d-real-msix-build-path-20261027",
-      "head": "acd1ce496c53ae85af094b6dd4af6221440d8d07",
-      "ci_run_id": 40424533287
+      "head": "63cd881218a1a1e5387129bbdfb82cdf643be8a8",
+      "ci_run_id": 40427263106
     },
     "provisioner": {
       "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
@@ -77,16 +77,19 @@
       "state": "HOLD",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/3d-game-factory",
-      "result": "No accepted 3D candidate or committed products/<slug> exists. Factory acceptance now requires real Godot 4.3 import and smoke QA evidence bound to candidate SHA-256 and cycle.",
+      "result": "No accepted 3D candidate or committed products/<slug> exists. Candidate QA now requires real Godot 4.3 import, explicit smoke PASS, error-free 60-frame main-scene launch and source/cycle-bound evidence. Implementation CI 35/35 PASS; no real candidate was available for an engine run.",
       "evidence": [
         "commit:ce76ce02f265364150ec2fec54a4ec4088753739",
         "commit:225f60087847954e4248d3408c7fb4d1bc9762f8",
-        "run:40424252645"
+        "run:40424252645",
+        "commit:63cd881218a1a1e5387129bbdfb82cdf643be8a8",
+        "run:40427263106"
       ],
       "remaining": [
-        "Locate an existing authorized candidate in .candidate/project; the rotating-cube template is not a sellable game.",
-        "Run python factory3d.py validate, python factory3d.py qa and python factory3d.py accept using Godot 4.3; preserve the 120-hour acceptance gate.",
-        "Commit a real accepted playable product under products/<slug>/ and pin the new source SHA for Provisioner."
+        "Locate an existing authorized playable candidate in .candidate/project; the rotating-cube template is not a sellable game and no product has been committed.",
+        "On a real Godot 4.3 machine run python factory3d.py validate, qa and accept; verify smoke PASS and 60-frame main-scene launch against the exact candidate SHA/cycle.",
+        "Recheck the 120-hour gate before accepting and commit only a genuine accepted product under products/<slug>/.",
+        "Factory CI runs Python mocks, not a real Godot engine or Windows GPU; no candidate MSIX/Artifact or transfer PASS exists."
       ]
     },
     "provisioner_windows_build": {
@@ -199,11 +202,11 @@
     "stage_id": "factory_product_materialization",
     "repo": "shihuiarenjinba-png/3d-game-factory",
     "branch": "codex/3d-real-msix-build-path-20261027",
-    "goal": "Locate and validate one existing authorized playable 3D candidate. If none exists, keep product materialization on HOLD and do not promote the rotating-cube template or generate a new game without the 120-hour gate.",
+    "goal": "Locate an existing authorized playable 3D candidate and run the strengthened Godot 4.3 import, smoke and 60-frame game-launch QA before 120-hour-gated acceptance. If none exists, keep product materialization HOLD; do not promote the rotating-cube template or generate a new game outside the 120-hour gate.",
     "acceptance": [
-      "An existing playable candidate has complete Godot 4.3 sources, Windows Desktop export preset and independent smoke test.",
-      "Godot 4.3 headless import and smoke test PASS with SHA-256/cycle-bound QA evidence before accept.",
-      "Factory 120-hour gate is checked again during accept and only the accepted product is committed under products/<slug>/.",
+      "An existing playable candidate has complete Godot 4.3 sources, Windows Desktop export preset and an independent smoke test that reports PASS: after actual assertions.",
+      "Godot 4.3 import, smoke and 60-frame headless main-scene launch complete without engine/script errors, with source SHA-256/cycle-bound QA evidence.",
+      "Factory 120-hour gate is rechecked at accept and only a genuine accepted product is committed under products/<slug>/.",
       "No Store Identity, price, security declaration, certification result or Windows GPU QA is fabricated."
     ]
   }
