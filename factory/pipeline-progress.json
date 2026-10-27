@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T02:05:11Z",
+  "updated_at_utc": "2026-10-27T02:05:53Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -21,7 +21,7 @@
       "repo": "shihuiarenjinba-png/3d-game-factory",
       "branch": "codex/3d-stage-windows-path-guard-20261027",
       "head": "4300534c7bfc50476768c5c3bb17166927ec9d06",
-      "ci_run_id": 40431771427
+      "ci_run_id": 40436400201
     },
     "provisioner": {
       "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
@@ -89,7 +89,8 @@
         "commit:551b69c0a1cb1a46abcd1062e2bcad62888ee718",
         "commit:291148093850ad429d1c161d92353260f7803653",
         "run:40430557102",
-        "commit:4300534c7bfc50476768c5c3bb17166927ec9d06"
+        "commit:4300534c7bfc50476768c5c3bb17166927ec9d06",
+        "run:40436400201"
       ],
       "remaining": [
         "Locate an independently reviewed, authorized and genuinely playable Godot 4.3 game source outside this Factory checkout; rotating-cube engine template is not a sellable game.",
