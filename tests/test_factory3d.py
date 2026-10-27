@@ -264,10 +264,12 @@ class FiveDayTests(unittest.TestCase):
             minimal_candidate(root)
             mark_qa(root)
             original_copy=shutil.copytree
+            source_project=root/".candidate/project"
 
             def corrupt_copy(src,dst,**kwargs):
                 copied=original_copy(src,dst,**kwargs)
-                (dst/"README.md").write_text("altered after Godot QA",encoding="utf-8")
+                if Path(src)==source_project:
+                    (dst/"README.md").write_text("altered after Godot QA",encoding="utf-8")
                 return copied
 
             with patch("factory3d.shutil.copytree",side_effect=corrupt_copy):
@@ -284,12 +286,14 @@ class FiveDayTests(unittest.TestCase):
             minimal_candidate(root)
             mark_qa(root)
             original_copy=shutil.copytree
+            source_project=root/".candidate/project"
             external=root/"outside.gd"
             external.write_text("not part of reviewed game",encoding="utf-8")
 
             def inject_link(src,dst,**kwargs):
                 copied=original_copy(src,dst,**kwargs)
-                (dst/"scripts"/"late.gd").symlink_to(external)
+                if Path(src)==source_project:
+                    (dst/"scripts"/"late.gd").symlink_to(external)
                 return copied
 
             with patch("factory3d.shutil.copytree",side_effect=inject_link):
