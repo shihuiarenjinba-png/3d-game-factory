@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T01:06:34.972Z",
+  "updated_at_utc": "2026-10-27T01:18:36Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -20,14 +20,14 @@
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
       "branch": "codex/3d-real-msix-build-path-20261027",
-      "head": "291148093850ad429d1c161d92353260f7803653",
-      "ci_run_id": 40430557102
+      "head": "dced8d5a2091d6b4d895f72826114fcc2cca81a1",
+      "ci_run_id": 40431771427
     },
     "provisioner": {
       "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
-      "branch": "codex/3d-pck-payload-guard-20261027",
-      "head": "05a525f1b06f62b83c02e683755a84eb4f8a4c14",
-      "ci_run_id": 40424203464
+      "branch": "codex/3d-local-identity-provenance-20261027",
+      "head": "a1727307884176bfa97f714c47705281240d83c3",
+      "ci_run_id": 40431389877
     },
     "template": {
       "repo": "shihuiarenjinba-png/3d-game-template",
@@ -44,9 +44,9 @@
     },
     "intake": {
       "repo": "shihuiarenjinba-png/Windows-all-auto",
-      "branch": "codex/3d-identity-source-sha-20261027",
-      "head": "e7313d99893fed9b4d32d5022be2d3fdc9d67248",
-      "ci_run_id": 40424564014
+      "branch": "codex/3d-e2e-trace-contract-20261027",
+      "head": "d0ad76c0312669e9cb8ff67dfd893dd61539388b",
+      "ci_run_id": 40431368563
     }
   },
   "stage_order": [
@@ -102,45 +102,52 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
-      "result": "Pinned Godot Windows export is implemented; Provisioner now allowlists the active Factory MSIX branch and returns verified_source_sha in reviewed Identity JSON.",
+      "result": "Local 3D manufacturing now accepts a real Godot Windows EXE/PCK export as pre-MSIX payload evidence, preserves its SHA/signature status, requires official Store ID/Identity/Publisher/Version/PFN/Package SID evidence, and returns the full request/product/source correlation key to Factory. Final Identity-to-package match is deliberately deferred to the Factory MSIX.",
       "evidence": [
-        "head:05a525f1b06f62b83c02e683755a84eb4f8a4c14",
-        "run:40424203464",
-        "commit:040ab72100ec080b1be0888e89e047d27590cfdc"
+        "branch:codex/3d-local-identity-provenance-20261027",
+        "head:a1727307884176bfa97f714c47705281240d83c3",
+        "run:40431389877",
+        "pr:6",
+        "commit:d106231a2520ae055829ba49c55132ae821c550b",
+        "commit:52ac8a90789a33ca38ef9606a6c450e987a4d9e3"
       ],
       "remaining": [
-        "Run against one real accepted Factory products/<slug>/ checkout and preserve Windows EXE/PCK evidence.",
-        "Partner Center Identity lookup/return remains HOLD until authenticated official evidence is supplied."
+        "Run the Provisioner against one real accepted Factory products/<slug>/ checkout and retain the actual EXE/PCK SHA/signature evidence.",
+        "Supply authenticated Partner Center evidence for the same request_id/source SHA; official Identity values remain HOLD until then."
       ]
     },
     "official_identity_roundtrip": {
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/Windows-all-auto",
-      "result": "Identity routing/atomic return exists and now records verified_source_sha.",
+      "result": "3D Identity return now preserves request_id, GAME_3D product type, Factory/repository/branch/source SHA/slug, local package SHA/kind/signature status, and official Store ID/Identity/Publisher/Version/PFN/Package SID. Existing records are reusable only when the whole manufacturing provenance matches.",
       "evidence": [
-        "head:bbf0f6f17a3f431e1f93c363d353b1c0613aacad",
-        "run:40419153935"
+        "provisioner-head:a1727307884176bfa97f714c47705281240d83c3",
+        "provisioner-run:40431389877",
+        "intake-head:d0ad76c0312669e9cb8ff67dfd893dd61539388b",
+        "intake-run:40431368563",
+        "windows-all-auto-pr:8"
       ],
       "remaining": [
-        "Use authenticated local Partner Center evidence for one real product; Store ID/Identity/Publisher must not be guessed.",
-        "Return approved-identity.json to the exact Factory work branch and verify expected HEAD."
+        "Use one authenticated local Partner Center record for a real accepted product; no official value may be guessed.",
+        "Perform the CAS Identity return to the exact Factory branch and record the resulting GitHub commit SHA."
       ]
     },
     "factory_msix_build": {
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/3d-game-factory",
-      "result": "Factory Godot→MakeAppx code now emits QA_UNSIGNED MSIX plus strict two-file handoff (package.msix/handoff.json) with source SHA, embedded Identity, bytes and SHA-256. Code/CI pass; no real product or approved Identity.",
+      "result": "Factory MSIX builder now consumes the returned 3D correlation/provenance record, keeps the original product source_sha immutable, records the later GitHub packaging commit separately as factory_build_head, and carries local package SHA plus Store ID/PFN/SID into the strict handoff. PowerShell syntax and Factory quality gates pass.",
       "evidence": [
-        "commit:1275371dd3470a42cdac4add69975c2710ab77b8",
-        "commit:404f0ea99282019250e49b09237373ca590bd887",
-        "run:40424533287",
+        "head:dced8d5a2091d6b4d895f72826114fcc2cca81a1",
+        "run:40431771427",
+        "commit:9a1c734fb3b3bc16390a79080edbe90e3d788bf8",
+        "commit:dced8d5a2091d6b4d895f72826114fcc2cca81a1",
         "workflow:.github/workflows/msix-export.yml"
       ],
       "remaining": [
-        "Commit one accepted 3D product, real Store PNG assets and authenticated approved-identity.json.",
-        "Run Windows Godot/MakeAppx workflow with actual slug and inspect real QA_UNSIGNED MSIX plus factory-msix-handoff artifact."
+        "Commit one accepted 3D product, real Store assets and authenticated approved-identity.json.",
+        "Run the Windows Godot/MakeAppx workflow with the real slug and produce the first actual factory-msix-handoff Artifact."
       ]
     },
     "msix_byte_qa": {
@@ -160,16 +167,18 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/Windows-all-auto",
-      "result": "3D artifact polling now recognizes exact 3D Factory workflow name, active branch and strict factory-msix-handoff prefix. Offline CI passes; no real 3D artifact has been received.",
+      "result": "3D intake now validates the complete manufacturing correlation key and treats source_sha as the immutable original product SHA while separately binding factory_build_head to the exact successful Actions run. It rechecks MSIX bytes/Identity and rejects lane/request/branch/provenance mixing. Ubuntu and Windows offline CI pass.",
       "evidence": [
-        "commit:29465a7c0ccc0765b302c59a995a4e3bbf430e9c",
-        "commit:c12eee63de2fd1f9e07d8eccf2c908897b9da468",
-        "run:40424564014"
+        "branch:codex/3d-e2e-trace-contract-20261027",
+        "head:d0ad76c0312669e9cb8ff67dfd893dd61539388b",
+        "run:40431368563",
+        "pr:8",
+        "commit:fa92983a13758a5674599f0ab0e7d454b15e5d50",
+        "commit:d0ad76c0312669e9cb8ff67dfd893dd61539388b"
       ],
       "remaining": [
-        "After a real Factory 3D MSIX exists, run bridge_poll on the correct work branch and verify exact two-file bundle, embedded Identity, source SHA and local-QA Artifact.",
-        "Verify FACTORY_READ_TOKEN actions:read for 3D Factory; default-branch scheduled workflow deployment is not proven by work-branch CI.",
-        "Do not mark E2E transfer PASS based on offline contract tests."
+        "Receive one real Factory 3D MSIX Artifact and prove byte/Identity/source/build-head correlation through the local-QA queue.",
+        "Verify FACTORY_READ_TOKEN actions:read for the 3D Factory in the real Artifact polling run; offline CI is not E2E PASS."
       ]
     },
     "local_windows_gpu_qa": {
