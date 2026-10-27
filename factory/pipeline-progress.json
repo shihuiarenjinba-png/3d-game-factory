@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T07:28:45Z",
+  "updated_at_utc": "2026-10-27T08:27:21Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -31,7 +31,8 @@
         "base_sha": "2e5d74100113bdfaa303dd312e617550fe664dc3",
         "guard_commit_sha": "197ffb95bf8e2af0c0060d8f9e5906b58d5e9bb2",
         "source_pr": 11,
-        "status": "CODE_PORTED_AWAITING_CI"
+        "status": "CODE_PORTED_CI_SUCCESS",
+        "ci_run_id": 40467528271
       }
     },
     "provisioner": {
@@ -51,17 +52,17 @@
     "qa": {
       "repo": "shihuiarenjinba-png/3d-build-qa",
       "branch": "codex/3d-msix-zip-path-safety-20261027-1235",
-      "head": "ea6540037e359860775fbfd423244ea3f9ffeee6",
-      "ci_run_id": 40461036388,
+      "head": "349eb9b285818272b72ecbce34e5b1fed67afbb2",
+      "ci_run_id": 40473547781,
       "draft_pr": 4
     },
     "intake": {
       "repo": "shihuiarenjinba-png/Windows-all-auto",
       "branch": "codex/e2e-belt-connection-20261027",
-      "head": "e3d637cc659cc18d35764139af9175fcc11a01a1",
-      "ci_run_id": 40463213981,
+      "head": "be633094bd38bbc6423dca886a53778f0c33ce50",
+      "ci_run_id": 40470013777,
       "draft_pr": 14,
-      "compare_against_3d_cas": "diverged: 33 ahead / 20 behind; no automatic merge"
+      "compare_against_3d_cas": "diverged: 37 ahead / 20 behind; no automatic merge"
     },
     "windows_data": {
       "repo": "shihuiarenjinba-png/Windows-data",
@@ -202,7 +203,7 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/3d-build-qa",
-      "result": "3D MSIX QA rejects unsafe Windows ZIP paths/collisions, symlinks, Unix device/FIFO/socket entries, file-type/directory-marker conflicts, encrypted/unsupported entries and expansion bombs. Synthetic offline tests and CI pass; no actual Factory 3D MSIX has been produced or inspected, so byte QA and real-device QA remain HOLD for a real product. Latest guard now also rejects Win32 COM¹/²/³ and LPT¹/²/³ device names inside ZIP paths; regression tests pass on PR #4 HEAD ea6540037e35 (CI 40461036388). Still no real Factory 3D MSIX.",
+      "result": "Offline 3D MSIX ZIP QA rejects Windows path/collision, special-file, encryption and expansion hazards. It now streams every ZIP member to reject CRC/decompression corruption even in unrelated assets when the overall package SHA matches its receipt. Synthetic regression and CI pass on QA PR #4 HEAD 349eb9b28581, run 40473547781; no actual Factory 3D MSIX has been produced or inspected, so real byte QA remains HOLD.",
       "evidence": [
         "head:04f2b1f74674159197cc3f8fa7503705b4febcfb",
         "run:40417351553",
@@ -218,7 +219,10 @@
         "run:40449263074:SUCCESS-special-file-ZIP-tests",
         "commit:bd5019d009d145c33d41269c96b01d3efe05d96f",
         "commit:ea6540037e359860775fbfd423244ea3f9ffeee6",
-        "run:40461036388:SUCCESS-Windows-superscript-reserved-path-regression"
+        "run:40461036388:SUCCESS-Windows-superscript-reserved-path-regression",
+        "commit:dac8cec5527649cb0c7ab649babc29ea0c508467:full-member-CRC-check",
+        "commit:349eb9b285818272b72ecbce34e5b1fed67afbb2:corrupt-asset-regression",
+        "run:40473547781:SUCCESS-offline-CRC-integrity"
       ],
       "remaining": [
         "Acquire a real, accepted Factory 3D candidate MSIX with original request_id/source_sha, authenticated Partner Center Identity, and actual artifact SHA; no such MSIX exists.",
@@ -286,16 +290,37 @@
     "stage_id": "msix_byte_qa",
     "repo": "shihuiarenjinba-png/3d-build-qa",
     "branch": "codex/3d-msix-zip-path-safety-20261027-1235",
-    "goal": "Factory PR #11 safe PowerShell dispatch binding and regression tests were ported without merge onto current PR #10 ledger snapshot in codex/3d-dispatch-guard-current-ledger-20261027-1628 (code commit 197ffb95bf8e2af0c0060d8f9e5906b58d5e9bb2); check Draft PR CI before promoting. Windows-all-auto PR #14 latest HEAD e3d637cc659cc18d35764139af9175fcc11a01a1, offline CI 40463213981 SUCCESS; 3D CAS branch comparison diverged 33 ahead / 20 behind, no automatic merge. Continue bounded 3D MSIX ZIP/manifest QA at 3d-build-qa PR #4 HEAD ea6540037e359860775fbfd423244ea3f9ffeee6. Await authorized accepted playable Godot source, authenticated Partner Center Identity and first real 3D MSIX before exact-byte QA and local Windows GPU QA. Generation gate HOLD, new_product_allowed=false, active_product=null; template EXE/PCK is QA-only.",
+    "goal": "3D QA PR #4 HEAD 349eb9b285818272b72ecbce34e5b1fed67afbb2 added bounded streaming CRC/decompression checks for every ZIP member, including non-executable assets; corrupt-asset regression passed CI run 40473547781. Next inspect MSIX block-map/manifest coverage and integration contract without claiming real product byte PASS. Windows-all-auto PR #14 HEAD be633094bd38bbc6423dca886a53778f0c33ce50 passed CI run 40470013777; 3D CAS branch remains diverged (37 ahead / 20 behind), do not merge automatically. Factory dispatch guard PR #12 CI 40467528271 SUCCESS. Await authorized accepted playable Godot source, authenticated Partner Center Identity and first real 3D MSIX. Keep 120-hour generation gate HOLD, new_product_allowed=false, active_product=null; template EXE/PCK is QA-only.",
     "acceptance": [
       "3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.",
       "All MSIX ZIP entries pass Windows path/collision/symlink/encryption/expansion preflight; package SHA and manifest executable/Identity are checked against real bytes.",
       "Factory→Provisioner→Windows→Factory→MSIX→Windows-all-auto retains request_id, source_repository, source_branch, source_sha and slug; HEAD mismatch is CONFLICT and replay only same request_id plus same source_sha.",
       "Real Factory MSIX Artifact, official Partner Center Identity, GPU QA, signing and Store validation remain individually HOLD until independently evidenced.",
       "Official Identity return uses only the exact active safe codex/* Factory source branch and expected HEAD CAS; stale hard-coded branch targets are rejected.",
-      "Reject Win32 superscript COM¹/²/³ and LPT¹/²/³ device filenames in all ZIP entries, even with extensions; PR #4 CI success is not real MSIX verification."
+      "Reject Win32 superscript COM¹/²/³ and LPT¹/²/³ device filenames in all ZIP entries, even with extensions; PR #4 CI success is not real MSIX verification.",
+      "Reject CRC-corrupt ZIP members even when receipt package SHA matches the tampered archive; offline CI PASS is not real MSIX E2E PASS."
     ],
-    "expected_head_sha": "ea6540037e359860775fbfd423244ea3f9ffeee6"
+    "expected_head_sha": "349eb9b285818272b72ecbce34e5b1fed67afbb2"
   },
-  "active_product": null
+  "active_product": null,
+  "phase": "MSIX_BYTE_QA_OFFLINE_ZIP_CRC_GUARD_PASS__NO_ACCEPTED_PRODUCT",
+  "last_completed_step": "3d-build-qa PR #4 synthetic ZIP CRC corruption regression and full member streaming validation, CI SUCCESS 40473547781",
+  "blocked_by": [
+    "NO_ACTIVE_PRODUCT",
+    "EXTERNAL_IDENTITY",
+    "NO_REAL_3D_MSIX",
+    "NO_LOCAL_WINDOWS_GPU_QA"
+  ],
+  "resume_repository": "shihuiarenjinba-png/3d-build-qa",
+  "resume_branch": "codex/3d-msix-zip-path-safety-20261027-1235",
+  "resume_sha": "349eb9b285818272b72ecbce34e5b1fed67afbb2",
+  "request_id": null,
+  "source_sha": null,
+  "factory_build_sha": null,
+  "quality_gates": {
+    "ci": "PASS_OFFLINE_QA",
+    "contract": "PASS_SYNTHETIC_ONLY",
+    "e2e": "HOLD",
+    "commercial": "HOLD"
+  }
 }
