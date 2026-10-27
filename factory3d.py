@@ -102,9 +102,9 @@ def candidate_digest(project: Path) -> str:
     for path in sorted(p for p in project.rglob("*") if p.is_file()):
         relative=path.relative_to(project).as_posix()
         digest.update(relative.encode("utf-8"))
-        digest.update(b"\\0")
+        digest.update(b"\0")
         digest.update(path.read_bytes())
-        digest.update(b"\\0")
+        digest.update(b"\0")
     return digest.hexdigest()
 
 
@@ -157,7 +157,7 @@ def verify_candidate_qa(root=ROOT, godot_executable=None):
             suffix=".tmp",dir=target.parent,delete=False) as stream:
         temporary=Path(stream.name)
         json.dump(evidence,stream,indent=2)
-        stream.write("\\n")
+        stream.write("\n")
     temporary.replace(target)
     return evidence
 
