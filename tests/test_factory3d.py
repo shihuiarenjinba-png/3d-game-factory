@@ -1,11 +1,25 @@
 import json
 from datetime import datetime,timezone,timedelta
 import tempfile
+import subprocess
 from pathlib import Path
 import unittest
 from unittest.mock import patch
 
-from factory3d import due,prepare,validate,accept
+from factory3d import due,prepare,validate,accept,verify_candidate_qa
+
+def mark_qa(root):
+    completed = [
+        subprocess.CompletedProcess(["godot", "--version"], 0, stdout="4.3.stable.official\\n"),
+        subprocess.CompletedProcess(["godot", "--headless"], 0, stdout="import ok"),
+        subprocess.CompletedProcess(["godot", "--headless"], 0, stdout="smoke ok"),
+    ]
+    with patch("factory3d.subprocess.run", side_effect=completed) as run:
+        result = verify_candidate_qa(root, godot_executable="godot")
+    assert run.call_count == 3
+    assert result["smoke"] == "PASS"
+    return result
+
 
 class FiveDayTests(unittest.TestCase):
     def test_first_run_due(self):
@@ -72,10 +86,67 @@ class FiveDayTests(unittest.TestCase):
                 validate(root)
             extra.unlink()
             validate(root)
+            with self.assertRaisesRegex(ValueError,"QA evidence missing"):
+                accept(root)
+            mark_qa(root)
             slug=accept(root)
             self.assertTrue((root/"products"/slug/"project.godot").exists())
             self.assertEqual(json.loads((root/"factory/state.json").read_text())["cycle"],2)
             with self.assertRaises(ValueError):accept(root)
+
+    def test_changed_candidate_invalidates_qa_evidence(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            (root/"factory").mkdir()
+            (root/"factory/state.json").write_text(
+                '{"schema":1,"cycle":1,"last_completed_utc":null}')
+            prepare(root)
+            project=root/".candidate/project"
+            for name,text in {
+                "project.godot": '[application]\\nrun/main_scene="res://scenes/main.tscn"\\n',
+                "export_presets.cfg": '[preset.0]\\nname="Windows Desktop"\\nplatform="Windows Desktop"\\n',
+                "scenes/main.tscn": '[gd_scene format=3]\\n[node name="Main" type="Node3D"]\\n',
+                "scripts/main.gd": "extends Node3D\\n",
+                "tests/test_smoke.gd": "func test_run(): pass\\n",
+                "README.md": "QA-only candidate",
+            }.items():
+                path=project/name
+                path.parent.mkdir(parents=True,exist_ok=True)
+                path.write_text(text)
+            mark_qa(root)
+            (project/"README.md").write_text("changed after QA")
+            with self.assertRaisesRegex(ValueError,"stale or mismatched"):
+                accept(root)
+            self.assertFalse((root/"products").exists())
+
+    def test_failed_godot_smoke_does_not_write_qa_evidence(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            (root/"factory").mkdir()
+            (root/"factory/state.json").write_text(
+                '{"schema":1,"cycle":1,"last_completed_utc":null}')
+            prepare(root)
+            project=root/".candidate/project"
+            for name,text in {
+                "project.godot": '[application]\\nrun/main_scene="res://scenes/main.tscn"\\n',
+                "export_presets.cfg": '[preset.0]\\nname="Windows Desktop"\\nplatform="Windows Desktop"\\n',
+                "scenes/main.tscn": '[gd_scene format=3]\\n[node name="Main" type="Node3D"]\\n',
+                "scripts/main.gd": "extends Node3D\\n",
+                "tests/test_smoke.gd": "func test_run(): pass\\n",
+                "README.md": "QA-only candidate",
+            }.items():
+                path=project/name
+                path.parent.mkdir(parents=True,exist_ok=True)
+                path.write_text(text)
+            completed=[
+                subprocess.CompletedProcess(["godot"],0,stdout="4.3.stable.official"),
+                subprocess.CompletedProcess(["godot"],0,stdout="import ok"),
+                subprocess.CompletedProcess(["godot"],1,stdout="smoke failed"),
+            ]
+            with patch("factory3d.subprocess.run",side_effect=completed):
+                with self.assertRaisesRegex(ValueError,"smoke failed"):
+                    verify_candidate_qa(root,godot_executable="godot")
+            self.assertFalse((root/".runtime/candidate-qa.json").exists())
 
     def test_concurrent_accept_lock_fails_closed(self):
         with tempfile.TemporaryDirectory() as d:
@@ -111,6 +182,7 @@ class FiveDayTests(unittest.TestCase):
                 path=project/name
                 path.parent.mkdir(parents=True,exist_ok=True)
                 path.write_text(text)
+            mark_qa(root)
             def broken_copy(src,dst):
                 dst.mkdir(parents=True)
                 (dst/"partial.txt").write_text("incomplete")
