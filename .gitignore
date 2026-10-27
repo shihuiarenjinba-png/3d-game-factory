@@ -1,0 +1,17 @@
+# Local staging and generated engine caches are never product source.
+.candidate/
+.runtime/
+**/.godot/
+__pycache__/
+*.py[cod]
+
+# Build outputs must be passed as short-lived GitHub Actions artifacts.
+dist/
+*.msix
+*.msixupload
+*.appx
+*.appxupload
+*.pck
+*.exe
+
+# Keep only reviewed, deliberately committed product sources/assets.
