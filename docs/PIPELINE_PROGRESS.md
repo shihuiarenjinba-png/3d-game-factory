@@ -1,7 +1,7 @@
 # 3D Pipeline Progress
 
 - Ledger schema: `1.0`
-- Updated UTC: `2026-10-27T06:25:49Z`
+- Updated UTC: `2026-10-27T07:28:45Z`
 - New-product gate: **HOLD** — No accepted 3D candidate baseline or explicit new_product_allowed=true authorization exists; generation and new staging remain HOLD while existing QA/build/transport are improved.
 - Next stage: `msix_byte_qa`
 - Next repository: `shihuiarenjinba-png/3d-build-qa`
@@ -25,7 +25,7 @@
 
 ## Next action
 
-PR #4 exact-byte guard now rejects superscript Windows COM/LPT device names (CI 40461036388 SUCCESS). Continue bounded MSIX ZIP/manifest contract QA and verify the Factory PR #11 / Provisioner PR #7 / Windows-all-auto PR #14 integration branches without merging divergent histories. Await independently accepted playable Godot source, authenticated Partner Center Identity, first real Factory 3D MSIX, then byte QA, local GPU and launch QA. No template-as-product, no generation while 120h gate HOLD and new_product_allowed=false.
+Factory PR #11 safe PowerShell dispatch binding and regression tests were ported without merge onto current PR #10 ledger snapshot in codex/3d-dispatch-guard-current-ledger-20261027-1628 (code commit 197ffb95bf8e2af0c0060d8f9e5906b58d5e9bb2); check Draft PR CI before promoting. Windows-all-auto PR #14 latest HEAD e3d637cc659cc18d35764139af9175fcc11a01a1, offline CI 40463213981 SUCCESS; 3D CAS branch comparison diverged 33 ahead / 20 behind, no automatic merge. Continue bounded 3D MSIX ZIP/manifest QA at 3d-build-qa PR #4 HEAD ea6540037e359860775fbfd423244ea3f9ffeee6. Await authorized accepted playable Godot source, authenticated Partner Center Identity and first real 3D MSIX before exact-byte QA and local Windows GPU QA. Generation gate HOLD, new_product_allowed=false, active_product=null; template EXE/PCK is QA-only.
 
 Acceptance:
 - 3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.
@@ -41,7 +41,7 @@ Acceptance:
 - **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/e2e-belt-connection-20261027` / `70600e77f2dd4278a989604314eebfa662e05c33` / run `40454089167`
 - **template** — `shihuiarenjinba-png/3d-game-template` / `codex/3d-template-godot-bootstrap-20261026` / `e5462d0aa1f5d0a50fa484ad1544c11ce8a6085a` / run `40360649193`; artifact `godot-3d-windows-x64-qa-unsigned`
 - **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-zip-path-safety-20261027-1235` / `ea6540037e359860775fbfd423244ea3f9ffeee6` / run `40461036388`
-- **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/e2e-belt-connection-20261027` / `cca585d07eaa1e7e1e5b82d63613f59667989184` / run `40458042620`
+- **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/e2e-belt-connection-20261027` / `e3d637cc659cc18d35764139af9175fcc11a01a1` / run `40463213981`
 - **windows_data** — `shihuiarenjinba-png/Windows-data` / `codex/msix-auto-build-identity-20261025` / `664b9afcbed63539b89f594892d831d97b9d4118` / run `40259906737`; artifact `MSIXAutoBuildIdentity-Windows-QA`
 
 ## Automation rule
