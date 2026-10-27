@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T03:35:03Z",
+  "updated_at_utc": "2026-10-27T04:23:00Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -14,14 +14,15 @@
   "generation_gate": {
     "last_accepted_candidate_utc": null,
     "state": "HOLD",
-    "reason": "No accepted 3D candidate baseline is recorded; scheduler must improve QA/build/transport instead of generating a new game."
+    "reason": "No accepted 3D candidate baseline or explicit new_product_allowed=true authorization exists; generation and new staging remain HOLD while existing QA/build/transport are improved.",
+    "new_product_allowed": false
   },
   "repositories": {
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
       "branch": "codex/3d-qa-zip-ledger-20261027-1235",
-      "head": "e7682c3ba54241b0962d3dedec10fbad51200384",
-      "ci_run_id": 40442791871
+      "head": "06092247b5bb99b1192ee5527cfb2c22650becac",
+      "ci_run_id": 40445037518
     },
     "provisioner": {
       "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
@@ -39,14 +40,21 @@
     "qa": {
       "repo": "shihuiarenjinba-png/3d-build-qa",
       "branch": "codex/3d-msix-zip-path-safety-20261027-1235",
-      "head": "a918834a3122d8f74684b43102ad9070f606c527",
-      "ci_run_id": 40444730016
+      "head": "12e776978b00f5eb65ca39b95b8facc4048d635d",
+      "ci_run_id": 40449263074
     },
     "intake": {
       "repo": "shihuiarenjinba-png/Windows-all-auto",
       "branch": "codex/3d-identity-active-branch-cas-20261027-1235",
       "head": "681538cb65ffecc9959fec1f021f8a49ee22810c",
-      "ci_run_id": 40444968185
+      "ci_run_id": 40444979139
+    },
+    "windows_data": {
+      "repo": "shihuiarenjinba-png/Windows-data",
+      "branch": "codex/msix-auto-build-identity-20261025",
+      "head": "664b9afcbed63539b89f594892d831d97b9d4118",
+      "ci_run_id": 40259906737,
+      "artifact": "MSIXAutoBuildIdentity-Windows-QA"
     }
   },
   "stage_order": [
@@ -78,7 +86,7 @@
       "state": "HOLD",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/3d-game-factory",
-      "result": "No independently reviewed playable 3D source exists. Factory acceptance now preserves late symlinks, re-audits the copied product tree for Windows safety and checks both the copied bytes and original source against the exact real Godot QA digest before publication. Product acceptance and real Godot candidate QA remain HOLD.",
+      "result": "No independently reviewed playable 3D source exists. Factory acceptance now preserves late symlinks, re-audits the copied product tree for Windows safety and checks both the copied bytes and original source against the exact real Godot QA digest before publication. Product acceptance and real Godot candidate QA remain HOLD. New generation/acceptance/staging now also checks an explicit READY/new_product_allowed=true ledger gate and absent active_product, independently of the 120-hour timestamp.",
       "evidence": [
         "commit:ce76ce02f265364150ec2fec54a4ec4088753739",
         "commit:225f60087847954e4248d3408c7fb4d1bc9762f8",
@@ -102,7 +110,9 @@
         "commit:90d736b0a47519c035f61363a27ec56588927c22",
         "run:40442695931:FAILED-copytree-mock-positional-arguments",
         "commit:f5d9ded36e686780c3854e5343328b6990b49e2f",
-        "run:40442744751:SUCCESS-46-tests"
+        "run:40442744751:SUCCESS-46-tests",
+        "commit:e7f95d467f3e90d9f15b8ca620fdeade048d29fd",
+        "commit:52d57984a5bf0067897f1ae8d9eb88f9385ae29a"
       ],
       "remaining": [
         "Locate an independently reviewed, authorized and playable Godot 4.3 source outside the Factory; the rotating-cube template is not a sellable product.",
@@ -172,7 +182,7 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/3d-build-qa",
-      "result": "3D MSIX QA now rejects Windows-ambiguous ZIP entries (traversal, DOS devices, ADS, case collisions, file/directory conflicts, symlinks), unsupported/encrypted entries and expansion bombs before reading manifest/executable bytes. Synthetic offline tests and CI pass. No actual Factory 3D MSIX has been produced or inspected; MSIX byte QA and real-device QA remain HOLD for a real product.",
+      "result": "3D MSIX QA rejects unsafe Windows ZIP paths/collisions, symlinks, Unix device/FIFO/socket entries, file-type/directory-marker conflicts, encrypted/unsupported entries and expansion bombs. Synthetic offline tests and CI pass; no actual Factory 3D MSIX has been produced or inspected, so byte QA and real-device QA remain HOLD for a real product.",
       "evidence": [
         "head:04f2b1f74674159197cc3f8fa7503705b4febcfb",
         "run:40417351553",
@@ -181,7 +191,11 @@
         "run:40444730016:SUCCESS-offline-tests",
         "pr:4:DRAFT",
         "factory-ledger-commit:1186dad25a9016f4ed70e720afd40f0f702bb244",
-        "factory-ledger-run:40444863930:SUCCESS-46-tests"
+        "factory-ledger-run:40444863930:SUCCESS-46-tests",
+        "commit:7e9ced13c7f986c5e14aa7582b3b3a0c0aebfe8b",
+        "commit:c624564f6b6121ca1d05084037627c2fb5b0751a",
+        "commit:12e776978b00f5eb65ca39b95b8facc4048d635d",
+        "run:40449263074:SUCCESS-special-file-ZIP-tests"
       ],
       "remaining": [
         "Acquire a real, accepted Factory 3D candidate MSIX with original request_id/source_sha, authenticated Partner Center Identity, and actual artifact SHA; no such MSIX exists.",
@@ -243,13 +257,15 @@
     "stage_id": "msix_byte_qa",
     "repo": "shihuiarenjinba-png/3d-build-qa",
     "branch": "codex/3d-msix-zip-path-safety-20261027-1235",
-    "goal": "Maintain the 3D-only MSIX byte and Windows ZIP safety gate without duplicating the 05-minute Factory candidate-acceptance work. The next evidence-based step is to obtain the first authentic Factory 3D MSIX and verify actual artifact bytes, manifest, immutable source_sha/request_id and Identity. Until a reviewed playable source and Partner Center Identity exist, keep E2E transport and local GPU QA HOLD; do not fabricate a candidate or treat offline tests as product PASS.",
+    "goal": "Continue the isolated 3D MSIX exact-byte QA gate on PR #4 HEAD 12e776978b00f5eb65ca39b95b8facc4048d635d (CI 40449263074 success). The next E2E evidence step is the first authentic Factory 3D MSIX from an independently reviewed playable source and authenticated Partner Center Identity; until available, only harden QA/contract/transport and keep byte QA, GPU QA, signing and Store HOLD. Do not generate a new candidate: generation_gate.new_product_allowed=false and active_product=null.",
     "acceptance": [
       "3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.",
       "All MSIX ZIP entries pass Windows path/collision/symlink/encryption/expansion preflight; package SHA and manifest executable/Identity are checked against real bytes.",
       "Factory→Provisioner→Windows→Factory→MSIX→Windows-all-auto retains request_id, source_repository, source_branch, source_sha and slug; HEAD mismatch is CONFLICT and replay only same request_id plus same source_sha.",
       "Real Factory MSIX Artifact, official Partner Center Identity, GPU QA, signing and Store validation remain individually HOLD until independently evidenced.",
       "Official Identity return uses only the exact active safe codex/* Factory source branch and expected HEAD CAS; stale hard-coded branch targets are rejected."
-    ]
-  }
+    ],
+    "expected_head_sha": "12e776978b00f5eb65ca39b95b8facc4048d635d"
+  },
+  "active_product": null
 }
