@@ -31,7 +31,27 @@ def due(state,now):
         raise ValueError("untrusted last completion timestamp")
     return now-prior>=timedelta(days=5)
 
+def require_generation_gate(root=ROOT):
+    """Require explicit authorization in addition to the 120-hour state gate.
+
+    Existing candidate QA/build paths do not call this function; it only
+    protects new generation, staging and product acceptance.
+    """
+    ledger_path = root / "factory/pipeline-progress.json"
+    try:
+        ledger = read(ledger_path)
+    except (OSError, ValueError, TypeError) as exc:
+        raise ValueError("3D generation ledger missing or unreadable") from exc
+    gate = ledger.get("generation_gate") if isinstance(ledger, dict) else None
+    if (not isinstance(gate, dict) or gate.get("state") != "READY"
+            or gate.get("new_product_allowed") is not True):
+        raise ValueError("new_product_allowed=true and READY generation gate required")
+    if ledger.get("active_product") is not None:
+        raise ValueError("active 3D product exists; finish it before new generation")
+
+
 def prepare(root=ROOT):
+    require_generation_gate(root)
     state=read(root/"factory/state.json")
     if not due(state,datetime.now(timezone.utc)):
         raise ValueError("not due for another 3D generation")
@@ -199,6 +219,7 @@ def accept(root=ROOT):
     except FileExistsError as exc:
         raise ValueError("3D acceptance already in progress; inspect stale lock") from exc
     try:
+        require_generation_gate(root)
         snap=validate(root)
         state_path=root/"factory/state.json"
         state=read(state_path)
@@ -250,6 +271,7 @@ def main():
     opts=parser.parse_args()
     try:
         if opts.command=="due":
+            require_generation_gate(ROOT)
             result=due(read(ROOT/"factory/state.json"),datetime.now(timezone.utc))
             print("DUE" if result else "NOT_DUE")
             return 0 if result else 3
