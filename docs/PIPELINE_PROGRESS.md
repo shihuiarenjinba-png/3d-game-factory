@@ -1,23 +1,23 @@
 # 3D Pipeline Progress
 
 - Ledger schema: `1.0`
-- Updated UTC: `2026-10-27T20:28:18Z`
+- Updated UTC: `2026-10-27T21:23:44Z`
 - New-product gate: **HOLD** — No accepted 3D candidate baseline or explicit new_product_allowed=true authorization exists; generation and new staging remain HOLD while existing QA/build/transport are improved.
-- Next stage: `msix_byte_qa`
-- Next repository: `shihuiarenjinba-png/3d-build-qa`
-- Next branch: `codex/3d-msix-zip-path-safety-20261027-1235`
-- Next HEAD: `e84c448e48105d15d2040f87fb279835ddd0119b`
+- Next stage: `provisioner_windows_build`
+- Next repository: `shihuiarenjinba-png/Repository-Provisioner-3D`
+- Next branch: `codex/e2e-belt-connection-20261027`
+- Next HEAD: `70600e77f2dd4278a989604314eebfa662e05c33`
 
 ## Stage status
 
 | Stage | State | Auto-actionable | Result |
 | --- | --- | --- | --- |
-| `template_windows_export` | **DONE** | no | Godot 4.3 Windows x64 EXE/PCK export succeeds and produces a real QA artifact. |
+| `template_windows_export` | **DONE** | no | Godot 4.3 Windows x64 EXE/PCK export is real, and the same workflow run packages those exact independently hashed template bytes with Windows SDK MakeAppx. Pinned 3d-build-qa e84c448e strict ZIP/CRC/BlockMap/OPC/manifest and EXE/PCK SHA contract passes; a repacked tampered PCK is rejected. Template QA fixture is unsigned and is NOT an accepted/sellable 3D product. |
 | `factory_product_materialization` | **HOLD** | yes | No independently reviewed playable 3D source exists. Factory acceptance now preserves late symlinks, re-audits the copied product tree for Windows safety and checks both the copied bytes and original source against the exact real Godot QA digest before publication. Product acceptance and real Godot candidate QA remain HOLD. New generation/acceptance/staging now also checks an explicit READY/new_product_allowed=true ledger gate and absent active_product, independently of the 120-hour timestamp. |
 | `provisioner_windows_build` | **IN_PROGRESS** | yes | Local 3D manufacturing now accepts a real Godot Windows EXE/PCK export as pre-MSIX payload evidence, preserves its SHA/signature status, requires official Store ID/Identity/Publisher/Version/PFN/Package SID evidence, and returns the full request/product/source correlation key to Factory. Final Identity-to-package match is deliberately deferred to the Factory MSIX. |
 | `official_identity_roundtrip` | **IN_PROGRESS** | yes | 3D Identity return no longer targets a stale hard-coded Factory branch: it validates the exact active codex/* source_branch, requires original source_sha == expected_head_sha, checks live HEAD and commits with GitHub CAS. Linux/Windows offline tests pass. No real authenticated Partner Center Identity has been supplied or returned; actual Identity stage remains HOLD. |
 | `factory_msix_build` | **IN_PROGRESS** | yes | Factory MSIX builder now consumes the returned 3D correlation/provenance record, keeps the original product source_sha immutable, records the later GitHub packaging commit separately as factory_build_head, and carries local package SHA plus Store ID/PFN/SID into the strict handoff. PowerShell syntax and Factory quality gates pass. |
-| `msix_byte_qa` | **IN_PROGRESS** | yes | Real Windows SDK MakeAppx unsigned non-product fixture now includes synthetic GDPC-shaped PCK plus MZ-shaped EXE, with separately pinned EXE/PCK SHA-256 values checked against the actual MSIX ZIP members and manifest executable. Six regressions cover external PCK present/missing/tampered, embedded EXE-only, manifest path mismatch, and absent evidence. QA PR4 e84c448e48105d15d2040f87fb279835ddd0119b CI 40578299666 SUCCESS 84/84 tests and Windows MakeAppx fixture. All prior ZIP/CRC/BlockMap/OPC/manifest guards retained. Fixture bytes are not a real Godot export or accepted product; external GitHub provenance, official Identity, Windows install/GPU/GUI, signing and commercial readiness remain unverified. |
+| `msix_byte_qa` | **IN_PROGRESS** | yes | Real Godot 4.3 Windows template EXE/PCK (not synthetic bytes) were independently hashed by the template export job, downloaded within the SAME workflow run, and packaged with real Windows SDK MakeAppx. Pinned 3d-build-qa PR4 e84c448e verifies actual MSIX ZIP/CRC/BlockMap/OPC/manifest plus EXE/PCK SHA; a valid repack with modified PCK fails only the independent Godot export SHA check. Template PR1 404214de CI 40586209393 SUCCESS, non-product fixture artifact 12772561732. QA PR4 CI 40578299666 SUCCESS 84/84. This proves template byte compatibility, not an accepted product, Partner Center Identity, Windows install/GPU/GUI, signing, E2E or commercial readiness. |
 | `windows_all_auto_intake` | **IN_PROGRESS** | yes | 3D intake now validates the complete manufacturing correlation key and treats source_sha as the immutable original product SHA while separately binding factory_build_head to the exact successful Actions run. It rechecks MSIX bytes/Identity and rejects lane/request/branch/provenance mixing. Ubuntu and Windows offline CI pass. |
 | `local_windows_gpu_qa` | **HOLD** | no | Not executed. |
 | `signing_and_store_validation` | **HOLD** | no | Not executed. |
@@ -25,7 +25,7 @@
 
 ## Next action
 
-QA PR4 e84c448e48105d15d2040f87fb279835ddd0119b CI 40578299666 SUCCESS (84/84 Python tests and real Windows SDK MakeAppx unsigned synthetic EXE/PCK fixture); Artifact 12768726218 archive digest sha256:e51a2154c09b1faee1151d8cce5e8bfedb00de9530f4a2de9a1046989c64157b. New optional --expected-godot-export contract checks separately pinned EXE/PCK digests, PCK GDPC header and manifest path; it does NOT authenticate the evidence source. Next: validate actual Godot 4.3 Windows export EXE/PCK bytes in a non-product MakeAppx fixture or independently pinned artifact, with source digest and request_id correlation; do not generate a new 3D product. 36min Windows owner: central GAME_3D Factory branch/head/CI is stale; reconcile Factory PR12 and QA PR4 e84c448e48105d15d2040f87fb279835ddd0119b, preserve isolated 3D queue, request_id, immutable source_sha, factory_build_head, and reject missing/untrusted export digest evidence. No accepted 3D product, official Identity, real product MSIX, GPU/GUI or commercial QA. Generation HOLD, active_product=null, new_product_allowed=false.
+3D template PR1 404214de CI 40586209393 SUCCESS proves real Godot 4.3 EXE/PCK in actual Windows SDK MakeAppx unsigned non-product fixture; artifact 12772561732 archive digest sha256:d51dda48d99e004de31c3a78171f17f3485d041f8f474ee6de0d9af2c08e6521, QA verifier pinned e84c448e CI 40578299666 PASS. Next 3D owner: review Provisioner PR7 70600e77 for exact export evidence provenance, request_id/source_sha/factory_build_head/slug correlation and reject template QA artifact as accepted product; add minimal regression only for reproducible gaps. 36min Windows owner: read-only central GAME_3D references remain stale; reconcile Factory PR12 and Template PR1/QA PR4, preserve isolated 3D queue and do not intake this template fixture as product MSIX. No accepted product, authenticated Partner Center Identity, product MSIX, Windows install/GPU/GUI or commercial QA. 120-hour generation HOLD, active_product=null, new_product_allowed=false.
 
 Acceptance:
 - 3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.
@@ -47,14 +47,15 @@ Acceptance:
 - For GPBF bit 3, accept both signed and signatureless ZIP data descriptors for 32-bit and ZIP64 fixtures; reject forged nonzero local CRC or nonzero/non-ZIP64 local size placeholders. RED CI 40560260636 and GREEN CI 40560378006 (72 tests) are synthetic only, not MakeAppx/E2E proof.
 - Actual Windows SDK MakeAppx fixture is unsigned/non-product: 78/78 regressions and ZIP/CRC/BlockMap/b4/OPC byte checks PASS, forged descriptor BLOCKED, but official Identity, real product E2E and Store readiness remain HOLD.
 - When independently pinned Godot export evidence is supplied, the exact manifest EXE and optional external GDPC PCK bytes must match expected SHA-256. Missing/tampered PCK blocks; embedded PCK mode permits EXE-only. Synthetic MakeAppx PASS never proves real Godot export provenance, E2E, GPU/GUI or commercial readiness.
+- Real Godot 4.3 template EXE/PCK -> MakeAppx fixture PASS on CI 40586209393; valid MakeAppx repack with modified PCK is BLOCKED by independently pinned SHA. Artifact 12772561732 is QA-only and must not be promoted to accepted product or product E2E.
 
 ## Evidence pins
 
-- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-dispatch-guard-current-ledger-20261027-1628` / `32bb903c9547f1334a20abf78256752fd4950df2` / run `40571088383`
+- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-dispatch-guard-current-ledger-20261027-1628` / `ea20fa75f66f2e9843be3ef2f83b1817077ce35a` / run `40578554281`
 - **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/e2e-belt-connection-20261027` / `70600e77f2dd4278a989604314eebfa662e05c33` / run `40454089167`
-- **template** — `shihuiarenjinba-png/3d-game-template` / `codex/3d-template-godot-bootstrap-20261026` / `e5462d0aa1f5d0a50fa484ad1544c11ce8a6085a` / run `40360649193`; artifact `godot-3d-windows-x64-qa-unsigned`
+- **template** — `shihuiarenjinba-png/3d-game-template` / `codex/3d-template-godot-bootstrap-20261026` / `404214de6610b118f043b7ca8f62bf12f4b813b1` / run `40586209393`; artifact `godot-4-3-real-export-makeappx-fixture-not-product`
 - **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-zip-path-safety-20261027-1235` / `e84c448e48105d15d2040f87fb279835ddd0119b` / run `40578299666`; artifact `makeappx-3d-offline-unsigned-fixture-not-product`
-- **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/e2e-belt-connection-20261027` / `419021f8e12c51ed764652738a4f8b46a28f200d` / run `40572651775`
+- **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/e2e-belt-connection-20261027` / `2e4e33d71d96fdd181d255f0a6c3fd67996003e6` / run `40580391439`
 - **windows_data** — `shihuiarenjinba-png/Windows-data` / `codex/msix-auto-build-identity-20261025` / `664b9afcbed63539b89f594892d831d97b9d4118` / run `40259906737`; artifact `MSIXAutoBuildIdentity-Windows-QA`
 
 ## Automation rule
