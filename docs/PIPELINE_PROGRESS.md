@@ -1,7 +1,7 @@
 # 3D Pipeline Progress
 
 - Ledger schema: `1.0`
-- Updated UTC: `2026-10-27T00:07:00Z`
+- Updated UTC: `2026-10-27T00:10:00Z`
 - New-product gate: **HOLD** — No accepted 3D candidate baseline is recorded; scheduler must improve QA/build/transport instead of generating a new game.
 - Next stage: `factory_product_materialization`
 - Next repository: `shihuiarenjinba-png/3d-game-factory`
@@ -15,9 +15,9 @@
 | `factory_product_materialization` | **HOLD** | yes | No accepted 3D candidate or committed products/<slug> exists. Factory acceptance now requires real Godot 4.3 import and smoke QA evidence bound to candidate SHA-256 and cycle. |
 | `provisioner_windows_build` | **IN_PROGRESS** | yes | Pinned Godot Windows export is implemented; Provisioner now allowlists the active Factory MSIX branch and returns verified_source_sha in reviewed Identity JSON. |
 | `official_identity_roundtrip` | **IN_PROGRESS** | yes | Identity routing/atomic return exists and now records verified_source_sha. |
-| `factory_msix_build` | **IN_PROGRESS** | yes | Factory Godot/MakeAppx path is syntax-tested and now rejects dirty/untracked product files and non-approved branches; no real Identity or Store assets are available. |
+| `factory_msix_build` | **IN_PROGRESS** | yes | Factory Godot→MakeAppx code now emits QA_UNSIGNED MSIX plus strict two-file handoff (package.msix/handoff.json) with source SHA, embedded Identity, bytes and SHA-256. Code/CI pass; no real product or approved Identity. |
 | `msix_byte_qa` | **IN_PROGRESS** | yes | MSIX SHA/manifest/Identity/executable payload checks are implemented. |
-| `windows_all_auto_intake` | **IN_PROGRESS** | yes | 3d-game lane is separated from app/game intake and source provenance is checked. |
+| `windows_all_auto_intake` | **IN_PROGRESS** | yes | 3D artifact polling now recognizes exact 3D Factory workflow name, active branch and strict factory-msix-handoff prefix. Offline CI passes; no real 3D artifact has been received. |
 | `local_windows_gpu_qa` | **HOLD** | no | Not executed. |
 | `signing_and_store_validation` | **HOLD** | no | Not executed. |
 | `local_submission_automation` | **OUT_OF_SCOPE** | no | Final upload is intentionally local after download and preflight. |
@@ -34,11 +34,11 @@ Acceptance:
 
 ## Evidence pins
 
-- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-real-msix-build-path-20261027` / `aec24036377a67a7dfed8aa239a35e2828e0d827` / run `40424252645`
+- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-real-msix-build-path-20261027` / `acd1ce496c53ae85af094b6dd4af6221440d8d07` / run `40424533287`
 - **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/3d-pck-payload-guard-20261027` / `05a525f1b06f62b83c02e683755a84eb4f8a4c14` / run `40424203464`
 - **template** — `shihuiarenjinba-png/3d-game-template` / `codex/3d-template-godot-bootstrap-20261026` / `e5462d0aa1f5d0a50fa484ad1544c11ce8a6085a` / run `40360649193`; artifact `godot-3d-windows-x64-qa-unsigned`
 - **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-executable-payload-20261027` / `04f2b1f74674159197cc3f8fa7503705b4febcfb` / run `40417351553`
-- **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/3d-identity-source-sha-20261027` / `bbf0f6f17a3f431e1f93c363d353b1c0613aacad` / run `40419153935`
+- **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/3d-identity-source-sha-20261027` / `e7313d99893fed9b4d32d5022be2d3fdc9d67248` / run `40424564014`
 
 ## Automation rule
 
