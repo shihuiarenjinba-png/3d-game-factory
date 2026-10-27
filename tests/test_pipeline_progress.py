@@ -22,8 +22,10 @@ class PipelineProgressTests(unittest.TestCase):
     def test_current_ledger_is_safe_and_actionable(self):
         validate(self.data)
         action = next_action(self.data)
-        self.assertEqual(action["stage_id"], "factory_product_materialization")
-        self.assertEqual(action["repo"], "shihuiarenjinba-png/3d-game-factory")
+        stage = self.data["stages"][action["stage_id"]]
+        self.assertTrue(stage["auto_actionable"])
+        self.assertNotIn(stage["state"], ("DONE", "OUT_OF_SCOPE"))
+        self.assertEqual(action["repo"], stage["owner_repo"])
 
     def test_generated_report_is_current(self):
         self.assertEqual(REPORT.read_text(encoding="utf-8"), render_report(self.data))
