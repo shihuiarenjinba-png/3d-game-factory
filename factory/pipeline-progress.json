@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-26T23:40:00Z",
+  "updated_at_utc": "2026-10-27T00:07:00Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -20,14 +20,14 @@
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
       "branch": "codex/3d-real-msix-build-path-20261027",
-      "head": "bf80da05a01bea502ee12aaa1968f9bc61f016b3",
-      "ci_run_id": 40419346456
+      "head": "aec24036377a67a7dfed8aa239a35e2828e0d827",
+      "ci_run_id": 40424252645
     },
     "provisioner": {
       "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
       "branch": "codex/3d-pck-payload-guard-20261027",
-      "head": "fa2852c735a5fa74f27ae509dc272ed212b96e1a",
-      "ci_run_id": 40409424715
+      "head": "05a525f1b06f62b83c02e683755a84eb4f8a4c14",
+      "ci_run_id": 40424203464
     },
     "template": {
       "repo": "shihuiarenjinba-png/3d-game-template",
@@ -77,26 +77,31 @@
       "state": "HOLD",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/3d-game-factory",
-      "result": "Factory has no committed products/<slug>/ product yet on the active work branch.",
+      "result": "No accepted 3D candidate or committed products/<slug> exists. Factory acceptance now requires real Godot 4.3 import and smoke QA evidence bound to candidate SHA-256 and cycle.",
       "evidence": [
-        "factory-head:bf80da05a01bea502ee12aaa1968f9bc61f016b3"
+        "commit:ce76ce02f265364150ec2fec54a4ec4088753739",
+        "commit:225f60087847954e4248d3408c7fb4d1bc9762f8",
+        "run:40424252645"
       ],
       "remaining": [
-        "Promote an existing accepted 3D candidate into products/<slug>/ without creating a new product unless the 120-hour gate permits it.",
-        "Add product package metadata and Store asset placeholders only when they are real product assets; do not fabricate Identity."
+        "Locate an existing authorized candidate in .candidate/project; the rotating-cube template is not a sellable game.",
+        "Run python factory3d.py validate, python factory3d.py qa and python factory3d.py accept using Godot 4.3; preserve the 120-hour acceptance gate.",
+        "Commit a real accepted playable product under products/<slug>/ and pin the new source SHA for Provisioner."
       ]
     },
     "provisioner_windows_build": {
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
-      "result": "Pinned product-scoped Godot export and EXE/PCK completeness guards are implemented.",
+      "result": "Pinned Godot Windows export is implemented; Provisioner now allowlists the active Factory MSIX branch and returns verified_source_sha in reviewed Identity JSON.",
       "evidence": [
-        "head:fa2852c735a5fa74f27ae509dc272ed212b96e1a",
-        "run:40409424715"
+        "head:05a525f1b06f62b83c02e683755a84eb4f8a4c14",
+        "run:40424203464",
+        "commit:040ab72100ec080b1be0888e89e047d27590cfdc"
       ],
       "remaining": [
-        "Run against one real Factory products/<slug>/ checkout and preserve build evidence."
+        "Run against one real accepted Factory products/<slug>/ checkout and preserve Windows EXE/PCK evidence.",
+        "Partner Center Identity lookup/return remains HOLD until authenticated official evidence is supplied."
       ]
     },
     "official_identity_roundtrip": {
@@ -117,16 +122,15 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/3d-game-factory",
-      "result": "A fail-closed Godot -> AppxManifest -> MakeAppx unsigned MSIX workflow is implemented and syntax-tested.",
+      "result": "Factory Godot/MakeAppx path is syntax-tested and now rejects dirty/untracked product files and non-approved branches; no real Identity or Store assets are available.",
       "evidence": [
-        "head:bf80da05a01bea502ee12aaa1968f9bc61f016b3",
-        "run:40419346456",
-        "workflow:.github/workflows/msix-export.yml",
+        "head:aec24036377a67a7dfed8aa239a35e2828e0d827",
+        "run:40424252645",
         "script:tools/build_godot_store_msix.ps1"
       ],
       "remaining": [
-        "Run the workflow with a real products/<slug>/ and reviewed approved-identity.json.",
-        "Upload a real 3d-store-msix-qa-unsigned-<slug> artifact."
+        "Supply a committed accepted 3D product, real Store assets and authenticated approved-identity.json with verified_source_sha.",
+        "Run the actual Windows Godot/MakeAppx workflow; verify unsigned MSIX artifact and SHA-256 before QA."
       ]
     },
     "msix_byte_qa": {
@@ -191,12 +195,12 @@
     "stage_id": "factory_product_materialization",
     "repo": "shihuiarenjinba-png/3d-game-factory",
     "branch": "codex/3d-real-msix-build-path-20261027",
-    "goal": "Materialize one existing accepted 3D candidate under products/<slug>/ so the real Provisioner/MSIX path can be exercised.",
+    "goal": "Locate and validate one existing authorized playable 3D candidate. If none exists, keep product materialization on HOLD and do not promote the rotating-cube template or generate a new game without the 120-hour gate.",
     "acceptance": [
-      "No new 3D product is generated unless the 120-hour policy gate is satisfied.",
-      "Committed product contains a real Godot project and Windows Desktop export preset.",
-      "Source SHA is pinned and can be handed to Repository-Provisioner-3D.",
-      "No Store Identity, price, security declaration, or certification result is fabricated."
+      "An existing playable candidate has complete Godot 4.3 sources, Windows Desktop export preset and independent smoke test.",
+      "Godot 4.3 headless import and smoke test PASS with SHA-256/cycle-bound QA evidence before accept.",
+      "Factory 120-hour gate is checked again during accept and only the accepted product is committed under products/<slug>/.",
+      "No Store Identity, price, security declaration, certification result or Windows GPU QA is fabricated."
     ]
   }
 }
