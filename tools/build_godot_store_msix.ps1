@@ -81,7 +81,7 @@ if ($verifiedSourceSha -notmatch '^[0-9a-f]{40}$') { Stop-Hold 'verified source 
 if ($expectedHeadSha -ne $verifiedSourceSha) { Stop-Hold 'expected HEAD SHA differs from verified source SHA' }
 if ($localPackageSha256 -notmatch '^[0-9a-f]{64}$') { Stop-Hold 'local package SHA-256 is malformed' }
 if ($localPackageKind -notin @('exe','msix','appx')) { Stop-Hold 'local package kind is invalid' }
-if (-not $packageSid.StartsWith('S-1-15-2-')) { Stop-Hold 'official Package SID is malformed' }
+if (-not ($packageSid.StartsWith('S-1-15-2-'))) { Stop-Hold 'official Package SID is malformed' }
 try { $evidence = [Uri]$evidenceUrl } catch { Stop-Hold 'invalid Partner Center evidence URL' }
 if ($evidence.Scheme -ne 'https' -or $evidence.Host -notin @('partner.microsoft.com', 'partnercenter.microsoft.com')) {
     Stop-Hold 'untrusted Partner Center evidence URL'
