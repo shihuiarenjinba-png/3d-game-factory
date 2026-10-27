@@ -1,12 +1,12 @@
 # 3D Pipeline Progress
 
 - Ledger schema: `1.0`
-- Updated UTC: `2026-10-27T04:23:00Z`
+- Updated UTC: `2026-10-27T06:25:49Z`
 - New-product gate: **HOLD** — No accepted 3D candidate baseline or explicit new_product_allowed=true authorization exists; generation and new staging remain HOLD while existing QA/build/transport are improved.
 - Next stage: `msix_byte_qa`
 - Next repository: `shihuiarenjinba-png/3d-build-qa`
 - Next branch: `codex/3d-msix-zip-path-safety-20261027-1235`
-- Next HEAD: `12e776978b00f5eb65ca39b95b8facc4048d635d`
+- Next HEAD: `ea6540037e359860775fbfd423244ea3f9ffeee6`
 
 ## Stage status
 
@@ -25,7 +25,7 @@
 
 ## Next action
 
-Continue the isolated 3D MSIX exact-byte QA gate on PR #4 HEAD 12e776978b00f5eb65ca39b95b8facc4048d635d (CI 40449263074 success). The next E2E evidence step is the first authentic Factory 3D MSIX from an independently reviewed playable source and authenticated Partner Center Identity; until available, only harden QA/contract/transport and keep byte QA, GPU QA, signing and Store HOLD. Do not generate a new candidate: generation_gate.new_product_allowed=false and active_product=null.
+Continue the isolated 3D MSIX exact-byte QA gate on PR #4 HEAD ea6540037e359860775fbfd423244ea3f9ffeee6 (CI 40461036388 success). The next E2E evidence step is the first authentic Factory 3D MSIX from an independently reviewed playable source and authenticated Partner Center Identity; until available, only harden QA/contract/transport and keep byte QA, GPU QA, signing and Store HOLD. Do not generate a new candidate: generation_gate.new_product_allowed=false and active_product=null.
 
 Acceptance:
 - 3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.
@@ -36,12 +36,19 @@ Acceptance:
 
 ## Evidence pins
 
-- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-qa-zip-ledger-20261027-1235` / `06092247b5bb99b1192ee5527cfb2c22650becac` / run `40445037518`
-- **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/3d-local-identity-provenance-20261027` / `a1727307884176bfa97f714c47705281240d83c3` / run `40431389877`
+- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-dispatch-guard-integration-20261027-1452` / `273b4bcd750432e2ba899414107de7177166848d` / run `40457985405`; Draft PR #11 (ledger maintained on Draft PR #10)
+- **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/e2e-belt-connection-20261027` / `70600e77f2dd4278a989604314eebfa662e05c33` / run `40454089167`; Draft PR #7
 - **template** — `shihuiarenjinba-png/3d-game-template` / `codex/3d-template-godot-bootstrap-20261026` / `e5462d0aa1f5d0a50fa484ad1544c11ce8a6085a` / run `40360649193`; artifact `godot-3d-windows-x64-qa-unsigned`
-- **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-zip-path-safety-20261027-1235` / `12e776978b00f5eb65ca39b95b8facc4048d635d` / run `40449263074`
-- **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/3d-identity-active-branch-cas-20261027-1235` / `681538cb65ffecc9959fec1f021f8a49ee22810c` / run `40444979139`
+- **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-zip-path-safety-20261027-1235` / `ea6540037e359860775fbfd423244ea3f9ffeee6` / run `40461036388`; Draft PR #4
+- **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/e2e-belt-connection-20261027` / `cca585d07eaa1e7e1e5b82d63613f59667989184` / run `40458042620`; Draft PR #14
 - **windows_data** — `shihuiarenjinba-png/Windows-data` / `codex/msix-auto-build-identity-20261025` / `664b9afcbed63539b89f594892d831d97b9d4118` / run `40259906737`; artifact `MSIXAutoBuildIdentity-Windows-QA`
+
+## 2026-10-27 06:25 UTC verification
+
+- 3D QA PR #4 adds a Windows ZIP path regression for superscript COM¹/²/³ and LPT¹/²/³ device names. Guard commit `bd5019d009d145c33d41269c96b01d3efe05d96f`, test commit `ea6540037e359860775fbfd423244ea3f9ffeee6`; CI [40461036388](https://github.com/shihuiarenjinba-png/3d-build-qa/actions/runs/40461036388) **SUCCESS**. This is offline code validation, **not** real-MSIX byte QA.
+- Factory [Draft PR #11](https://github.com/shihuiarenjinba-png/3d-game-factory/pull/11) dispatch guard and Provisioner [Draft PR #7](https://github.com/shihuiarenjinba-png/Repository-Provisioner-3D/pull/7) each have green CI. Windows-all-auto [Draft PR #14](https://github.com/shihuiarenjinba-png/Windows-all-auto/pull/14) also has green CI but **diverges** from the isolated 3D CAS branch (31 ahead, 20 behind); do not auto-merge or treat the branches as equivalent.
+- Handoff `Windows-all-auto/codex/e2e-belt-connection-20261027:ops/active_e2e_handoff.json` still reports `other_lanes.GAME_3D.phase=GENERATION_GATE_HOLD__NO_ACCEPTED_PRODUCT`. It is a coordination record, not an accepted product or a real MSIX.
+- `generation_gate.state=HOLD`, `new_product_allowed=false`, `active_product=null`. Template artifact `godot-3d-windows-x64-qa-unsigned` is only EXE/PCK QA. Authentic playable source, official Partner Center Identity, real MSIX, Windows GPU/launch QA and Store validation remain **HOLD**.
 
 ## Automation rule
 
