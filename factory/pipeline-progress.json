@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T03:32:28Z",
+  "updated_at_utc": "2026-10-27T03:35:03Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -44,9 +44,9 @@
     },
     "intake": {
       "repo": "shihuiarenjinba-png/Windows-all-auto",
-      "branch": "codex/3d-e2e-trace-contract-20261027",
-      "head": "d0ad76c0312669e9cb8ff67dfd893dd61539388b",
-      "ci_run_id": 40431368563
+      "branch": "codex/3d-identity-active-branch-cas-20261027-1235",
+      "head": "681538cb65ffecc9959fec1f021f8a49ee22810c",
+      "ci_run_id": 40444968185
     }
   },
   "stage_order": [
@@ -134,13 +134,17 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/Windows-all-auto",
-      "result": "3D Identity return now preserves request_id, GAME_3D product type, Factory/repository/branch/source SHA/slug, local package SHA/kind/signature status, and official Store ID/Identity/Publisher/Version/PFN/Package SID. Existing records are reusable only when the whole manufacturing provenance matches.",
+      "result": "3D Identity return no longer targets a stale hard-coded Factory branch: it validates the exact active codex/* source_branch, requires original source_sha == expected_head_sha, checks live HEAD and commits with GitHub CAS. Linux/Windows offline tests pass. No real authenticated Partner Center Identity has been supplied or returned; actual Identity stage remains HOLD.",
       "evidence": [
         "provisioner-head:a1727307884176bfa97f714c47705281240d83c3",
         "provisioner-run:40431389877",
         "intake-head:d0ad76c0312669e9cb8ff67dfd893dd61539388b",
         "intake-run:40431368563",
-        "windows-all-auto-pr:8"
+        "windows-all-auto-pr:8",
+        "branch:codex/3d-identity-active-branch-cas-20261027-1235",
+        "commit:681538cb65ffecc9959fec1f021f8a49ee22810c",
+        "run:40444968185:SUCCESS-ubuntu-windows",
+        "pr:11:DRAFT"
       ],
       "remaining": [
         "Use one authenticated local Partner Center record for a real accepted product; no official value may be guessed.",
@@ -175,7 +179,9 @@
         "branch:codex/3d-msix-zip-path-safety-20261027-1235",
         "commit:a918834a3122d8f74684b43102ad9070f606c527",
         "run:40444730016:SUCCESS-offline-tests",
-        "pr:4:DRAFT"
+        "pr:4:DRAFT",
+        "factory-ledger-commit:1186dad25a9016f4ed70e720afd40f0f702bb244",
+        "factory-ledger-run:40444863930:SUCCESS-46-tests"
       ],
       "remaining": [
         "Acquire a real, accepted Factory 3D candidate MSIX with original request_id/source_sha, authenticated Partner Center Identity, and actual artifact SHA; no such MSIX exists.",
@@ -242,7 +248,8 @@
       "3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.",
       "All MSIX ZIP entries pass Windows path/collision/symlink/encryption/expansion preflight; package SHA and manifest executable/Identity are checked against real bytes.",
       "Factory→Provisioner→Windows→Factory→MSIX→Windows-all-auto retains request_id, source_repository, source_branch, source_sha and slug; HEAD mismatch is CONFLICT and replay only same request_id plus same source_sha.",
-      "Real Factory MSIX Artifact, official Partner Center Identity, GPU QA, signing and Store validation remain individually HOLD until independently evidenced."
+      "Real Factory MSIX Artifact, official Partner Center Identity, GPU QA, signing and Store validation remain individually HOLD until independently evidenced.",
+      "Official Identity return uses only the exact active safe codex/* Factory source branch and expected HEAD CAS; stale hard-coded branch targets are rejected."
     ]
   }
 }
