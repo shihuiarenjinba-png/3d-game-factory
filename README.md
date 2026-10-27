@@ -57,3 +57,21 @@ The Factory source-only and Provisioner v1 handoff use the active
 allowlist. MSIX building also rejects uncommitted or untracked product changes.
 A real `products/<slug>` can be committed only after the candidate passes QA
 and acceptance; no template cube is mislabeled as a finished game.
+
+## 3D MSIX → Windows-all-auto artifact contract
+
+When a real accepted product has approved Partner Center Identity, committed
+Store PNG assets, and a verified `verified_source_sha`, manually dispatch
+`.github/workflows/msix-export.yml` with the exact product slug. The Windows
+runner exports a real Godot Windows EXE/PCK, builds a QA_UNSIGNED MSIX with
+MakeAppx, and uploads **two separate** artifacts:
+
+- `3d-store-msix-qa-unsigned-<slug>`: raw MSIX and build evidence for QA.
+- `factory-msix-handoff-<slug>`: strictly `package.msix` plus
+  `handoff.json`, with source repository, Actions HEAD SHA, 3D lane, SHA-256,
+  package bytes and embedded Identity values for `Windows-all-auto`.
+
+The 3D bridge accepts only the reviewed workflow path/name and exact active
+Factory branch. No Store ID, GPU QA, signing, WACK or publication is inferred.
+Until a real product and official Identity exist, this MSIX/transfer path is
+implemented but **not end-to-end verified**.
