@@ -350,7 +350,7 @@
   "source_sha": null,
   "factory_build_sha": null,
   "quality_gates": {
-    "ci": "PASS_OFFLINE_QA_40530733297_68_TESTS_EXPECTED",
+    "ci": "PASS_OFFLINE_QA_40530733297_66_TESTS_VERIFIED",
     "contract": "PASS_SYNTHETIC_ZIP_LFH_CRC_SIZE_MANIFEST_BLOCKMAP_OPC_ONLY",
     "e2e": "HOLD",
     "commercial": "HOLD"
