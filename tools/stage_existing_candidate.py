@@ -20,6 +20,35 @@ from factory3d import ROOT, EXTENSIONS, candidate_digest, due, prepare, read, va
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 MAX_FILES = 35
 MAX_BYTES = 180000
+WINDOWS_RESERVED = {
+    "CON", "PRN", "AUX", "NUL",
+    *(f"COM{i}" for i in range(1, 10)),
+    *(f"LPT{i}" for i in range(1, 10)),
+}
+WINDOWS_FORBIDDEN = set('<>:"|?*') | {chr(92)}
+
+
+def require_windows_safe_path(relative: Path, seen: set[str]) -> None:
+    """Reject paths that cannot survive a case-insensitive Windows export.
+
+    Check directories as well as files: Linux checkouts may contain both
+    scenes/Level and scenes/level, which alias on typical NTFS.
+    """
+    name = relative.as_posix()
+    if len(name) > 240:
+        raise ValueError("candidate path exceeds Windows-safe length")
+    key = name.casefold()
+    if key in seen:
+        raise ValueError("Windows path collision in candidate source")
+    seen.add(key)
+    for part in relative.parts:
+        if (not part or len(part) > 240 or part.endswith((" ", "."))
+                or any(char in WINDOWS_FORBIDDEN or ord(char) < 32 for char in part)):
+            raise ValueError("Windows-unsafe candidate path component")
+        if part.split(".", 1)[0].upper() in WINDOWS_RESERVED:
+            raise ValueError("Windows reserved device name in candidate source")
+
+
 
 
 def stage_existing_candidate(
@@ -53,12 +82,14 @@ def stage_existing_candidate(
 
     count = 0
     total = 0
+    seen_windows_paths: set[str] = set()
     for path in source.rglob("*"):
         if path.is_symlink():
             raise ValueError("source contains a symlink")
         if not path.is_dir() and not path.is_file():
             raise ValueError("source contains unsupported filesystem entry")
         relative = path.relative_to(source)
+        require_windows_safe_path(relative, seen_windows_paths)
         if any(part.startswith(".") for part in relative.parts):
             raise ValueError("hidden/cache paths are not allowed in source")
         if path.is_file():

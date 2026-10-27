@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 import tempfile
@@ -85,6 +86,30 @@ class StageExistingCandidateTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "symlink"):
                 stage_existing_candidate(root, source, candidate_digest(source), source_reviewed=True)
             self.assertFalse((root / ".candidate").exists())
+
+    @unittest.skipIf(os.name == "nt", "requires a case-sensitive fixture filesystem")
+    def test_rejects_casefold_collision_before_staging(self):
+        with tempfile.TemporaryDirectory() as factory_dir, tempfile.TemporaryDirectory() as src_dir:
+            root, source = Path(factory_dir), Path(src_dir)
+            fixture(root, source)
+            (source / "README.MD").write_text("duplicate case-insensitive path", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "Windows path collision"):
+                stage_existing_candidate(root, source, candidate_digest(source), source_reviewed=True)
+            self.assertFalse((root / ".candidate").exists())
+
+    @unittest.skipIf(os.name == "nt", "requires names forbidden on Windows")
+    def test_rejects_reserved_and_unsafe_windows_paths(self):
+        for invalid in ("scripts/CON.gd", "scripts/bad:name.gd", "scenes/trailing./main.tscn"):
+            with self.subTest(invalid=invalid):
+                with tempfile.TemporaryDirectory() as factory_dir, tempfile.TemporaryDirectory() as src_dir:
+                    root, source = Path(factory_dir), Path(src_dir)
+                    fixture(root, source)
+                    target = source / invalid
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_text("invalid path", encoding="utf-8")
+                    with self.assertRaisesRegex(ValueError, "Windows"):
+                        stage_existing_candidate(root, source, candidate_digest(source), source_reviewed=True)
+                    self.assertFalse((root / ".candidate").exists())
 
 
 if __name__ == "__main__":

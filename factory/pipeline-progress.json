@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T01:18:36Z",
+  "updated_at_utc": "2026-10-27T02:05:53Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -19,9 +19,9 @@
   "repositories": {
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
-      "branch": "codex/3d-real-msix-build-path-20261027",
-      "head": "dced8d5a2091d6b4d895f72826114fcc2cca81a1",
-      "ci_run_id": 40431771427
+      "branch": "codex/3d-stage-windows-path-guard-20261027",
+      "head": "4300534c7bfc50476768c5c3bb17166927ec9d06",
+      "ci_run_id": 40436400201
     },
     "provisioner": {
       "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
@@ -77,7 +77,7 @@
       "state": "HOLD",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/3d-game-factory",
-      "result": "No accepted playable 3D product exists. A real existing-source staging CLI now verifies explicit review acknowledgement, exact SHA-256, safe file tree, 120-hour gate, no overwrite and atomic publication to .candidate/project. Godot 4.3 engine QA and product acceptance remain HOLD until reviewed playable source is supplied.",
+      "result": "No accepted playable 3D product exists. Reviewed-source staging now rejects Windows case-folded path collisions, reserved device names, illegal characters and trailing-dot/space paths before import; SHA-256, quotas, 120-hour gate and atomic publication remain enforced. Godot 4.3 engine QA and product acceptance remain HOLD until reviewed playable source is supplied.",
       "evidence": [
         "commit:ce76ce02f265364150ec2fec54a4ec4088753739",
         "commit:225f60087847954e4248d3408c7fb4d1bc9762f8",
@@ -88,7 +88,9 @@
         "commit:0c2324b4fe5d798753ab1a29204a2f0074c371b2",
         "commit:551b69c0a1cb1a46abcd1062e2bcad62888ee718",
         "commit:291148093850ad429d1c161d92353260f7803653",
-        "run:40430557102"
+        "run:40430557102",
+        "commit:4300534c7bfc50476768c5c3bb17166927ec9d06",
+        "run:40436400201"
       ],
       "remaining": [
         "Locate an independently reviewed, authorized and genuinely playable Godot 4.3 game source outside this Factory checkout; rotating-cube engine template is not a sellable game.",
@@ -216,8 +218,8 @@
   "next_action": {
     "stage_id": "factory_product_materialization",
     "repo": "shihuiarenjinba-png/3d-game-factory",
-    "branch": "codex/3d-real-msix-build-path-20261027",
-    "goal": "Find an existing authorized playable Godot 4.3 project, stage it by reviewed exact source SHA-256 with tools/stage_existing_candidate.py, then run real Godot QA before 120-hour-gated acceptance. No source is currently available, so product materialization stays HOLD; do not generate a new game or promote the rotating-cube template.",
+    "branch": "codex/3d-stage-windows-path-guard-20261027",
+    "goal": "Locate an existing authorized playable Godot 4.3 project outside this Factory checkout; stage it with reviewed exact source SHA-256 and Windows-safe paths, then run real Godot QA before 120-hour-gated acceptance. No source is currently available; do not generate a new game or promote the rotating-cube template.",
     "acceptance": [
       "Source rights/gameplay are independently reviewed and --source-reviewed is explicitly provided; no source is invented.",
       "Stage tool verifies expected SHA-256, quotas, symlink/cache exclusion, 120-hour gate and no overwrite; candidate is not automatically accepted.",
