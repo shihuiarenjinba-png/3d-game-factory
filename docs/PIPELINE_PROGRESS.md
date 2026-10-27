@@ -1,12 +1,12 @@
 # 3D Pipeline Progress
 
 - Ledger schema: `1.0`
-- Updated UTC: `2026-10-27T17:25:24Z`
+- Updated UTC: `2026-10-27T18:29:06Z`
 - New-product gate: **HOLD** — No accepted 3D candidate baseline or explicit new_product_allowed=true authorization exists; generation and new staging remain HOLD while existing QA/build/transport are improved.
 - Next stage: `msix_byte_qa`
 - Next repository: `shihuiarenjinba-png/3d-build-qa`
 - Next branch: `codex/3d-msix-zip-path-safety-20261027-1235`
-- Next HEAD: `064b82631f93378aa72bacb44729edd8492bbb2d`
+- Next HEAD: `5fb3c2c59f222ba44951d16848b6e2e0f6275319`
 
 ## Stage status
 
@@ -17,7 +17,7 @@
 | `provisioner_windows_build` | **IN_PROGRESS** | yes | Local 3D manufacturing now accepts a real Godot Windows EXE/PCK export as pre-MSIX payload evidence, preserves its SHA/signature status, requires official Store ID/Identity/Publisher/Version/PFN/Package SID evidence, and returns the full request/product/source correlation key to Factory. Final Identity-to-package match is deliberately deferred to the Factory MSIX. |
 | `official_identity_roundtrip` | **IN_PROGRESS** | yes | 3D Identity return no longer targets a stale hard-coded Factory branch: it validates the exact active codex/* source_branch, requires original source_sha == expected_head_sha, checks live HEAD and commits with GitHub CAS. Linux/Windows offline tests pass. No real authenticated Partner Center Identity has been supplied or returned; actual Identity stage remains HOLD. |
 | `factory_msix_build` | **IN_PROGRESS** | yes | Factory MSIX builder now consumes the returned 3D correlation/provenance record, keeps the original product source_sha immutable, records the later GitHub packaging commit separately as factory_build_head, and carries local package SHA plus Store ID/PFN/SID into the strict handoff. PowerShell syntax and Factory quality gates pass. |
-| `msix_byte_qa` | **IN_PROGRESS** | yes | GPBF bit-3 ZIP data descriptors now cross-check CRC32 and compressed/uncompressed sizes against the central directory. A non-seekable Python ZIP fixture proved zipfile still reads payload bytes after descriptor tampering; new 32-bit and ZIP64 positive/negative regressions pass 70/70 on QA PR4 HEAD 064b8263 CI 40550405898. An initial signature-escape error in CI 40550321344 was corrected in the same run. Authentic MakeAppx descriptors, real 3D MSIX and Windows GPU/GUI remain unverified. |
+| `msix_byte_qa` | **IN_PROGRESS** | yes | Signatureless ZIP GPBF bit-3 32-bit and ZIP64 descriptors pass realistic Python non-seekable fixtures. Forged nonzero local CRC/compressed/uncompressed placeholders were reproduced as six erroneous accepts in RED CI 40560260636, then blocked by the bit-3 LFH guard; QA PR4 HEAD 5fb3c2c59f222ba44951d16848b6e2e0f6275319 CI 40560378006 PASS 72/72. Actual MakeAppx bytes, accepted product, Windows GPU/GUI remain unverified. |
 | `windows_all_auto_intake` | **IN_PROGRESS** | yes | 3D intake now validates the complete manufacturing correlation key and treats source_sha as the immutable original product SHA while separately binding factory_build_head to the exact successful Actions run. It rechecks MSIX bytes/Identity and rejects lane/request/branch/provenance mixing. Ubuntu and Windows offline CI pass. |
 | `local_windows_gpu_qa` | **HOLD** | no | Not executed. |
 | `signing_and_store_validation` | **HOLD** | no | Not executed. |
@@ -25,7 +25,7 @@
 
 ## Next action
 
-3D QA PR #4 HEAD 064b82631f93378aa72bacb44729edd8492bbb2d CI 40550405898 SUCCESS: GPBF bit-3 ZIP data descriptors now cross-check CRC32 and 32/64-bit compressed/uncompressed sizes against central metadata; 70/70 synthetic tests PASS. Next verify signatureless data-descriptor variants and actual MakeAppx MSIX bytes when available, without weakening ZIP64, BlockMap or OPC guards. Windows-all-auto PR #14 HEAD 9750c43276ab1d7c31d1b5f1694ddbaeae213be9 CI 40543152141 SUCCESS; 3D CAS branch diverged 54 ahead / 20 behind, no automatic merge. 36min Windows owner must rebind central 3D Factory/QA evidence to the exact current HEADs and retain GAME_3D isolated queue plus immutable request_id/source_sha/factory_build_head correlation. No accepted 3D product, official Identity or real MSIX; 120h gate HOLD, active_product=null, new_product_allowed=false.
+3D QA PR #4 HEAD 5fb3c2c59f222ba44951d16848b6e2e0f6275319 CI 40560378006 SUCCESS: signatureless GPBF bit-3 32-bit/ZIP64 descriptor fixtures PASS and six forged local CRC/size placeholders rejected after expected RED CI 40560260636; 72/72 synthetic tests PASS. Next obtain genuine MakeAppx-generated MSIX fixture and verify ZIP descriptor/LFH/BlockMap/OPC compatibility without relaxing safety guards. Windows-all-auto PR #14 HEAD 50d7384721e4831665df93296bd33eab04488a3a CI 40553170850 SUCCESS; 36min owner must reconcile central GAME_3D ledger/isolated queue to current 3D Factory and QA heads, preserving request_id, immutable source_sha and factory_build_head. No accepted 3D product, official Identity, actual 3D MSIX or Windows GPU/GUI QA; 120h generation gate HOLD, active_product=null, new_product_allowed=false.
 
 Acceptance:
 - 3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.
@@ -44,14 +44,15 @@ Acceptance:
 - Reject contradictory ZIP local CRC/compressed/uncompressed sizes when data-descriptor bit is absent; preserve ZIP64 sentinel compatibility pending real MakeAppx evidence. CI 40530733297 is synthetic, not product E2E.
 - ZIP64 local 0xffffffff size sentinels require an actual local ZIP64 extra field with 64-bit uncompressed/compressed sizes matching the central directory; malformed/forged values are rejected, valid force_zip64 fixture passes. QA 40540481221 68/68 synthetic tests PASS, not real MakeAppx evidence.
 - For GPBF bit 3, reject forged ZIP data-descriptor CRC and compressed/uncompressed sizes, including ZIP64 variants; Python non-seekable ZIP fixtures PASS 70/70 on CI 40550405898 but real MakeAppx compatibility remains unproven.
+- For GPBF bit 3, accept both signed and signatureless ZIP data descriptors for 32-bit and ZIP64 fixtures; reject forged nonzero local CRC or nonzero/non-ZIP64 local size placeholders. RED CI 40560260636 and GREEN CI 40560378006 (72 tests) are synthetic only, not MakeAppx/E2E proof.
 
 ## Evidence pins
 
-- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-dispatch-guard-current-ledger-20261027-1628` / `4de73b2495aa9690350ecb3180470c0335862833` / run `40540676085`
+- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-dispatch-guard-current-ledger-20261027-1628` / `44b7bcfee8226435d8fd2ad7482a1723acc7502b` / run `40550580074`
 - **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/e2e-belt-connection-20261027` / `70600e77f2dd4278a989604314eebfa662e05c33` / run `40454089167`
 - **template** — `shihuiarenjinba-png/3d-game-template` / `codex/3d-template-godot-bootstrap-20261026` / `e5462d0aa1f5d0a50fa484ad1544c11ce8a6085a` / run `40360649193`; artifact `godot-3d-windows-x64-qa-unsigned`
-- **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-zip-path-safety-20261027-1235` / `064b82631f93378aa72bacb44729edd8492bbb2d` / run `40550405898`
-- **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/e2e-belt-connection-20261027` / `9750c43276ab1d7c31d1b5f1694ddbaeae213be9` / run `40543152141`
+- **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-zip-path-safety-20261027-1235` / `5fb3c2c59f222ba44951d16848b6e2e0f6275319` / run `40560378006`
+- **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/e2e-belt-connection-20261027` / `50d7384721e4831665df93296bd33eab04488a3a` / run `40553170850`
 - **windows_data** — `shihuiarenjinba-png/Windows-data` / `codex/msix-auto-build-identity-20261025` / `664b9afcbed63539b89f594892d831d97b9d4118` / run `40259906737`; artifact `MSIXAutoBuildIdentity-Windows-QA`
 
 ## Automation rule
