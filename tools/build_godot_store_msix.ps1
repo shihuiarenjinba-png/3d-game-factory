@@ -67,11 +67,21 @@ $localSignatureStatus = Require-Text $identity 'local_signature_status' 80
 $evidenceUrl = Require-Text $identity 'evidence_url' 2048
 $verifiedBy = Require-Text $identity 'verified_by' 100
 
-if ($requestId -notmatch '^[A-Za-z0-9][A-Za-z0-9._:-]{3,127}
+if ($requestId -notmatch '^[A-Za-z0-9][A-Za-z0-9._:-]{3,127}$') { Stop-Hold 'invalid request_id' }
+if ($productType -ne 'GAME_3D') { Stop-Hold 'approved identity product_type mismatch' }
+if ($sourceFactory -ne '3d-game-factory') { Stop-Hold 'approved identity source_factory mismatch' }
+if ($sourceRepository -ne 'shihuiarenjinba-png/3d-game-factory') { Stop-Hold 'approved identity source_repository mismatch' }
+if ($sourceBranch -ne 'codex/3d-real-msix-build-path-20261027') { Stop-Hold 'approved identity source_branch mismatch' }
+if ($identitySlug -ne $Slug) { Stop-Hold 'approved identity slug mismatch' }
+if ($storeId -notmatch '^[A-Za-z0-9]{8,32}$') { Stop-Hold 'invalid Store ID format' }
 if ($identityName -notmatch '^[A-Za-z][A-Za-z0-9._-]{2,49}$') { Stop-Hold 'invalid package Identity Name' }
 if ($publisher -notmatch '^CN=') { Stop-Hold 'invalid Publisher subject' }
 if ($version -notmatch '^\d{1,5}(\.\d{1,5}){3}$') { Stop-Hold 'invalid four-part package version' }
-if ($verifiedSourceSha -notmatch '^[0-9a-f]{40}
+if ($verifiedSourceSha -notmatch '^[0-9a-f]{40}$') { Stop-Hold 'verified source SHA is missing or malformed' }
+if ($expectedHeadSha -ne $verifiedSourceSha) { Stop-Hold 'expected HEAD SHA differs from verified source SHA' }
+if ($localPackageSha256 -notmatch '^[0-9a-f]{64}$') { Stop-Hold 'local package SHA-256 is malformed' }
+if ($localPackageKind -notin @('exe','msix','appx')) { Stop-Hold 'local package kind is invalid' }
+if (-not $packageSid.StartsWith('S-1-15-2-')) { Stop-Hold 'official Package SID is malformed' }
 try { $evidence = [Uri]$evidenceUrl } catch { Stop-Hold 'invalid Partner Center evidence URL' }
 if ($evidence.Scheme -ne 'https' -or $evidence.Host -notin @('partner.microsoft.com', 'partnercenter.microsoft.com')) {
     Stop-Hold 'untrusted Partner Center evidence URL'
