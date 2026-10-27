@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T03:11:40Z",
+  "updated_at_utc": "2026-10-27T03:32:28Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -19,9 +19,9 @@
   "repositories": {
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
-      "branch": "codex/3d-accept-qa-snapshot-20261027-1209",
-      "head": "f5d9ded36e686780c3854e5343328b6990b49e2f",
-      "ci_run_id": 40442744751
+      "branch": "codex/3d-qa-zip-ledger-20261027-1235",
+      "head": "e7682c3ba54241b0962d3dedec10fbad51200384",
+      "ci_run_id": 40442791871
     },
     "provisioner": {
       "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
@@ -38,9 +38,9 @@
     },
     "qa": {
       "repo": "shihuiarenjinba-png/3d-build-qa",
-      "branch": "codex/3d-msix-executable-payload-20261027",
-      "head": "04f2b1f74674159197cc3f8fa7503705b4febcfb",
-      "ci_run_id": 40417351553
+      "branch": "codex/3d-msix-zip-path-safety-20261027-1235",
+      "head": "a918834a3122d8f74684b43102ad9070f606c527",
+      "ci_run_id": 40444730016
     },
     "intake": {
       "repo": "shihuiarenjinba-png/Windows-all-auto",
@@ -69,7 +69,8 @@
       "result": "Godot 4.3 Windows x64 EXE/PCK export succeeds and produces a real QA artifact.",
       "evidence": [
         "run:40360649193",
-        "artifact:godot-3d-windows-x64-qa-unsigned"
+        "artifact:godot-3d-windows-x64-qa-unsigned",
+        "artifact-archive-sha256:5e229677d5fea2b8025f8f90e7eed5f17ea14ed61083f18ac1745b8b56e240ee"
       ],
       "remaining": []
     },
@@ -167,13 +168,19 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/3d-build-qa",
-      "result": "MSIX SHA/manifest/Identity/executable payload checks are implemented.",
+      "result": "3D MSIX QA now rejects Windows-ambiguous ZIP entries (traversal, DOS devices, ADS, case collisions, file/directory conflicts, symlinks), unsupported/encrypted entries and expansion bombs before reading manifest/executable bytes. Synthetic offline tests and CI pass. No actual Factory 3D MSIX has been produced or inspected; MSIX byte QA and real-device QA remain HOLD for a real product.",
       "evidence": [
         "head:04f2b1f74674159197cc3f8fa7503705b4febcfb",
-        "run:40417351553"
+        "run:40417351553",
+        "branch:codex/3d-msix-zip-path-safety-20261027-1235",
+        "commit:a918834a3122d8f74684b43102ad9070f606c527",
+        "run:40444730016:SUCCESS-offline-tests",
+        "pr:4:DRAFT"
       ],
       "remaining": [
-        "Run against the exact Factory MSIX artifact; current tests do not prove installability."
+        "Acquire a real, accepted Factory 3D candidate MSIX with original request_id/source_sha, authenticated Partner Center Identity, and actual artifact SHA; no such MSIX exists.",
+        "Run the stricter verifier against the exact MSIX bytes and compare the Factory build/run provenance; synthetic ZIP fixtures cannot establish an E2E PASS.",
+        "Perform real Windows install, GPU gameplay, controls, save/restart, security/signature and WACK QA separately before any Store handoff."
       ]
     },
     "windows_all_auto_intake": {
@@ -227,16 +234,15 @@
     }
   },
   "next_action": {
-    "stage_id": "factory_product_materialization",
-    "repo": "shihuiarenjinba-png/3d-game-factory",
-    "branch": "codex/3d-accept-qa-snapshot-20261027-1209",
-    "goal": "Find an independently reviewed authorized playable Godot 4.3 project outside Factory, stage its exact SHA-256 and run real engine QA before accepting. Acceptance now binds the actual copied product bytes to QA evidence; no reviewed game is available, so continue hardening manufacturing/QA/transport without inventing a candidate.",
+    "stage_id": "msix_byte_qa",
+    "repo": "shihuiarenjinba-png/3d-build-qa",
+    "branch": "codex/3d-msix-zip-path-safety-20261027-1235",
+    "goal": "Maintain the 3D-only MSIX byte and Windows ZIP safety gate without duplicating the 05-minute Factory candidate-acceptance work. The next evidence-based step is to obtain the first authentic Factory 3D MSIX and verify actual artifact bytes, manifest, immutable source_sha/request_id and Identity. Until a reviewed playable source and Partner Center Identity exist, keep E2E transport and local GPU QA HOLD; do not fabricate a candidate or treat offline tests as product PASS.",
     "acceptance": [
-      "Source ownership, licensing and gameplay are independently reviewed; source_reviewed is explicit and no source is invented.",
-      "Pre/post-copy audits, expected source digest, Windows-safe paths, no symlinks/cache, quotas, 120-hour gate and no overwrite hold.",
-      "Real Godot 4.3 import/smoke/60-frame main-scene QA binds exact source digest to the same cycle.",
-      "Acceptance rechecks the staged product and original source digest against QA evidence before publication; mismatches HOLD with no product or state advancement.",
-      "After real acceptance, proceed to Provisioner/official Identity/MSIX/Artifact intake; never infer Store Identity or declare E2E PASS without real MSIX."
+      "3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.",
+      "All MSIX ZIP entries pass Windows path/collision/symlink/encryption/expansion preflight; package SHA and manifest executable/Identity are checked against real bytes.",
+      "Factory→Provisioner→Windows→Factory→MSIX→Windows-all-auto retains request_id, source_repository, source_branch, source_sha and slug; HEAD mismatch is CONFLICT and replay only same request_id plus same source_sha.",
+      "Real Factory MSIX Artifact, official Partner Center Identity, GPU QA, signing and Store validation remain individually HOLD until independently evidenced."
     ]
   }
 }
