@@ -46,14 +46,14 @@ Acceptance:
 - For GPBF bit 3, reject forged ZIP data-descriptor CRC and compressed/uncompressed sizes, including ZIP64 variants; Python non-seekable ZIP fixtures PASS 70/70 on CI 40550405898 but real MakeAppx compatibility remains unproven.
 - For GPBF bit 3, accept both signed and signatureless ZIP data descriptors for 32-bit and ZIP64 fixtures; reject forged nonzero local CRC or nonzero/non-ZIP64 local size placeholders. RED CI 40560260636 and GREEN CI 40560378006 (72 tests) are synthetic only, not MakeAppx/E2E proof.
 - Actual Windows SDK MakeAppx fixture is unsigned/non-product: 78/78 regressions and ZIP/CRC/BlockMap/b4/OPC byte checks PASS, forged descriptor BLOCKED, but official Identity, real product E2E and Store readiness remain HOLD.
-- When independently pinned Godot export evidence is supplied, exact manifest EXE and external GDPC PCK SHA-256 must match actual MSIX payload; embedded PCK mode allows EXE-only. New synthetic MakeAppx 84/84 PASS is not authentic Godot export or product E2E.
+- When independently pinned Godot export evidence is supplied, the exact manifest EXE and optional external GDPC PCK bytes must match expected SHA-256. Missing/tampered PCK blocks; embedded PCK mode permits EXE-only. Synthetic MakeAppx PASS never proves real Godot export provenance, E2E, GPU/GUI or commercial readiness.
 
 ## Evidence pins
 
-- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-dispatch-guard-current-ledger-20261027-1628` / `32bb903c9547f1334a20abf78256752fd4950df2` / run `40571088383` (pre-ledger-commit observation)
+- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-dispatch-guard-current-ledger-20261027-1628` / `32bb903c9547f1334a20abf78256752fd4950df2` / run `40571088383`
 - **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/e2e-belt-connection-20261027` / `70600e77f2dd4278a989604314eebfa662e05c33` / run `40454089167`
 - **template** — `shihuiarenjinba-png/3d-game-template` / `codex/3d-template-godot-bootstrap-20261026` / `e5462d0aa1f5d0a50fa484ad1544c11ce8a6085a` / run `40360649193`; artifact `godot-3d-windows-x64-qa-unsigned`
-- **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-zip-path-safety-20261027-1235` / `e84c448e48105d15d2040f87fb279835ddd0119b` / run `40578299666` (Artifact 12768726218); artifact `makeappx-3d-offline-unsigned-fixture-not-product`
+- **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-zip-path-safety-20261027-1235` / `e84c448e48105d15d2040f87fb279835ddd0119b` / run `40578299666`; artifact `makeappx-3d-offline-unsigned-fixture-not-product`
 - **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/e2e-belt-connection-20261027` / `419021f8e12c51ed764652738a4f8b46a28f200d` / run `40572651775`
 - **windows_data** — `shihuiarenjinba-png/Windows-data` / `codex/msix-auto-build-identity-20261025` / `664b9afcbed63539b89f594892d831d97b9d4118` / run `40259906737`; artifact `MSIXAutoBuildIdentity-Windows-QA`
 
