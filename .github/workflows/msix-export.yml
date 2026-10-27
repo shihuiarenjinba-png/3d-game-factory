@@ -72,3 +72,12 @@ jobs:
             dist/msix-evidence.json
           if-no-files-found: error
           retention-days: 5
+      - name: Upload verified-format 3D handoff for Windows-all-auto
+        uses: actions/upload-artifact@v4
+        with:
+          name: factory-msix-handoff-${{ inputs.slug }}
+          path: |
+            dist/handoff/package.msix
+            dist/handoff/handoff.json
+          if-no-files-found: error
+          retention-days: 5
