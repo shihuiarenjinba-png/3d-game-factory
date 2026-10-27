@@ -214,6 +214,31 @@ $evidenceOut = [ordered]@{
 $evidencePath = Join-Path $outRoot 'msix-evidence.json'
 $evidenceOut | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $evidencePath -Encoding UTF8
 
+# Publish a separate, strict two-file handoff for Windows-all-auto.
+# The QA_UNSIGNED artifact is never a Store submission or certification claim.
+$handoffRoot = Join-Path $outRoot 'handoff'
+New-Item -ItemType Directory -Force -Path $handoffRoot | Out-Null
+$handoffPackage = Join-Path $handoffRoot 'package.msix'
+Copy-Item -LiteralPath $packagePath -Destination $handoffPackage -Force
+$handoff = [ordered]@{
+    schema_version = 1
+    source_repository = 'https://github.com/shihuiarenjinba-png/3d-game-factory'
+    source_sha = $currentHead
+    type = '3d-game'
+    slug = $Slug
+    package = 'package.msix'
+    status = 'QA_UNSIGNED'
+    package_sha256 = $hash
+    package_bytes = (Get-Item -LiteralPath $packagePath).Length
+    identity = [ordered]@{
+        name = $identityName
+        publisher = $publisher
+        version = $version
+    }
+}
+$handoffPath = Join-Path $handoffRoot 'handoff.json'
+$handoff | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $handoffPath -Encoding UTF8
+
 Write-Host "Created unsigned Store candidate: $packagePath"
 Write-Host "SHA256: $hash"
 Write-Host 'HOLD remains until signature/Store validation and Windows GPU QA are completed.'
