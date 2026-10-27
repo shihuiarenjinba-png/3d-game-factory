@@ -42,6 +42,29 @@ class PipelineProgressTests(unittest.TestCase):
         with self.assertRaisesRegex(LedgerError, "new_product_min_interval_hours"):
             validate(changed)
 
+    def test_new_generation_requires_explicit_boolean(self):
+        changed = copy.deepcopy(self.data)
+        del changed["generation_gate"]["new_product_allowed"]
+        with self.assertRaisesRegex(LedgerError, "new_product_allowed"):
+            validate(changed)
+        changed["generation_gate"]["new_product_allowed"] = True
+        with self.assertRaisesRegex(LedgerError, "generation state"):
+            validate(changed)
+
+    def test_active_product_cannot_coexist_with_new_generation(self):
+        changed = copy.deepcopy(self.data)
+        changed["generation_gate"]["state"] = "READY"
+        changed["generation_gate"]["new_product_allowed"] = True
+        changed["active_product"] = {"slug": "unfinished-3d"}
+        with self.assertRaisesRegex(LedgerError, "active_product"):
+            validate(changed)
+
+    def test_next_action_head_is_pinned(self):
+        changed = copy.deepcopy(self.data)
+        changed["next_action"]["expected_head_sha"] = "not-a-sha"
+        with self.assertRaisesRegex(LedgerError, "expected_head_sha"):
+            validate(changed)
+
     def test_done_stage_cannot_be_selected_as_next_action(self):
         changed = copy.deepcopy(self.data)
         changed["next_action"]["stage_id"] = "template_windows_export"
