@@ -1,12 +1,12 @@
 # 3D Pipeline Progress
 
 - Ledger schema: `1.0`
-- Updated UTC: `2026-10-27T13:29:29Z`
+- Updated UTC: `2026-10-27T14:22:27Z`
 - New-product gate: **HOLD** — No accepted 3D candidate baseline or explicit new_product_allowed=true authorization exists; generation and new staging remain HOLD while existing QA/build/transport are improved.
 - Next stage: `msix_byte_qa`
 - Next repository: `shihuiarenjinba-png/3d-build-qa`
 - Next branch: `codex/3d-msix-zip-path-safety-20261027-1235`
-- Next HEAD: `c3ada4a79994c5bed68ca27774bc67910f018724`
+- Next HEAD: `12fd7b4f8020c183c2842090d26e86c4e0dd462c`
 
 ## Stage status
 
@@ -17,7 +17,7 @@
 | `provisioner_windows_build` | **IN_PROGRESS** | yes | Local 3D manufacturing now accepts a real Godot Windows EXE/PCK export as pre-MSIX payload evidence, preserves its SHA/signature status, requires official Store ID/Identity/Publisher/Version/PFN/Package SID evidence, and returns the full request/product/source correlation key to Factory. Final Identity-to-package match is deliberately deferred to the Factory MSIX. |
 | `official_identity_roundtrip` | **IN_PROGRESS** | yes | 3D Identity return no longer targets a stale hard-coded Factory branch: it validates the exact active codex/* source_branch, requires original source_sha == expected_head_sha, checks live HEAD and commits with GitHub CAS. Linux/Windows offline tests pass. No real authenticated Partner Center Identity has been supplied or returned; actual Identity stage remains HOLD. |
 | `factory_msix_build` | **IN_PROGRESS** | yes | Factory MSIX builder now consumes the returned 3D correlation/provenance record, keeps the original product source_sha immutable, records the later GitHub packaging commit separately as factory_build_head, and carries local package SHA plus Store ID/PFN/SID into the strict handoff. PowerShell syntax and Factory quality gates pass. |
-| `msix_byte_qa` | **IN_PROGRESS** | yes | Offline MSIX QA now requires each AppxBlockMap File Name to match the exact ZIP member spelling using canonical Windows backslashes; forward-slash and case aliases reproduced as false accepts in CI 40512191980 (2 expected test failures), then fixed at QA HEAD c3ada4a79994c5bed68ca27774bc67910f018724 with 62 tests PASS CI 40512250911. Existing ZIP path/CRC/LFH, manifest, BlockMap hashes and OPC content-types guards remain. No real MakeAppx MSIX or product E2E. |
+| `msix_byte_qa` | **IN_PROGRESS** | yes | AppxBlockMap XML metadata is now fail-closed: reject undeclared BlockMap/File/Block attributes and non-whitespace element text while preserving harmless XML indentation. Six false accepts reproduced in red CI 40520215071; corrected code and positive formatting fixture passed 65/65 tests in CI 40520471059 at QA HEAD 12fd7b4f8020c183c2842090d26e86c4e0dd462c. ZIP/CRC/LFH, manifest, BlockMap hashes, OPC and canonical names remain guarded. Real MakeAppx compatibility and product MSIX remain HOLD. |
 | `windows_all_auto_intake` | **IN_PROGRESS** | yes | 3D intake now validates the complete manufacturing correlation key and treats source_sha as the immutable original product SHA while separately binding factory_build_head to the exact successful Actions run. It rechecks MSIX bytes/Identity and rejects lane/request/branch/provenance mixing. Ubuntu and Windows offline CI pass. |
 | `local_windows_gpu_qa` | **HOLD** | no | Not executed. |
 | `signing_and_store_validation` | **HOLD** | no | Not executed. |
@@ -25,7 +25,7 @@
 
 ## Next action
 
-3D QA PR #4 HEAD c3ada4a79994c5bed68ca27774bc67910f018724 CI 40512250911 SUCCESS (62 tests): AppxBlockMap noncanonical forward-slash and case-alias names now rejected after red CI 40512191980 reproduced two false accepts. Next inspect XML File/Block metadata strictness and real MakeAppx compatibility without guessing; retain existing ZIP/OPC/manifest guards. Windows-all-auto PR #14 HEAD f9fb01dc7e8615bc5ca1cbae43fcdec9479928a9 CI 40505457487 SUCCESS; 3D CAS branch diverged 45 ahead / 20 behind, do not auto-merge. No accepted 3D product, official Identity or real MSIX; generation HOLD and new_product_allowed=false. Template EXE/PCK is QA-only.
+3D QA PR #4 HEAD 12fd7b4f8020c183c2842090d26e86c4e0dd462c CI 40520471059 SUCCESS (65 tests): AppxBlockMap unexpected attributes and non-whitespace text now fail closed after six red reproductions; ordinary XML indentation remains accepted. Next inspect real MakeAppx BlockMap schema/bytes and compression-block metadata without assuming synthetic compatibility. Windows-all-auto PR #14 HEAD 5edcd7392089a9b38a84973f57bd71d384447267 CI 40513466084 SUCCESS; 3D CAS branch diverged 46 ahead / 20 behind; no automatic merge. No accepted GAME_3D product, official Partner Center Identity, or real MSIX; active_product=null, new_product_allowed=false and 120-hour gate HOLD. Template EXE/PCK is QA-only.
 
 Acceptance:
 - 3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.
@@ -40,14 +40,15 @@ Acceptance:
 - Reject absent/forged OPC [Content_Types].xml, missing or conflicting per-part declarations, duplicate case-insensitive extensions/overrides, unknown parts, encoded path separators and incorrect manifest/BlockMap MIME types; synthetic PASS is not real MakeAppx evidence.
 - Reject ZIP local-header filename/flags/compression method disagreement with central-directory entries, including directories; offline CI PASS does not establish real MSIX E2E.
 - AppxBlockMap File Name must exactly match the corresponding ZIP member with canonical Windows backslashes and original case; reject slash and case aliases before trusting block hashes. Synthetic PASS is not real MakeAppx validation.
+- Reject unexpected AppxBlockMap BlockMap/File/Block attributes and non-whitespace text; allow indentation whitespace. CI 40520471059 synthetic 65/65 PASS does not prove real MakeAppx MSIX compatibility.
 
 ## Evidence pins
 
-- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-dispatch-guard-current-ledger-20261027-1628` / `4c7374047c13c1bfa2f52686d19901d6ebb7c4f4` / run `40503152698`
+- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-dispatch-guard-current-ledger-20261027-1628` / `452089ab93230a0d32ba69c18e6310db48ca9f23` / run `40512534708`
 - **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/e2e-belt-connection-20261027` / `70600e77f2dd4278a989604314eebfa662e05c33` / run `40454089167`
 - **template** — `shihuiarenjinba-png/3d-game-template` / `codex/3d-template-godot-bootstrap-20261026` / `e5462d0aa1f5d0a50fa484ad1544c11ce8a6085a` / run `40360649193`; artifact `godot-3d-windows-x64-qa-unsigned`
-- **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-zip-path-safety-20261027-1235` / `c3ada4a79994c5bed68ca27774bc67910f018724` / run `40512250911`
-- **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/e2e-belt-connection-20261027` / `f9fb01dc7e8615bc5ca1cbae43fcdec9479928a9` / run `40505457487`
+- **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-zip-path-safety-20261027-1235` / `12fd7b4f8020c183c2842090d26e86c4e0dd462c` / run `40520471059`
+- **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/e2e-belt-connection-20261027` / `5edcd7392089a9b38a84973f57bd71d384447267` / run `40513466084`
 - **windows_data** — `shihuiarenjinba-png/Windows-data` / `codex/msix-auto-build-identity-20261025` / `664b9afcbed63539b89f594892d831d97b9d4118` / run `40259906737`; artifact `MSIXAutoBuildIdentity-Windows-QA`
 
 ## Automation rule
