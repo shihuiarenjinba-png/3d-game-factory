@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T18:29:06Z",
+  "updated_at_utc": "2026-10-27T19:37:20Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -21,8 +21,8 @@
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
       "branch": "codex/3d-dispatch-guard-current-ledger-20261027-1628",
-      "head": "44b7bcfee8226435d8fd2ad7482a1723acc7502b",
-      "ci_run_id": 40550580074,
+      "head": "ed99cfc49d0295e0945d8a7e641757df2771335b",
+      "ci_run_id": 40560589315,
       "draft_pr": 12,
       "ledger_branch": "codex/3d-qa-zip-ledger-20261027-1235",
       "ledger_pr": 10,
@@ -52,15 +52,16 @@
     "qa": {
       "repo": "shihuiarenjinba-png/3d-build-qa",
       "branch": "codex/3d-msix-zip-path-safety-20261027-1235",
-      "head": "5fb3c2c59f222ba44951d16848b6e2e0f6275319",
-      "ci_run_id": 40560378006,
-      "draft_pr": 4
+      "head": "4f70c0454fa5b44fb054c2171b8de397e77aa951",
+      "ci_run_id": 40570709568,
+      "draft_pr": 4,
+      "artifact": "makeappx-3d-offline-unsigned-fixture-not-product"
     },
     "intake": {
       "repo": "shihuiarenjinba-png/Windows-all-auto",
       "branch": "codex/e2e-belt-connection-20261027",
-      "head": "50d7384721e4831665df93296bd33eab04488a3a",
-      "ci_run_id": 40553170850,
+      "head": "a1a8d084f843107ba73f964a399eb14387092bba",
+      "ci_run_id": 40570514472,
       "draft_pr": 14,
       "compare_against_3d_cas": "diverged: 54 ahead / 20 behind; no automatic merge"
     },
@@ -203,7 +204,7 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/3d-build-qa",
-      "result": "Signatureless ZIP GPBF bit-3 32-bit and ZIP64 descriptors pass realistic Python non-seekable fixtures. Forged nonzero local CRC/compressed/uncompressed placeholders were reproduced as six erroneous accepts in RED CI 40560260636, then blocked by the bit-3 LFH guard; QA PR4 HEAD 5fb3c2c59f222ba44951d16848b6e2e0f6275319 CI 40560378006 PASS 72/72. Actual MakeAppx bytes, accepted product, Windows GPU/GUI remain unverified.",
+      "result": "Real Windows SDK MakeAppx 10.0.26100 unsigned non-product fixture was packed and inspected on windows-latest: ZIP GPBF bit-3 64-bit descriptors without ZIP64 sentinels, OPC default .xml manifest MIME, b4 ignorable namespace, b4 whole-file FileHash, multi-block SHA-256, and exact deflate 03 00 trailer compatibility all pass. Forged actual MakeAppx ZIP64 descriptor rejected. QA PR4 HEAD 4f70c0454fa5b44fb054c2171b8de397e77aa951 CI 40570709568 PASS 78/78 Python tests plus Windows fixture. This is fixture byte-contract evidence only, not accepted Godot product, official Identity, install, GPU/GUI, signing or Store readiness.",
       "evidence": [
         "head:04f2b1f74674159197cc3f8fa7503705b4febcfb",
         "run:40417351553",
@@ -256,11 +257,17 @@
         "commit:90730ac2f83f08ef191776c95642e5eeefa3d404:signatureless-and-bit3-LFH-RED-fixtures",
         "run:40560260636:EXPECTED_FAILURE-6-bit3-local-header-forgeries",
         "commit:5fb3c2c59f222ba44951d16848b6e2e0f6275319:bit3-local-placeholder-guard",
-        "run:40560378006:SUCCESS-72-tests"
+        "run:40560378006:SUCCESS-72-tests",
+        "qa-head:4f70c0454fa5b44fb054c2171b8de397e77aa951",
+        "run:40570709568:SUCCESS-78-tests-and-Windows-MakeAppx-fixture",
+        "artifact:makeappx-3d-offline-unsigned-fixture-not-product:id:12764902990:zip-sha256:64341e28019345eef9227ecc665d553d889eed568f76e8525d851bf3090300da",
+        "fixture-msix-sha256:a4cbceb7bb5828714f8859bd3164833201bf584a640856b4056afaff412eb413:unsigned-not-product",
+        "makeappx:10.0.26100:real-Windows-SDK:multiblock-and-forged-descriptor-rejection"
       ],
       "remaining": [
-        "Verify real MakeAppx-generated MSIX ZIP descriptor/LFH/BlockMap/OPC behavior on a genuine fixture without weakening guards.",
-        "No real accepted GAME_3D product, authenticated Partner Center Identity, signed MSIX or local Windows GPU/GUI evidence; product E2E remains HOLD."
+        "Verify the exact Godot 4.3 exported EXE/PCK inside a genuine accepted-product MSIX only after generation gate authorization, approved source and authenticated Partner Center Identity.",
+        "Validate real accepted product payload, signature, Windows install/launch, GPU, GUI, language and commercial quality separately; MakeAppx fixture is not E2E PASS.",
+        "Keep multi-block b4 FileHash and 64-bit descriptor adversarial regressions; do not relax ZIP, CRC, BlockMap, OPC, path or manifest guards."
       ]
     },
     "windows_all_auto_intake": {
@@ -323,7 +330,7 @@
     "stage_id": "msix_byte_qa",
     "repo": "shihuiarenjinba-png/3d-build-qa",
     "branch": "codex/3d-msix-zip-path-safety-20261027-1235",
-    "goal": "3D QA PR #4 HEAD 5fb3c2c59f222ba44951d16848b6e2e0f6275319 CI 40560378006 SUCCESS: signatureless GPBF bit-3 32-bit/ZIP64 descriptor fixtures PASS and six forged local CRC/size placeholders rejected after expected RED CI 40560260636; 72/72 synthetic tests PASS. Next obtain genuine MakeAppx-generated MSIX fixture and verify ZIP descriptor/LFH/BlockMap/OPC compatibility without relaxing safety guards. Windows-all-auto PR #14 HEAD 50d7384721e4831665df93296bd33eab04488a3a CI 40553170850 SUCCESS; 36min owner must reconcile central GAME_3D ledger/isolated queue to current 3D Factory and QA heads, preserving request_id, immutable source_sha and factory_build_head. No accepted 3D product, official Identity, actual 3D MSIX or Windows GPU/GUI QA; 120h generation gate HOLD, active_product=null, new_product_allowed=false.",
+    "goal": "3D QA PR4 4f70c0454fa5b44fb054c2171b8de397e77aa951 CI 40570709568 SUCCESS (78/78 synthetic regressions + actual Windows SDK MakeAppx unsigned 133878-byte multi-block fixture, Artifact 12764902990, SHA-256 a4cbceb7bb5828714f8859bd3164833201bf584a640856b4056afaff412eb413). ZIP64 data descriptor, MakeAppx OPC manifest default, b4 FileHash, compressed trailer verified; forged descriptor rejected. Next strengthen realistic Godot EXE/PCK-to-MSIX payload contract without generating new product; retain all safety checks. 36min Windows owner: reconcile central other_lanes.GAME_3D factory_branch/head/CI to Factory PR12 current ledger and QA PR4 4f70c0454fa5b44fb054c2171b8de397e77aa951, keep 3D queue isolated and request_id/source_sha/factory_build_head immutable. No accepted 3D product, official Identity, product MSIX, Windows GPU/GUI or commercial QA; 120h generation HOLD, active_product=null, new_product_allowed=false.",
     "acceptance": [
       "3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.",
       "All MSIX ZIP entries pass Windows path/collision/symlink/encryption/expansion preflight; package SHA and manifest executable/Identity are checked against real bytes.",
@@ -341,13 +348,14 @@
       "Reject contradictory ZIP local CRC/compressed/uncompressed sizes when data-descriptor bit is absent; preserve ZIP64 sentinel compatibility pending real MakeAppx evidence. CI 40530733297 is synthetic, not product E2E.",
       "ZIP64 local 0xffffffff size sentinels require an actual local ZIP64 extra field with 64-bit uncompressed/compressed sizes matching the central directory; malformed/forged values are rejected, valid force_zip64 fixture passes. QA 40540481221 68/68 synthetic tests PASS, not real MakeAppx evidence.",
       "For GPBF bit 3, reject forged ZIP data-descriptor CRC and compressed/uncompressed sizes, including ZIP64 variants; Python non-seekable ZIP fixtures PASS 70/70 on CI 40550405898 but real MakeAppx compatibility remains unproven.",
-      "For GPBF bit 3, accept both signed and signatureless ZIP data descriptors for 32-bit and ZIP64 fixtures; reject forged nonzero local CRC or nonzero/non-ZIP64 local size placeholders. RED CI 40560260636 and GREEN CI 40560378006 (72 tests) are synthetic only, not MakeAppx/E2E proof."
+      "For GPBF bit 3, accept both signed and signatureless ZIP data descriptors for 32-bit and ZIP64 fixtures; reject forged nonzero local CRC or nonzero/non-ZIP64 local size placeholders. RED CI 40560260636 and GREEN CI 40560378006 (72 tests) are synthetic only, not MakeAppx/E2E proof.",
+      "Actual Windows SDK MakeAppx fixture is unsigned/non-product: 78/78 regressions and ZIP/CRC/BlockMap/b4/OPC byte checks PASS, forged descriptor BLOCKED, but official Identity, real product E2E and Store readiness remain HOLD."
     ],
-    "expected_head_sha": "5fb3c2c59f222ba44951d16848b6e2e0f6275319"
+    "expected_head_sha": "4f70c0454fa5b44fb054c2171b8de397e77aa951"
   },
   "active_product": null,
-  "phase": "MSIX_BYTE_QA_BIT3_LFH_PLACEHOLDER_GUARD_PASS__NO_ACCEPTED_PRODUCT",
-  "last_completed_step": "3d-build-qa PR4 HEAD 5fb3c2c59f222ba44951d16848b6e2e0f6275319: six bit-3 local-header forgeries reproduced as RED in CI 40560260636; signatureless descriptors 32/64-bit PASS; guard fixed; 72/72 CI 40560378006 PASS. No actual MakeAppx MSIX, accepted product or Windows GPU QA.",
+  "phase": "MSIX_BYTE_QA_REAL_MAKEAPPX_MULTIBLOCK_FIXTURE_PASS__NO_ACCEPTED_PRODUCT",
+  "last_completed_step": "QA PR4 4f70c0454fa5b44fb054c2171b8de397e77aa951: CI 40570709568 SUCCESS 78/78 plus real Windows MakeAppx 10.0.26100 unsigned fixture a4cbceb7bb5828714f8859bd3164833201bf584a640856b4056afaff412eb413; forged ZIP64 descriptor BLOCKED; no product or Identity.",
   "blocked_by": [
     "NO_ACTIVE_PRODUCT",
     "EXTERNAL_IDENTITY",
@@ -361,8 +369,8 @@
   "source_sha": null,
   "factory_build_sha": null,
   "quality_gates": {
-    "ci": "PASS_OFFLINE_QA_40560378006_72_TESTS_VERIFIED",
-    "contract": "PASS_SYNTHETIC_SIGNATURELESS_BIT3_LFH_PLACEHOLDER_ZIP64_CRC_BLOCKMAP_MANIFEST_OPC_ONLY",
+    "ci": "PASS_QA_40570709568_78_TESTS_WINDOWS_MAKEAPPX_FIXTURE",
+    "contract": "PASS_REAL_MAKEAPPX_UNSIGNED_SYNTHETIC_MULTIBLOCK_BYTES_ONLY_NOT_PRODUCT",
     "e2e": "HOLD",
     "commercial": "HOLD"
   }
