@@ -33,3 +33,27 @@ and update both ledger evidence and the rendered report. A no-change run is acce
 only when a recorded safety, permission, Identity, 120-hour, or HEAD-conflict HOLD
 prevents a write. Contract tests alone are not a substitute for progressing the real
 Godot -> Windows -> MSIX -> QA -> Windows-all-auto manufacturing path.
+
+## Existing candidate promotion and real Godot QA
+
+A candidate is not a product merely because the Python structural validator passes.
+When an **existing** candidate is available in `.candidate/project`, run:
+
+```bash
+python factory3d.py validate
+python factory3d.py qa
+python factory3d.py accept
+```
+
+The `qa` command requires a locally installed Godot **4.3**, imports the project
+headlessly and runs `tests/test_smoke.gd` in a disposable project copy. It records
+a SHA-256 digest and cycle-bound result in `.runtime/candidate-qa.json`.
+`accept` now refuses missing, failed or stale QA evidence, as well as violating
+the 120-hour acceptance gate. These commands do not create a new game, reserve
+a Store Identity, run Windows GPU QA or submit anything to Microsoft.
+
+The Factory source-only and Provisioner v1 handoff use the active
+`codex/3d-real-msix-build-path-20261027` branch, matching the 3D Provisioner
+allowlist. MSIX building also rejects uncommitted or untracked product changes.
+A real `products/<slug>` can be committed only after the candidate passes QA
+and acceptance; no template cube is mislabeled as a finished game.
