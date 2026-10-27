@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T12:21:06Z",
+  "updated_at_utc": "2026-10-27T13:29:29Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -21,8 +21,8 @@
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
       "branch": "codex/3d-dispatch-guard-current-ledger-20261027-1628",
-      "head": "1ba2ed320a87664092ad68c1c41fc57adf907df1",
-      "ci_run_id": 40495732904,
+      "head": "4c7374047c13c1bfa2f52686d19901d6ebb7c4f4",
+      "ci_run_id": 40503152698,
       "draft_pr": 12,
       "ledger_branch": "codex/3d-qa-zip-ledger-20261027-1235",
       "ledger_pr": 10,
@@ -52,17 +52,17 @@
     "qa": {
       "repo": "shihuiarenjinba-png/3d-build-qa",
       "branch": "codex/3d-msix-zip-path-safety-20261027-1235",
-      "head": "6a5a04e9e4da420838cfe11753a5b19188b9d3a5",
-      "ci_run_id": 40503050077,
+      "head": "c3ada4a79994c5bed68ca27774bc67910f018724",
+      "ci_run_id": 40512250911,
       "draft_pr": 4
     },
     "intake": {
       "repo": "shihuiarenjinba-png/Windows-all-auto",
       "branch": "codex/e2e-belt-connection-20261027",
-      "head": "96c2790df28733849cd1703231f0efd1f7c2250a",
-      "ci_run_id": 40498038453,
+      "head": "f9fb01dc7e8615bc5ca1cbae43fcdec9479928a9",
+      "ci_run_id": 40505457487,
       "draft_pr": 14,
-      "compare_against_3d_cas": "diverged: 44 ahead / 20 behind; no automatic merge"
+      "compare_against_3d_cas": "diverged: 45 ahead / 20 behind; no automatic merge"
     },
     "windows_data": {
       "repo": "shihuiarenjinba-png/Windows-data",
@@ -203,7 +203,7 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/3d-build-qa",
-      "result": "Offline 3D MSIX QA checks Windows-safe ZIP paths, all-member CRC/decompression, canonical manifest namespaces, AppxBlockMap 64-KiB SHA-256/coverage/LFH, and bounded OPC [Content_Types].xml. New guard cross-checks local ZIP filename/flags/method against the central directory for every entry, including skipped directory entries; synthetic regression CI 40503050077 PASS. Real MakeAppx MSIX, signing and Windows installation remain HOLD.",
+      "result": "Offline MSIX QA now requires each AppxBlockMap File Name to match the exact ZIP member spelling using canonical Windows backslashes; forward-slash and case aliases reproduced as false accepts in CI 40512191980 (2 expected test failures), then fixed at QA HEAD c3ada4a79994c5bed68ca27774bc67910f018724 with 62 tests PASS CI 40512250911. Existing ZIP path/CRC/LFH, manifest, BlockMap hashes and OPC content-types guards remain. No real MakeAppx MSIX or product E2E.",
       "evidence": [
         "head:04f2b1f74674159197cc3f8fa7503705b4febcfb",
         "run:40417351553",
@@ -231,14 +231,17 @@
         "commit:ba6fdd35ba8ca0a64ec3038f17242dc287afaa48:OPC-content-types-guard",
         "run:40495633089:SUCCESS-OPC-content-types-regressions",
         "commit:6a5a04e9e4da420838cfe11753a5b19188b9d3a5:ZIP-local-header-directory-crosscheck",
-        "run:40503050077:SUCCESS-directory-LFH-regressions"
+        "run:40503050077:SUCCESS-directory-LFH-regressions",
+        "commit:0ac2e74ad45ded3a90e4f75a3b210ab54c01c348:alias-regression-red",
+        "run:40512191980:FAILURE_EXPECTED-2-alias-fixtures",
+        "commit:c3ada4a79994c5bed68ca27774bc67910f018724:canonical-BlockMap-file-name-guard",
+        "run:40512250911:SUCCESS-62-tests"
       ],
       "remaining": [
         "Obtain an authorized, accepted playable Factory 3D product and authenticated official Partner Center Identity; no real candidate MSIX exists.",
         "Validate AppxBlockMap against exact bytes of a real MakeAppx-generated Factory MSIX, including compressed blocks and provenance; synthetic ZIP fixtures are not installability evidence.",
         "Run Windows GPU launch, input, save/restart, signature/WACK and commercial UI QA separately before any Store handoff.",
-        "Verify ZIP local-header filenames against central directory and BlockMap canonical names, then validate actual MakeAppx-generated MSIX bytes when an accepted candidate and official Identity exist.",
-        "Reproduce and verify AppxBlockMap canonical path normalization against ZIP entry names without accepting aliases or path traversal."
+        "With real MakeAppx MSIX, confirm canonical BlockMap Windows backslash spelling and all byte/hash checks against the actual package; synthetic fixtures alone are not installability proof."
       ]
     },
     "windows_all_auto_intake": {
@@ -301,7 +304,7 @@
     "stage_id": "msix_byte_qa",
     "repo": "shihuiarenjinba-png/3d-build-qa",
     "branch": "codex/3d-msix-zip-path-safety-20261027-1235",
-    "goal": "3D QA PR #4 HEAD 6a5a04e9e4da420838cfe11753a5b19188b9d3a5 CI 40503050077 SUCCESS: ZIP local-header versus central-directory name/flags/method mismatches are rejected for all entries, including directories omitted from CRC reads. Synthetic normal directory remains accepted. Next reproduce AppxBlockMap path canonicalization and aliasing edge cases with synthetic fixtures, preserving Windows-safe ZIP paths and exact-byte integrity. Windows-all-auto PR #14 HEAD 96c2790df28733849cd1703231f0efd1f7c2250a CI 40498038453 SUCCESS; 3D CAS branch diverged (44 ahead / 20 behind), no automatic merge. No accepted product, official Partner Center Identity or real 3D MSIX; generation gate HOLD, new_product_allowed=false. Template EXE/PCK remains QA-only.",
+    "goal": "3D QA PR #4 HEAD c3ada4a79994c5bed68ca27774bc67910f018724 CI 40512250911 SUCCESS (62 tests): AppxBlockMap noncanonical forward-slash and case-alias names now rejected after red CI 40512191980 reproduced two false accepts. Next inspect XML File/Block metadata strictness and real MakeAppx compatibility without guessing; retain existing ZIP/OPC/manifest guards. Windows-all-auto PR #14 HEAD f9fb01dc7e8615bc5ca1cbae43fcdec9479928a9 CI 40505457487 SUCCESS; 3D CAS branch diverged 45 ahead / 20 behind, do not auto-merge. No accepted 3D product, official Identity or real MSIX; generation HOLD and new_product_allowed=false. Template EXE/PCK is QA-only.",
     "acceptance": [
       "3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.",
       "All MSIX ZIP entries pass Windows path/collision/symlink/encryption/expansion preflight; package SHA and manifest executable/Identity are checked against real bytes.",
@@ -313,13 +316,14 @@
       "Reject forged XML namespaces for MSIX Package, Identity, Applications and Application; synthetic CI PASS does not establish AppxBlockMap integrity or real MSIX installability.",
       "AppxBlockMap root namespace, SHA-256 method, complete file coverage, exact LFH sizes and all 64-KiB payload hashes must match MSIX bytes; synthetic PASS is not authenticated signing or E2E.",
       "Reject absent/forged OPC [Content_Types].xml, missing or conflicting per-part declarations, duplicate case-insensitive extensions/overrides, unknown parts, encoded path separators and incorrect manifest/BlockMap MIME types; synthetic PASS is not real MakeAppx evidence.",
-      "Reject ZIP local-header filename/flags/compression method disagreement with central-directory entries, including directories; offline CI PASS does not establish real MSIX E2E."
+      "Reject ZIP local-header filename/flags/compression method disagreement with central-directory entries, including directories; offline CI PASS does not establish real MSIX E2E.",
+      "AppxBlockMap File Name must exactly match the corresponding ZIP member with canonical Windows backslashes and original case; reject slash and case aliases before trusting block hashes. Synthetic PASS is not real MakeAppx validation."
     ],
-    "expected_head_sha": "6a5a04e9e4da420838cfe11753a5b19188b9d3a5"
+    "expected_head_sha": "c3ada4a79994c5bed68ca27774bc67910f018724"
   },
   "active_product": null,
-  "phase": "MSIX_BYTE_QA_LFH_DIRECTORY_CROSSCHECK_PASS__NO_ACCEPTED_PRODUCT",
-  "last_completed_step": "3d-build-qa PR #4 ZIP local-header/central-directory cross-check including directory entry regression; CI SUCCESS 40503050077",
+  "phase": "MSIX_BYTE_QA_BLOCKMAP_CANONICAL_NAME_PASS__NO_ACCEPTED_PRODUCT",
+  "last_completed_step": "3d-build-qa PR #4 reproduced BlockMap path aliases (CI 40512191980 red) and fixed exact canonical name binding; CI 40512250911 SUCCESS (62 tests)",
   "blocked_by": [
     "NO_ACTIVE_PRODUCT",
     "EXTERNAL_IDENTITY",
@@ -328,13 +332,13 @@
   ],
   "resume_repository": "shihuiarenjinba-png/3d-build-qa",
   "resume_branch": "codex/3d-msix-zip-path-safety-20261027-1235",
-  "resume_sha": "6a5a04e9e4da420838cfe11753a5b19188b9d3a5",
+  "resume_sha": "c3ada4a79994c5bed68ca27774bc67910f018724",
   "request_id": null,
   "source_sha": null,
   "factory_build_sha": null,
   "quality_gates": {
-    "ci": "PASS_OFFLINE_QA_40503050077",
-    "contract": "PASS_SYNTHETIC_ZIP_LFH_DIRECTORY_MANIFEST_BLOCKMAP_OPC_ONLY",
+    "ci": "PASS_OFFLINE_QA_40512250911",
+    "contract": "PASS_SYNTHETIC_ZIP_LFH_MANIFEST_BLOCKMAP_OPC_CANONICAL_NAMES_ONLY",
     "e2e": "HOLD",
     "commercial": "HOLD"
   }
