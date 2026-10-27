@@ -52,6 +52,9 @@ def require_generation_gate(root=ROOT):
 
 def prepare(root=ROOT):
     require_generation_gate(root)
+    existing = root/".candidate/project"
+    if existing.exists() or existing.is_symlink():
+        raise ValueError("unfinished 3D candidate exists; continue the same candidate")
     state=read(root/"factory/state.json")
     if not due(state,datetime.now(timezone.utc)):
         raise ValueError("not due for another 3D generation")
