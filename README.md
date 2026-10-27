@@ -77,3 +77,39 @@ The 3D bridge accepts only the reviewed workflow path/name and exact active
 Factory branch. No Store ID, GPU QA, signing, WACK or publication is inferred.
 Until a real product and official Identity exist, this MSIX/transfer path is
 implemented but **not end-to-end verified**.
+
+
+## Import an existing reviewed playable candidate (no new generation)
+
+The Factory currently has no accepted playable 3D product. The rotating-cube
+engine template is only a build smoke test and must **not** be sold or
+automatically promoted. When an independently reviewed and authorized playable
+Godot 4.3 source directory becomes available, stage its exact bytes without
+bypassing the five-day acceptance gate:
+
+```bash
+python -c "from pathlib import Path; from factory3d import candidate_digest; print(candidate_digest(Path('/absolute/path/to/reviewed-project')))"
+python -m tools.stage_existing_candidate \
+  --source /absolute/path/to/reviewed-project \
+  --expected-sha256 <64-lowercase-hex-digest> \
+  --source-reviewed
+python factory3d.py validate
+python factory3d.py qa
+python factory3d.py accept
+```
+
+Replace the path and digest with **real** reviewed source evidence. The
+`--source-reviewed` flag is a human acknowledgement of rights/gameplay
+review, not automated proof of commercial quality. Staging refuses a missing
+review acknowledgement, a changed digest, symlinks, hidden Godot caches,
+unsupported files, an existing candidate, or an unmet 120-hour gate. It
+does not create a new game or update the Factory completion timestamp.
+
+`qa` requires a real Godot 4.3 executable, import, explicit smoke PASS and
+60-frame main-scene launch; `accept` rechecks the gate and publishes a
+local `products/<slug>/` only after exact-source QA. Review and commit
+the accepted product and `factory/state.json` to the authorized `codex/*`
+branch before requesting the pinned Provisioner job. Identity lookup,
+signed MSIX, GPU QA and Store submission remain separate HOLD gates.
+The `.candidate/` and `.runtime/` directories are intentionally ignored
+by Git and must never be mistaken for accepted GitHub products.
