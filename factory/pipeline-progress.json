@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T02:41:55Z",
+  "updated_at_utc": "2026-10-27T02:42:15Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -95,7 +95,7 @@
         "commit:6c7374e307d16b217539fe213bbb1b5712609b92",
         "run:40439855997:FAILED-test-mock-recursion",
         "commit:24f58b9e0450326e05891ad29cc5551bc74910e7",
-        "run:40439905556:IN_PROGRESS",
+        "run:40439905556:SUCCESS-44-tests",
         "pr:8"
       ],
       "remaining": [
@@ -103,8 +103,7 @@
         "Calculate factory3d.candidate_digest of that exact source and run python -m tools.stage_existing_candidate --source <external-path> --expected-sha256 <digest> --source-reviewed; never stage without explicit review.",
         "Run real Godot 4.3 import, smoke and 60-frame main-scene launch via python factory3d.py qa; Python CI mocks are not a substitute for engine QA.",
         "Recheck 120-hour gate, accept and commit real products/<slug>/ with factory/state.json; only then request pinned Provisioner Windows build and official Identity.",
-        "No real candidate MSIX or Factory 3D handoff artifact exists; downstream intake remains unproven.",
-        "Confirm CI run 40439905556 succeeds after regression test harness correction; do not claim staging PASS until green."
+        "No real candidate MSIX or Factory 3D handoff artifact exists; downstream intake remains unproven."
       ]
     },
     "provisioner_windows_build": {
