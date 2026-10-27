@@ -10,7 +10,7 @@ from factory3d import due,prepare,validate,accept,verify_candidate_qa
 
 def mark_qa(root):
     completed = [
-        subprocess.CompletedProcess(["godot", "--version"], 0, stdout="4.3.stable.official\\n"),
+        subprocess.CompletedProcess(["godot", "--version"], 0, stdout="4.3.stable.official\n"),
         subprocess.CompletedProcess(["godot", "--headless"], 0, stdout="import ok"),
         subprocess.CompletedProcess(["godot", "--headless"], 0, stdout="smoke ok"),
     ]
@@ -81,7 +81,7 @@ class FiveDayTests(unittest.TestCase):
                 validate(root)
             preset.write_text(original)
             extra=proj/"unsafe.cfg"
-            extra.write_text("[unexpected]\\n")
+            extra.write_text("[unexpected]\n")
             with self.assertRaisesRegex(ValueError,"unexpected Godot configuration file"):
                 validate(root)
             extra.unlink()
@@ -103,11 +103,11 @@ class FiveDayTests(unittest.TestCase):
             prepare(root)
             project=root/".candidate/project"
             for name,text in {
-                "project.godot": '[application]\\nrun/main_scene="res://scenes/main.tscn"\\n',
-                "export_presets.cfg": '[preset.0]\\nname="Windows Desktop"\\nplatform="Windows Desktop"\\n',
-                "scenes/main.tscn": '[gd_scene format=3]\\n[node name="Main" type="Node3D"]\\n',
-                "scripts/main.gd": "extends Node3D\\n",
-                "tests/test_smoke.gd": "func test_run(): pass\\n",
+                "project.godot": '[application]\nrun/main_scene="res://scenes/main.tscn"\n',
+                "export_presets.cfg": '[preset.0]\nname="Windows Desktop"\nplatform="Windows Desktop"\n',
+                "scenes/main.tscn": '[gd_scene format=3]\n[node name="Main" type="Node3D"]\n',
+                "scripts/main.gd": "extends Node3D\n",
+                "tests/test_smoke.gd": "func test_run(): pass\n",
                 "README.md": "QA-only candidate",
             }.items():
                 path=project/name
@@ -128,11 +128,11 @@ class FiveDayTests(unittest.TestCase):
             prepare(root)
             project=root/".candidate/project"
             for name,text in {
-                "project.godot": '[application]\\nrun/main_scene="res://scenes/main.tscn"\\n',
-                "export_presets.cfg": '[preset.0]\\nname="Windows Desktop"\\nplatform="Windows Desktop"\\n',
-                "scenes/main.tscn": '[gd_scene format=3]\\n[node name="Main" type="Node3D"]\\n',
-                "scripts/main.gd": "extends Node3D\\n",
-                "tests/test_smoke.gd": "func test_run(): pass\\n",
+                "project.godot": '[application]\nrun/main_scene="res://scenes/main.tscn"\n',
+                "export_presets.cfg": '[preset.0]\nname="Windows Desktop"\nplatform="Windows Desktop"\n',
+                "scenes/main.tscn": '[gd_scene format=3]\n[node name="Main" type="Node3D"]\n',
+                "scripts/main.gd": "extends Node3D\n",
+                "tests/test_smoke.gd": "func test_run(): pass\n",
                 "README.md": "QA-only candidate",
             }.items():
                 path=project/name
