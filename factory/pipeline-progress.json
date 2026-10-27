@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T00:07:00Z",
+  "updated_at_utc": "2026-10-27T00:10:00Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -20,8 +20,8 @@
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
       "branch": "codex/3d-real-msix-build-path-20261027",
-      "head": "aec24036377a67a7dfed8aa239a35e2828e0d827",
-      "ci_run_id": 40424252645
+      "head": "acd1ce496c53ae85af094b6dd4af6221440d8d07",
+      "ci_run_id": 40424533287
     },
     "provisioner": {
       "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
@@ -45,8 +45,8 @@
     "intake": {
       "repo": "shihuiarenjinba-png/Windows-all-auto",
       "branch": "codex/3d-identity-source-sha-20261027",
-      "head": "bbf0f6f17a3f431e1f93c363d353b1c0613aacad",
-      "ci_run_id": 40419153935
+      "head": "e7313d99893fed9b4d32d5022be2d3fdc9d67248",
+      "ci_run_id": 40424564014
     }
   },
   "stage_order": [
@@ -122,15 +122,16 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/3d-game-factory",
-      "result": "Factory Godot/MakeAppx path is syntax-tested and now rejects dirty/untracked product files and non-approved branches; no real Identity or Store assets are available.",
+      "result": "Factory Godot→MakeAppx code now emits QA_UNSIGNED MSIX plus strict two-file handoff (package.msix/handoff.json) with source SHA, embedded Identity, bytes and SHA-256. Code/CI pass; no real product or approved Identity.",
       "evidence": [
-        "head:aec24036377a67a7dfed8aa239a35e2828e0d827",
-        "run:40424252645",
-        "script:tools/build_godot_store_msix.ps1"
+        "commit:1275371dd3470a42cdac4add69975c2710ab77b8",
+        "commit:404f0ea99282019250e49b09237373ca590bd887",
+        "run:40424533287",
+        "workflow:.github/workflows/msix-export.yml"
       ],
       "remaining": [
-        "Supply a committed accepted 3D product, real Store assets and authenticated approved-identity.json with verified_source_sha.",
-        "Run the actual Windows Godot/MakeAppx workflow; verify unsigned MSIX artifact and SHA-256 before QA."
+        "Commit one accepted 3D product, real Store PNG assets and authenticated approved-identity.json.",
+        "Run Windows Godot/MakeAppx workflow with actual slug and inspect real QA_UNSIGNED MSIX plus factory-msix-handoff artifact."
       ]
     },
     "msix_byte_qa": {
@@ -150,13 +151,16 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/Windows-all-auto",
-      "result": "3d-game lane is separated from app/game intake and source provenance is checked.",
+      "result": "3D artifact polling now recognizes exact 3D Factory workflow name, active branch and strict factory-msix-handoff prefix. Offline CI passes; no real 3D artifact has been received.",
       "evidence": [
-        "head:bbf0f6f17a3f431e1f93c363d353b1c0613aacad",
-        "run:40419153935"
+        "commit:29465a7c0ccc0765b302c59a995a4e3bbf430e9c",
+        "commit:c12eee63de2fd1f9e07d8eccf2c908897b9da468",
+        "run:40424564014"
       ],
       "remaining": [
-        "Ingest one real Factory 3D MSIX artifact and emit verified local-QA handoff evidence."
+        "After a real Factory 3D MSIX exists, run bridge_poll on the correct work branch and verify exact two-file bundle, embedded Identity, source SHA and local-QA Artifact.",
+        "Verify FACTORY_READ_TOKEN actions:read for 3D Factory; default-branch scheduled workflow deployment is not proven by work-branch CI.",
+        "Do not mark E2E transfer PASS based on offline contract tests."
       ]
     },
     "local_windows_gpu_qa": {
