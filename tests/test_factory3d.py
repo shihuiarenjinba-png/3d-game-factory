@@ -66,6 +66,18 @@ class GenerationPermissionTests(unittest.TestCase):
                 prepare(root)
             self.assertFalse((root/".candidate").exists())
 
+    def test_unfinished_candidate_cannot_be_replanned(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            (root/"factory").mkdir()
+            (root/"factory/state.json").write_text(
+                '{"schema":1,"cycle":1,"last_completed_utc":null}')
+            allow_gate(root)
+            prepare(root)
+            (root/".candidate/project").mkdir()
+            with self.assertRaisesRegex(ValueError,"unfinished 3D candidate"):
+                prepare(root)
+
     def test_active_product_blocks_even_explicit_ready_gate(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d)
