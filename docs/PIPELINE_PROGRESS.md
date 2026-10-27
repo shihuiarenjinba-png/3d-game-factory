@@ -17,7 +17,7 @@
 | `provisioner_windows_build` | **IN_PROGRESS** | yes | Local 3D manufacturing now accepts a real Godot Windows EXE/PCK export as pre-MSIX payload evidence, preserves its SHA/signature status, requires official Store ID/Identity/Publisher/Version/PFN/Package SID evidence, and returns the full request/product/source correlation key to Factory. Final Identity-to-package match is deliberately deferred to the Factory MSIX. |
 | `official_identity_roundtrip` | **IN_PROGRESS** | yes | 3D Identity return no longer targets a stale hard-coded Factory branch: it validates the exact active codex/* source_branch, requires original source_sha == expected_head_sha, checks live HEAD and commits with GitHub CAS. Linux/Windows offline tests pass. No real authenticated Partner Center Identity has been supplied or returned; actual Identity stage remains HOLD. |
 | `factory_msix_build` | **IN_PROGRESS** | yes | Factory MSIX builder now consumes the returned 3D correlation/provenance record, keeps the original product source_sha immutable, records the later GitHub packaging commit separately as factory_build_head, and carries local package SHA plus Store ID/PFN/SID into the strict handoff. PowerShell syntax and Factory quality gates pass. |
-| `msix_byte_qa` | **IN_PROGRESS** | yes | 3D MSIX QA rejects unsafe Windows ZIP paths/collisions, symlinks, Unix device/FIFO/socket entries, file-type/directory-marker conflicts, encrypted/unsupported entries and expansion bombs. Synthetic offline tests and CI pass; no actual Factory 3D MSIX has been produced or inspected, so byte QA and real-device QA remain HOLD for a real product. |
+| `msix_byte_qa` | **IN_PROGRESS** | yes | 3D MSIX QA rejects unsafe Windows ZIP paths/collisions, symlinks, Unix device/FIFO/socket entries, file-type/directory-marker conflicts, encrypted/unsupported entries and expansion bombs. Synthetic offline tests and CI pass; no actual Factory 3D MSIX has been produced or inspected, so byte QA and real-device QA remain HOLD for a real product. Latest guard now also rejects Win32 COM¹/²/³ and LPT¹/²/³ device names inside ZIP paths; regression tests pass on PR #4 HEAD ea6540037e35 (CI 40461036388). Still no real Factory 3D MSIX. |
 | `windows_all_auto_intake` | **IN_PROGRESS** | yes | 3D intake now validates the complete manufacturing correlation key and treats source_sha as the immutable original product SHA while separately binding factory_build_head to the exact successful Actions run. It rechecks MSIX bytes/Identity and rejects lane/request/branch/provenance mixing. Ubuntu and Windows offline CI pass. |
 | `local_windows_gpu_qa` | **HOLD** | no | Not executed. |
 | `signing_and_store_validation` | **HOLD** | no | Not executed. |
@@ -25,7 +25,7 @@
 
 ## Next action
 
-Continue the isolated 3D MSIX exact-byte QA gate on PR #4 HEAD ea6540037e359860775fbfd423244ea3f9ffeee6 (CI 40461036388 success). The next E2E evidence step is the first authentic Factory 3D MSIX from an independently reviewed playable source and authenticated Partner Center Identity; until available, only harden QA/contract/transport and keep byte QA, GPU QA, signing and Store HOLD. Do not generate a new candidate: generation_gate.new_product_allowed=false and active_product=null.
+PR #4 exact-byte guard now rejects superscript Windows COM/LPT device names (CI 40461036388 SUCCESS). Continue bounded MSIX ZIP/manifest contract QA and verify the Factory PR #11 / Provisioner PR #7 / Windows-all-auto PR #14 integration branches without merging divergent histories. Await independently accepted playable Godot source, authenticated Partner Center Identity, first real Factory 3D MSIX, then byte QA, local GPU and launch QA. No template-as-product, no generation while 120h gate HOLD and new_product_allowed=false.
 
 Acceptance:
 - 3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.
@@ -33,22 +33,16 @@ Acceptance:
 - Factory→Provisioner→Windows→Factory→MSIX→Windows-all-auto retains request_id, source_repository, source_branch, source_sha and slug; HEAD mismatch is CONFLICT and replay only same request_id plus same source_sha.
 - Real Factory MSIX Artifact, official Partner Center Identity, GPU QA, signing and Store validation remain individually HOLD until independently evidenced.
 - Official Identity return uses only the exact active safe codex/* Factory source branch and expected HEAD CAS; stale hard-coded branch targets are rejected.
+- Reject Win32 superscript COM¹/²/³ and LPT¹/²/³ device filenames in all ZIP entries, even with extensions; PR #4 CI success is not real MSIX verification.
 
 ## Evidence pins
 
-- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-dispatch-guard-integration-20261027-1452` / `273b4bcd750432e2ba899414107de7177166848d` / run `40457985405`; Draft PR #11 (ledger maintained on Draft PR #10)
-- **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/e2e-belt-connection-20261027` / `70600e77f2dd4278a989604314eebfa662e05c33` / run `40454089167`; Draft PR #7
+- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-dispatch-guard-integration-20261027-1452` / `273b4bcd750432e2ba899414107de7177166848d` / run `40457985405`
+- **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/e2e-belt-connection-20261027` / `70600e77f2dd4278a989604314eebfa662e05c33` / run `40454089167`
 - **template** — `shihuiarenjinba-png/3d-game-template` / `codex/3d-template-godot-bootstrap-20261026` / `e5462d0aa1f5d0a50fa484ad1544c11ce8a6085a` / run `40360649193`; artifact `godot-3d-windows-x64-qa-unsigned`
-- **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-zip-path-safety-20261027-1235` / `ea6540037e359860775fbfd423244ea3f9ffeee6` / run `40461036388`; Draft PR #4
-- **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/e2e-belt-connection-20261027` / `cca585d07eaa1e7e1e5b82d63613f59667989184` / run `40458042620`; Draft PR #14
+- **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-zip-path-safety-20261027-1235` / `ea6540037e359860775fbfd423244ea3f9ffeee6` / run `40461036388`
+- **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/e2e-belt-connection-20261027` / `cca585d07eaa1e7e1e5b82d63613f59667989184` / run `40458042620`
 - **windows_data** — `shihuiarenjinba-png/Windows-data` / `codex/msix-auto-build-identity-20261025` / `664b9afcbed63539b89f594892d831d97b9d4118` / run `40259906737`; artifact `MSIXAutoBuildIdentity-Windows-QA`
-
-## 2026-10-27 06:25 UTC verification
-
-- 3D QA PR #4 adds a Windows ZIP path regression for superscript COM¹/²/³ and LPT¹/²/³ device names. Guard commit `bd5019d009d145c33d41269c96b01d3efe05d96f`, test commit `ea6540037e359860775fbfd423244ea3f9ffeee6`; CI [40461036388](https://github.com/shihuiarenjinba-png/3d-build-qa/actions/runs/40461036388) **SUCCESS**. This is offline code validation, **not** real-MSIX byte QA.
-- Factory [Draft PR #11](https://github.com/shihuiarenjinba-png/3d-game-factory/pull/11) dispatch guard and Provisioner [Draft PR #7](https://github.com/shihuiarenjinba-png/Repository-Provisioner-3D/pull/7) each have green CI. Windows-all-auto [Draft PR #14](https://github.com/shihuiarenjinba-png/Windows-all-auto/pull/14) also has green CI but **diverges** from the isolated 3D CAS branch (31 ahead, 20 behind); do not auto-merge or treat the branches as equivalent.
-- Handoff `Windows-all-auto/codex/e2e-belt-connection-20261027:ops/active_e2e_handoff.json` still reports `other_lanes.GAME_3D.phase=GENERATION_GATE_HOLD__NO_ACCEPTED_PRODUCT`. It is a coordination record, not an accepted product or a real MSIX.
-- `generation_gate.state=HOLD`, `new_product_allowed=false`, `active_product=null`. Template artifact `godot-3d-windows-x64-qa-unsigned` is only EXE/PCK QA. Authentic playable source, official Partner Center Identity, real MSIX, Windows GPU/launch QA and Store validation remain **HOLD**.
 
 ## Automation rule
 
