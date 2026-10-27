@@ -1,11 +1,11 @@
 # 3D Pipeline Progress
 
 - Ledger schema: `1.0`
-- Updated UTC: `2026-10-27T03:11:40Z`
+- Updated UTC: `2026-10-27T03:32:28Z`
 - New-product gate: **HOLD** — No accepted 3D candidate baseline is recorded; scheduler must improve QA/build/transport instead of generating a new game.
-- Next stage: `factory_product_materialization`
-- Next repository: `shihuiarenjinba-png/3d-game-factory`
-- Next branch: `codex/3d-accept-qa-snapshot-20261027-1209`
+- Next stage: `msix_byte_qa`
+- Next repository: `shihuiarenjinba-png/3d-build-qa`
+- Next branch: `codex/3d-msix-zip-path-safety-20261027-1235`
 
 ## Stage status
 
@@ -16,7 +16,7 @@
 | `provisioner_windows_build` | **IN_PROGRESS** | yes | Local 3D manufacturing now accepts a real Godot Windows EXE/PCK export as pre-MSIX payload evidence, preserves its SHA/signature status, requires official Store ID/Identity/Publisher/Version/PFN/Package SID evidence, and returns the full request/product/source correlation key to Factory. Final Identity-to-package match is deliberately deferred to the Factory MSIX. |
 | `official_identity_roundtrip` | **IN_PROGRESS** | yes | 3D Identity return now preserves request_id, GAME_3D product type, Factory/repository/branch/source SHA/slug, local package SHA/kind/signature status, and official Store ID/Identity/Publisher/Version/PFN/Package SID. Existing records are reusable only when the whole manufacturing provenance matches. |
 | `factory_msix_build` | **IN_PROGRESS** | yes | Factory MSIX builder now consumes the returned 3D correlation/provenance record, keeps the original product source_sha immutable, records the later GitHub packaging commit separately as factory_build_head, and carries local package SHA plus Store ID/PFN/SID into the strict handoff. PowerShell syntax and Factory quality gates pass. |
-| `msix_byte_qa` | **IN_PROGRESS** | yes | MSIX SHA/manifest/Identity/executable payload checks are implemented. |
+| `msix_byte_qa` | **IN_PROGRESS** | yes | 3D MSIX QA now rejects Windows-ambiguous ZIP entries (traversal, DOS devices, ADS, case collisions, file/directory conflicts, symlinks), unsupported/encrypted entries and expansion bombs before reading manifest/executable bytes. Synthetic offline tests and CI pass. No actual Factory 3D MSIX has been produced or inspected; MSIX byte QA and real-device QA remain HOLD for a real product. |
 | `windows_all_auto_intake` | **IN_PROGRESS** | yes | 3D intake now validates the complete manufacturing correlation key and treats source_sha as the immutable original product SHA while separately binding factory_build_head to the exact successful Actions run. It rechecks MSIX bytes/Identity and rejects lane/request/branch/provenance mixing. Ubuntu and Windows offline CI pass. |
 | `local_windows_gpu_qa` | **HOLD** | no | Not executed. |
 | `signing_and_store_validation` | **HOLD** | no | Not executed. |
@@ -24,21 +24,20 @@
 
 ## Next action
 
-Find an independently reviewed authorized playable Godot 4.3 project outside Factory, stage its exact SHA-256 and run real engine QA before accepting. Acceptance now binds the actual copied product bytes to QA evidence; no reviewed game is available, so continue hardening manufacturing/QA/transport without inventing a candidate.
+Maintain the 3D-only MSIX byte and Windows ZIP safety gate without duplicating the 05-minute Factory candidate-acceptance work. The next evidence-based step is to obtain the first authentic Factory 3D MSIX and verify actual artifact bytes, manifest, immutable source_sha/request_id and Identity. Until a reviewed playable source and Partner Center Identity exist, keep E2E transport and local GPU QA HOLD; do not fabricate a candidate or treat offline tests as product PASS.
 
 Acceptance:
-- Source ownership, licensing and gameplay are independently reviewed; source_reviewed is explicit and no source is invented.
-- Pre/post-copy audits, expected source digest, Windows-safe paths, no symlinks/cache, quotas, 120-hour gate and no overwrite hold.
-- Real Godot 4.3 import/smoke/60-frame main-scene QA binds exact source digest to the same cycle.
-- Acceptance rechecks the staged product and original source digest against QA evidence before publication; mismatches HOLD with no product or state advancement.
-- After real acceptance, proceed to Provisioner/official Identity/MSIX/Artifact intake; never infer Store Identity or declare E2E PASS without real MSIX.
+- 3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.
+- All MSIX ZIP entries pass Windows path/collision/symlink/encryption/expansion preflight; package SHA and manifest executable/Identity are checked against real bytes.
+- Factory→Provisioner→Windows→Factory→MSIX→Windows-all-auto retains request_id, source_repository, source_branch, source_sha and slug; HEAD mismatch is CONFLICT and replay only same request_id plus same source_sha.
+- Real Factory MSIX Artifact, official Partner Center Identity, GPU QA, signing and Store validation remain individually HOLD until independently evidenced.
 
 ## Evidence pins
 
-- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-accept-qa-snapshot-20261027-1209` / `f5d9ded36e686780c3854e5343328b6990b49e2f` / run `40442744751`
+- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-qa-zip-ledger-20261027-1235` / `e7682c3ba54241b0962d3dedec10fbad51200384` / run `40442791871`
 - **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/3d-local-identity-provenance-20261027` / `a1727307884176bfa97f714c47705281240d83c3` / run `40431389877`
 - **template** — `shihuiarenjinba-png/3d-game-template` / `codex/3d-template-godot-bootstrap-20261026` / `e5462d0aa1f5d0a50fa484ad1544c11ce8a6085a` / run `40360649193`; artifact `godot-3d-windows-x64-qa-unsigned`
-- **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-executable-payload-20261027` / `04f2b1f74674159197cc3f8fa7503705b4febcfb` / run `40417351553`
+- **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-zip-path-safety-20261027-1235` / `a918834a3122d8f74684b43102ad9070f606c527` / run `40444730016`
 - **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/3d-e2e-trace-contract-20261027` / `d0ad76c0312669e9cb8ff67dfd893dd61539388b` / run `40431368563`
 
 ## Automation rule
