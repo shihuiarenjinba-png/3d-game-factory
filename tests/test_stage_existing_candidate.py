@@ -14,6 +14,9 @@ def fixture(root: Path, source: Path):
     (root / "factory").mkdir()
     (root / "factory/state.json").write_text(
         '{"schema":1,"cycle":1,"last_completed_utc":null}', encoding="utf-8")
+    (root / "factory/pipeline-progress.json").write_text(
+        json.dumps({"generation_gate": {"state": "READY", "new_product_allowed": True},
+                    "active_product": None}), encoding="utf-8")
     files = {
         "project.godot": '[application]\nrun/main_scene="res://scenes/main.tscn"\n',
         "export_presets.cfg": '[preset.0]\nname="Windows Desktop"\nplatform="Windows Desktop"\n',
@@ -44,6 +47,17 @@ class StageExistingCandidateTests(unittest.TestCase):
             self.assertFalse((root / ".runtime/candidate-qa.json").exists())
             with self.assertRaisesRegex(ValueError, "never overwrite"):
                 stage_existing_candidate(root, source, digest, source_reviewed=True)
+
+    def test_explicit_new_product_hold_blocks_staging(self):
+        with tempfile.TemporaryDirectory() as factory_dir, tempfile.TemporaryDirectory() as src_dir:
+            root, source = Path(factory_dir), Path(src_dir)
+            fixture(root, source)
+            (root / "factory/pipeline-progress.json").write_text(
+                json.dumps({"generation_gate": {"state": "HOLD", "new_product_allowed": False},
+                            "active_product": None}))
+            with self.assertRaisesRegex(ValueError, "new_product_allowed"):
+                stage_existing_candidate(root, source, candidate_digest(source), source_reviewed=True)
+            self.assertFalse((root / ".candidate").exists())
 
     def test_requires_explicit_review(self):
         with tempfile.TemporaryDirectory() as factory_dir, tempfile.TemporaryDirectory() as src_dir:
