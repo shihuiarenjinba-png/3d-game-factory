@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T00:34:45Z",
+  "updated_at_utc": "2026-10-27T01:06:34.972Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -20,8 +20,8 @@
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
       "branch": "codex/3d-real-msix-build-path-20261027",
-      "head": "63cd881218a1a1e5387129bbdfb82cdf643be8a8",
-      "ci_run_id": 40427263106
+      "head": "291148093850ad429d1c161d92353260f7803653",
+      "ci_run_id": 40430557102
     },
     "provisioner": {
       "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
@@ -77,19 +77,25 @@
       "state": "HOLD",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/3d-game-factory",
-      "result": "No accepted 3D candidate or committed products/<slug> exists. Candidate QA now requires real Godot 4.3 import, explicit smoke PASS, error-free 60-frame main-scene launch and source/cycle-bound evidence. Implementation CI 35/35 PASS; no real candidate was available for an engine run.",
+      "result": "No accepted playable 3D product exists. A real existing-source staging CLI now verifies explicit review acknowledgement, exact SHA-256, safe file tree, 120-hour gate, no overwrite and atomic publication to .candidate/project. Godot 4.3 engine QA and product acceptance remain HOLD until reviewed playable source is supplied.",
       "evidence": [
         "commit:ce76ce02f265364150ec2fec54a4ec4088753739",
         "commit:225f60087847954e4248d3408c7fb4d1bc9762f8",
         "run:40424252645",
         "commit:63cd881218a1a1e5387129bbdfb82cdf643be8a8",
-        "run:40427263106"
+        "run:40427263106",
+        "commit:29f2873b8ba3f99e8d6114772ff554da50a5568a",
+        "commit:0c2324b4fe5d798753ab1a29204a2f0074c371b2",
+        "commit:551b69c0a1cb1a46abcd1062e2bcad62888ee718",
+        "commit:291148093850ad429d1c161d92353260f7803653",
+        "run:40430557102"
       ],
       "remaining": [
-        "Locate an existing authorized playable candidate in .candidate/project; the rotating-cube template is not a sellable game and no product has been committed.",
-        "On a real Godot 4.3 machine run python factory3d.py validate, qa and accept; verify smoke PASS and 60-frame main-scene launch against the exact candidate SHA/cycle.",
-        "Recheck the 120-hour gate before accepting and commit only a genuine accepted product under products/<slug>/.",
-        "Factory CI runs Python mocks, not a real Godot engine or Windows GPU; no candidate MSIX/Artifact or transfer PASS exists."
+        "Locate an independently reviewed, authorized and genuinely playable Godot 4.3 game source outside this Factory checkout; rotating-cube engine template is not a sellable game.",
+        "Calculate factory3d.candidate_digest of that exact source and run python -m tools.stage_existing_candidate --source <external-path> --expected-sha256 <digest> --source-reviewed; never stage without explicit review.",
+        "Run real Godot 4.3 import, smoke and 60-frame main-scene launch via python factory3d.py qa; Python CI mocks are not a substitute for engine QA.",
+        "Recheck 120-hour gate, accept and commit real products/<slug>/ with factory/state.json; only then request pinned Provisioner Windows build and official Identity.",
+        "No real candidate MSIX or Factory 3D handoff artifact exists; downstream intake remains unproven."
       ]
     },
     "provisioner_windows_build": {
@@ -202,12 +208,12 @@
     "stage_id": "factory_product_materialization",
     "repo": "shihuiarenjinba-png/3d-game-factory",
     "branch": "codex/3d-real-msix-build-path-20261027",
-    "goal": "Locate an existing authorized playable 3D candidate and run the strengthened Godot 4.3 import, smoke and 60-frame game-launch QA before 120-hour-gated acceptance. If none exists, keep product materialization HOLD; do not promote the rotating-cube template or generate a new game outside the 120-hour gate.",
+    "goal": "Find an existing authorized playable Godot 4.3 project, stage it by reviewed exact source SHA-256 with tools/stage_existing_candidate.py, then run real Godot QA before 120-hour-gated acceptance. No source is currently available, so product materialization stays HOLD; do not generate a new game or promote the rotating-cube template.",
     "acceptance": [
-      "An existing playable candidate has complete Godot 4.3 sources, Windows Desktop export preset and an independent smoke test that reports PASS: after actual assertions.",
-      "Godot 4.3 import, smoke and 60-frame headless main-scene launch complete without engine/script errors, with source SHA-256/cycle-bound QA evidence.",
-      "Factory 120-hour gate is rechecked at accept and only a genuine accepted product is committed under products/<slug>/.",
-      "No Store Identity, price, security declaration, certification result or Windows GPU QA is fabricated."
+      "Source rights/gameplay are independently reviewed and --source-reviewed is explicitly provided; no source is invented.",
+      "Stage tool verifies expected SHA-256, quotas, symlink/cache exclusion, 120-hour gate and no overwrite; candidate is not automatically accepted.",
+      "Real Godot 4.3 import, smoke PASS and 60-frame headless main-scene launch produce exact source/cycle-bound QA evidence.",
+      "Only after real QA and 120-hour recheck is a genuine product committed under products/<slug>/; Identity/Store/security claims remain unguessed."
     ]
   }
 }
