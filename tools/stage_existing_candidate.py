@@ -15,7 +15,7 @@ import shutil
 import sys
 import tempfile
 
-from factory3d import ROOT, EXTENSIONS, candidate_digest, due, prepare, read, validate
+from factory3d import ROOT, EXTENSIONS, candidate_digest, due, prepare, read, validate, require_generation_gate
 
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 MAX_FILES = 35
@@ -104,6 +104,7 @@ def stage_existing_candidate(
     if source == root or root in source.parents:
         raise ValueError("source must be external to Factory checkout")
 
+    require_generation_gate(root)
     state = read(root / "factory/state.json")
     if not due(state, datetime.now(timezone.utc)):
         raise ValueError("120-hour acceptance gate is not due")

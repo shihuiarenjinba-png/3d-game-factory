@@ -22,8 +22,10 @@ class PipelineProgressTests(unittest.TestCase):
     def test_current_ledger_is_safe_and_actionable(self):
         validate(self.data)
         action = next_action(self.data)
-        self.assertEqual(action["stage_id"], "factory_product_materialization")
-        self.assertEqual(action["repo"], "shihuiarenjinba-png/3d-game-factory")
+        stage = self.data["stages"][action["stage_id"]]
+        self.assertTrue(stage["auto_actionable"])
+        self.assertNotIn(stage["state"], ("DONE", "OUT_OF_SCOPE"))
+        self.assertEqual(action["repo"], stage["owner_repo"])
 
     def test_generated_report_is_current(self):
         self.assertEqual(REPORT.read_text(encoding="utf-8"), render_report(self.data))
@@ -38,6 +40,29 @@ class PipelineProgressTests(unittest.TestCase):
         changed = copy.deepcopy(self.data)
         changed["policy"]["new_product_min_interval_hours"] = 30
         with self.assertRaisesRegex(LedgerError, "new_product_min_interval_hours"):
+            validate(changed)
+
+    def test_new_generation_requires_explicit_boolean(self):
+        changed = copy.deepcopy(self.data)
+        del changed["generation_gate"]["new_product_allowed"]
+        with self.assertRaisesRegex(LedgerError, "new_product_allowed"):
+            validate(changed)
+        changed["generation_gate"]["new_product_allowed"] = True
+        with self.assertRaisesRegex(LedgerError, "generation state"):
+            validate(changed)
+
+    def test_active_product_cannot_coexist_with_new_generation(self):
+        changed = copy.deepcopy(self.data)
+        changed["generation_gate"]["state"] = "READY"
+        changed["generation_gate"]["new_product_allowed"] = True
+        changed["active_product"] = {"slug": "unfinished-3d"}
+        with self.assertRaisesRegex(LedgerError, "active_product"):
+            validate(changed)
+
+    def test_next_action_head_is_pinned(self):
+        changed = copy.deepcopy(self.data)
+        changed["next_action"]["expected_head_sha"] = "not-a-sha"
+        with self.assertRaisesRegex(LedgerError, "expected_head_sha"):
             validate(changed)
 
     def test_done_stage_cannot_be_selected_as_next_action(self):

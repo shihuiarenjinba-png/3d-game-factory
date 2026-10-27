@@ -26,9 +26,16 @@ def mark_qa(root):
     return result
 
 
+def allow_gate(root):
+    (root/"factory/pipeline-progress.json").write_text(
+        json.dumps({"generation_gate":{"state":"READY","new_product_allowed":True},
+                    "active_product":None}), encoding="utf-8")
+
+
 def minimal_candidate(root):
     (root/"factory").mkdir()
     (root/"factory/state.json").write_text('{"schema":1,"cycle":1,"last_completed_utc":null}')
+    allow_gate(root)
     prepare(root)
     project = root/".candidate/project"
     for name, content in {
@@ -42,6 +49,47 @@ def minimal_candidate(root):
         path = project/name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content)
+
+class GenerationPermissionTests(unittest.TestCase):
+    def test_missing_explicit_permission_blocks_new_generation(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            (root/"factory").mkdir()
+            (root/"factory/state.json").write_text(
+                '{"schema":1,"cycle":1,"last_completed_utc":null}')
+            with self.assertRaisesRegex(ValueError,"ledger missing"):
+                prepare(root)
+            (root/"factory/pipeline-progress.json").write_text(
+                json.dumps({"generation_gate":{"state":"HOLD","new_product_allowed":False},
+                            "active_product":None}))
+            with self.assertRaisesRegex(ValueError,"new_product_allowed"):
+                prepare(root)
+            self.assertFalse((root/".candidate").exists())
+
+    def test_unfinished_candidate_cannot_be_replanned(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            (root/"factory").mkdir()
+            (root/"factory/state.json").write_text(
+                '{"schema":1,"cycle":1,"last_completed_utc":null}')
+            allow_gate(root)
+            prepare(root)
+            (root/".candidate/project").mkdir()
+            with self.assertRaisesRegex(ValueError,"unfinished 3D candidate"):
+                prepare(root)
+
+    def test_active_product_blocks_even_explicit_ready_gate(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            (root/"factory").mkdir()
+            (root/"factory/state.json").write_text(
+                '{"schema":1,"cycle":1,"last_completed_utc":null}')
+            (root/"factory/pipeline-progress.json").write_text(
+                json.dumps({"generation_gate":{"state":"READY","new_product_allowed":True},
+                            "active_product":{"slug":"unfinished-3d"}}))
+            with self.assertRaisesRegex(ValueError,"active 3D product"):
+                prepare(root)
+
 
 class FiveDayTests(unittest.TestCase):
     def test_first_run_due(self):
@@ -65,6 +113,7 @@ class FiveDayTests(unittest.TestCase):
             root=Path(d)
             (root/"factory").mkdir()
             (root/"factory/state.json").write_text('{"schema":1,"cycle":1,"last_completed_utc":null}')
+            allow_gate(root)
             prepare(root)
             with self.assertRaisesRegex(ValueError,"Godot project absent"):
                 validate(root)
@@ -73,6 +122,7 @@ class FiveDayTests(unittest.TestCase):
             root=Path(d)
             (root/"factory").mkdir()
             (root/"factory/state.json").write_text('{"schema":1,"cycle":1,"last_completed_utc":null}')
+            allow_gate(root)
             prepare(root)
             proj=root/".candidate/project"
             for name,text in {
@@ -122,6 +172,7 @@ class FiveDayTests(unittest.TestCase):
             (root/"factory").mkdir()
             (root/"factory/state.json").write_text(
                 '{"schema":1,"cycle":1,"last_completed_utc":null}')
+            allow_gate(root)
             prepare(root)
             project=root/".candidate/project"
             for name,text in {
@@ -147,6 +198,7 @@ class FiveDayTests(unittest.TestCase):
             (root/"factory").mkdir()
             (root/"factory/state.json").write_text(
                 '{"schema":1,"cycle":1,"last_completed_utc":null}')
+            allow_gate(root)
             prepare(root)
             project=root/".candidate/project"
             for name,text in {
@@ -218,6 +270,7 @@ class FiveDayTests(unittest.TestCase):
             (root/"factory").mkdir()
             (root/"factory/state.json").write_text(
                 '{"schema":1,"cycle":1,"last_completed_utc":null}')
+            allow_gate(root)
             prepare(root)
             lock=root/".runtime/accept.lock"
             lock.mkdir()
@@ -233,6 +286,7 @@ class FiveDayTests(unittest.TestCase):
             (root/"factory").mkdir()
             (root/"factory/state.json").write_text(
                 '{"schema":1,"cycle":1,"last_completed_utc":null}')
+            allow_gate(root)
             prepare(root)
             project=root/".candidate/project"
             for name,text in {
