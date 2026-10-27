@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T06:25:49Z",
+  "updated_at_utc": "2026-10-27T07:28:45Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -25,7 +25,14 @@
       "ci_run_id": 40457985405,
       "draft_pr": 11,
       "ledger_branch": "codex/3d-qa-zip-ledger-20261027-1235",
-      "ledger_pr": 10
+      "ledger_pr": 10,
+      "safe_dispatch_integration": {
+        "branch": "codex/3d-dispatch-guard-current-ledger-20261027-1628",
+        "base_sha": "2e5d74100113bdfaa303dd312e617550fe664dc3",
+        "guard_commit_sha": "197ffb95bf8e2af0c0060d8f9e5906b58d5e9bb2",
+        "source_pr": 11,
+        "status": "CODE_PORTED_AWAITING_CI"
+      }
     },
     "provisioner": {
       "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
@@ -51,10 +58,10 @@
     "intake": {
       "repo": "shihuiarenjinba-png/Windows-all-auto",
       "branch": "codex/e2e-belt-connection-20261027",
-      "head": "cca585d07eaa1e7e1e5b82d63613f59667989184",
-      "ci_run_id": 40458042620,
+      "head": "e3d637cc659cc18d35764139af9175fcc11a01a1",
+      "ci_run_id": 40463213981,
       "draft_pr": 14,
-      "compare_against_3d_cas": "diverged: 31 ahead / 20 behind; no automatic merge"
+      "compare_against_3d_cas": "diverged: 33 ahead / 20 behind; no automatic merge"
     },
     "windows_data": {
       "repo": "shihuiarenjinba-png/Windows-data",
@@ -182,7 +189,9 @@
         "commit:dced8d5a2091d6b4d895f72826114fcc2cca81a1",
         "workflow:.github/workflows/msix-export.yml",
         "pr:11:HEAD:273b4bcd750432e2ba899414107de7177166848d",
-        "run:40457985405:SUCCESS-dispatch-guard"
+        "run:40457985405:SUCCESS-dispatch-guard",
+        "dispatch-guard-port-branch:codex/3d-dispatch-guard-current-ledger-20261027-1628",
+        "dispatch-guard-port-commit:197ffb95bf8e2af0c0060d8f9e5906b58d5e9bb2"
       ],
       "remaining": [
         "Commit one accepted 3D product, real Store assets and authenticated approved-identity.json.",
@@ -231,7 +240,10 @@
         "commit:d0ad76c0312669e9cb8ff67dfd893dd61539388b",
         "pr:14:HEAD:cca585d07eaa1e7e1e5b82d63613f59667989184",
         "run:40458042620:SUCCESS",
-        "compare:3d-cas-to-crosslane:diverged-ahead31-behind20:do-not-merge"
+        "compare:3d-cas-to-crosslane:diverged-ahead31-behind20:do-not-merge",
+        "pr:14:HEAD:e3d637cc659cc18d35764139af9175fcc11a01a1",
+        "run:40463213981:SUCCESS-offline",
+        "compare:3d-cas-to-crosslane:diverged-ahead33-behind20:do-not-merge"
       ],
       "remaining": [
         "Receive one real Factory 3D MSIX Artifact and prove byte/Identity/source/build-head correlation through the local-QA queue.",
@@ -274,7 +286,7 @@
     "stage_id": "msix_byte_qa",
     "repo": "shihuiarenjinba-png/3d-build-qa",
     "branch": "codex/3d-msix-zip-path-safety-20261027-1235",
-    "goal": "PR #4 exact-byte guard now rejects superscript Windows COM/LPT device names (CI 40461036388 SUCCESS). Continue bounded MSIX ZIP/manifest contract QA and verify the Factory PR #11 / Provisioner PR #7 / Windows-all-auto PR #14 integration branches without merging divergent histories. Await independently accepted playable Godot source, authenticated Partner Center Identity, first real Factory 3D MSIX, then byte QA, local GPU and launch QA. No template-as-product, no generation while 120h gate HOLD and new_product_allowed=false.",
+    "goal": "Factory PR #11 safe PowerShell dispatch binding and regression tests were ported without merge onto current PR #10 ledger snapshot in codex/3d-dispatch-guard-current-ledger-20261027-1628 (code commit 197ffb95bf8e2af0c0060d8f9e5906b58d5e9bb2); check Draft PR CI before promoting. Windows-all-auto PR #14 latest HEAD e3d637cc659cc18d35764139af9175fcc11a01a1, offline CI 40463213981 SUCCESS; 3D CAS branch comparison diverged 33 ahead / 20 behind, no automatic merge. Continue bounded 3D MSIX ZIP/manifest QA at 3d-build-qa PR #4 HEAD ea6540037e359860775fbfd423244ea3f9ffeee6. Await authorized accepted playable Godot source, authenticated Partner Center Identity and first real 3D MSIX before exact-byte QA and local Windows GPU QA. Generation gate HOLD, new_product_allowed=false, active_product=null; template EXE/PCK is QA-only.",
     "acceptance": [
       "3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.",
       "All MSIX ZIP entries pass Windows path/collision/symlink/encryption/expansion preflight; package SHA and manifest executable/Identity are checked against real bytes.",
