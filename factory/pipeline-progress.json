@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T15:25:29.388Z",
+  "updated_at_utc": "2026-10-27T16:24:30Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -21,8 +21,8 @@
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
       "branch": "codex/3d-dispatch-guard-current-ledger-20261027-1628",
-      "head": "f8b772bf429de7f3da172f7c4a3a4f5448a3de1b",
-      "ci_run_id": 40520641316,
+      "head": "7f8a1cc112b3a94531f38fae19efe85307033d94",
+      "ci_run_id": 40530932146,
       "draft_pr": 12,
       "ledger_branch": "codex/3d-qa-zip-ledger-20261027-1235",
       "ledger_pr": 10,
@@ -52,17 +52,17 @@
     "qa": {
       "repo": "shihuiarenjinba-png/3d-build-qa",
       "branch": "codex/3d-msix-zip-path-safety-20261027-1235",
-      "head": "e94043258b8f249c2def0046348efea6fe7738be",
-      "ci_run_id": 40530733297,
+      "head": "ef73d56bdd1d6b1e0b1de2b0d20af2f38e884f9f",
+      "ci_run_id": 40540481221,
       "draft_pr": 4
     },
     "intake": {
       "repo": "shihuiarenjinba-png/Windows-all-auto",
       "branch": "codex/e2e-belt-connection-20261027",
-      "head": "2b324b8dfb1a56c2f461df9d24665fa7a8691e44",
-      "ci_run_id": 40524571820,
+      "head": "c797ebb211a8958d10438f7469fb77790ae73ad8",
+      "ci_run_id": 40533636679,
       "draft_pr": 14,
-      "compare_against_3d_cas": "diverged: 48 ahead / 20 behind; no automatic merge"
+      "compare_against_3d_cas": "diverged: 53 ahead / 20 behind; no automatic merge"
     },
     "windows_data": {
       "repo": "shihuiarenjinba-png/Windows-data",
@@ -203,7 +203,7 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/3d-build-qa",
-      "result": "ZIP local-header CRC32 and 32-bit compressed/uncompressed sizes must match the central directory when the data-descriptor flag is absent; forged local CRC was independently reproduced as accepted by Python zipfile despite intact member bytes. Three synthetic regression cases now reject inconsistent LFH fields; 3d-build-qa PR4 HEAD e94043258b8f249c2def0046348efea6fe7738be CI 40530733297 SUCCESS. Existing ZIP/CRC, BlockMap, manifest and OPC guards remain; ZIP64/data-descriptor MakeAppx compatibility and real product MSIX remain HOLD.",
+      "result": "ZIP64 local size sentinels are no longer trusted without matching 64-bit ZIP64 extra-field values. Python zipfile was independently shown to accept forged local uncompressed/compressed sizes and a missing ZIP64 extra despite intact central-directory member bytes. QA PR4 red CI 40540394870 reproduced 3 failures; fix ef73d56bdd1d6b1e0b1de2b0d20af2f38e884f9f green CI 40540481221 passed 68/68 tests. Authentic MakeAppx ZIP64/data-descriptor behavior, actual 3D MSIX and GPU QA remain unverified.",
       "evidence": [
         "head:04f2b1f74674159197cc3f8fa7503705b4febcfb",
         "run:40417351553",
@@ -244,7 +244,11 @@
         "commit:12fd7b4f8020c183c2842090d26e86c4e0dd462c:corrected-positive-whitespace-fixture",
         "run:40520471059:SUCCESS-65-tests",
         "commit:e94043258b8f249c2def0046348efea6fe7738be:local-header-CRC-and-size-crosscheck",
-        "run:40530733297:SUCCESS-local-header-regressions"
+        "run:40530733297:SUCCESS-local-header-regressions",
+        "commit:230f01e248269362dc694956d2fab3459c124343:ZIP64-local-extra-RED-fixtures",
+        "run:40540394870:EXPECTED_FAILURE-3-ZIP64-forgeries",
+        "commit:ef73d56bdd1d6b1e0b1de2b0d20af2f38e884f9f:ZIP64-local-extra-guard",
+        "run:40540481221:SUCCESS-68-tests"
       ],
       "remaining": [
         "Obtain an authorized, accepted playable Factory 3D product and authenticated official Partner Center Identity; no real candidate MSIX exists.",
@@ -252,7 +256,8 @@
         "Run Windows GPU launch, input, save/restart, signature/WACK and commercial UI QA separately before any Store handoff.",
         "With real MakeAppx MSIX, confirm canonical BlockMap Windows backslash spelling and all byte/hash checks against the actual package; synthetic fixtures alone are not installability proof.",
         "Validate strict XML metadata checks against an authentic MakeAppx-generated MSIX; synthetic XML formatting acceptance is not MakeAppx compatibility proof.",
-        "Against authentic MakeAppx MSIX, verify ZIP64 extra-field and data-descriptor variants without weakening CRC/BlockMap byte integrity checks."
+        "Against authentic MakeAppx MSIX, verify ZIP64 extra-field and data-descriptor variants without weakening CRC/BlockMap byte integrity checks.",
+        "Against authentic MakeAppx output, verify ZIP64 extra-field layout, data-descriptor variants, and BlockMap compressed block sizes without weakening local/central size consistency."
       ]
     },
     "windows_all_auto_intake": {
@@ -315,7 +320,7 @@
     "stage_id": "msix_byte_qa",
     "repo": "shihuiarenjinba-png/3d-build-qa",
     "branch": "codex/3d-msix-zip-path-safety-20261027-1235",
-    "goal": "3D QA PR #4 HEAD e94043258b8f249c2def0046348efea6fe7738be CI 40530733297 SUCCESS: local ZIP CRC and size mismatches are rejected when LFH has no data descriptor. Next verify ZIP64 extra-field and data-descriptor handling with authentic MakeAppx output before tightening compatibility; do not infer real MSIX E2E from synthetic CI. Windows-all-auto PR #14 HEAD 2b324b8dfb1a56c2f461df9d24665fa7a8691e44 CI 40524571820 SUCCESS; 3D CAS branch diverged 48 ahead / 20 behind, no automatic merge. No accepted GAME_3D product, official Identity or real MSIX; generation gate HOLD, active_product=null, new_product_allowed=false.",
+    "goal": "3D QA PR #4 HEAD ef73d56bdd1d6b1e0b1de2b0d20af2f38e884f9f CI 40540481221 SUCCESS: ZIP64 local size sentinels now require matching 64-bit ZIP64 extra values. Next exercise data-descriptor (GPBF bit 3) ZIP variants with realistic offline fixtures, then validate genuine MakeAppx output when available; synthetic ZIP tests do not prove installability. Windows-all-auto PR #14 HEAD c797ebb211a8958d10438f7469fb77790ae73ad8 CI 40533636679 SUCCESS; 3D CAS branch diverged 53 ahead / 20 behind, no automatic merge. No accepted GAME_3D product, official Identity or real MSIX; 120h generation gate HOLD, active_product=null, new_product_allowed=false.",
     "acceptance": [
       "3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.",
       "All MSIX ZIP entries pass Windows path/collision/symlink/encryption/expansion preflight; package SHA and manifest executable/Identity are checked against real bytes.",
@@ -330,13 +335,14 @@
       "Reject ZIP local-header filename/flags/compression method disagreement with central-directory entries, including directories; offline CI PASS does not establish real MSIX E2E.",
       "AppxBlockMap File Name must exactly match the corresponding ZIP member with canonical Windows backslashes and original case; reject slash and case aliases before trusting block hashes. Synthetic PASS is not real MakeAppx validation.",
       "Reject unexpected AppxBlockMap BlockMap/File/Block attributes and non-whitespace text; allow indentation whitespace. CI 40520471059 synthetic 65/65 PASS does not prove real MakeAppx MSIX compatibility.",
-      "Reject contradictory ZIP local CRC/compressed/uncompressed sizes when data-descriptor bit is absent; preserve ZIP64 sentinel compatibility pending real MakeAppx evidence. CI 40530733297 is synthetic, not product E2E."
+      "Reject contradictory ZIP local CRC/compressed/uncompressed sizes when data-descriptor bit is absent; preserve ZIP64 sentinel compatibility pending real MakeAppx evidence. CI 40530733297 is synthetic, not product E2E.",
+      "ZIP64 local 0xffffffff size sentinels require an actual local ZIP64 extra field with 64-bit uncompressed/compressed sizes matching the central directory; malformed/forged values are rejected, valid force_zip64 fixture passes. QA 40540481221 68/68 synthetic tests PASS, not real MakeAppx evidence."
     ],
-    "expected_head_sha": "e94043258b8f249c2def0046348efea6fe7738be"
+    "expected_head_sha": "ef73d56bdd1d6b1e0b1de2b0d20af2f38e884f9f"
   },
   "active_product": null,
-  "phase": "MSIX_BYTE_QA_LFH_CRC_SIZE_GUARD_PASS__NO_ACCEPTED_PRODUCT",
-  "last_completed_step": "3d-build-qa PR4 LFH CRC/size mismatch regression and fix, CI 40530733297 SUCCESS; no accepted product or actual MakeAppx MSIX",
+  "phase": "MSIX_BYTE_QA_ZIP64_LOCAL_EXTRA_GUARD_PASS__NO_ACCEPTED_PRODUCT",
+  "last_completed_step": "3d-build-qa PR4 ZIP64 local extra size forgery reproduced (CI 40540394870 expected RED), fixed and 68/68 tests PASS (CI 40540481221); no accepted product or authentic MakeAppx MSIX",
   "blocked_by": [
     "NO_ACTIVE_PRODUCT",
     "EXTERNAL_IDENTITY",
@@ -345,13 +351,13 @@
   ],
   "resume_repository": "shihuiarenjinba-png/3d-build-qa",
   "resume_branch": "codex/3d-msix-zip-path-safety-20261027-1235",
-  "resume_sha": "e94043258b8f249c2def0046348efea6fe7738be",
+  "resume_sha": "ef73d56bdd1d6b1e0b1de2b0d20af2f38e884f9f",
   "request_id": null,
   "source_sha": null,
   "factory_build_sha": null,
   "quality_gates": {
-    "ci": "PASS_OFFLINE_QA_40530733297_66_TESTS_VERIFIED",
-    "contract": "PASS_SYNTHETIC_ZIP_LFH_CRC_SIZE_MANIFEST_BLOCKMAP_OPC_ONLY",
+    "ci": "PASS_OFFLINE_QA_40540481221_68_TESTS_VERIFIED",
+    "contract": "PASS_SYNTHETIC_ZIP64_LFH_CRC_SIZE_MANIFEST_BLOCKMAP_OPC_ONLY",
     "e2e": "HOLD",
     "commercial": "HOLD"
   }
