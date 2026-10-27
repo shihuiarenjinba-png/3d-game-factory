@@ -1,6 +1,5 @@
 import json
 import os
-import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 import tempfile
@@ -8,7 +7,7 @@ import unittest
 from unittest import mock
 
 from factory3d import candidate_digest
-from tools.stage_existing_candidate import stage_existing_candidate
+from tools.stage_existing_candidate import audit_source_tree, stage_existing_candidate
 
 
 def fixture(root: Path, source: Path):
@@ -94,17 +93,17 @@ class StageExistingCandidateTests(unittest.TestCase):
             root, source = Path(factory_dir), Path(src_dir)
             fixture(root, source)
             digest = candidate_digest(source)
-            original = shutil.copytree
+            original_audit = audit_source_tree
 
-            def copy_with_late_cache(src, dst, **kwargs):
-                copied = original(src, dst, **kwargs)
-                cache = Path(dst) / ".godot"
-                cache.mkdir()
-                (cache / "late.json").write_text("unexpected", encoding="utf-8")
-                return copied
+            def audit_then_add_cache(path):
+                original_audit(path)
+                if Path(path) == source:
+                    cache = source / ".godot"
+                    cache.mkdir()
+                    (cache / "late.json").write_text("unexpected", encoding="utf-8")
 
-            with mock.patch("tools.stage_existing_candidate.shutil.copytree",
-                            side_effect=copy_with_late_cache):
+            with mock.patch("tools.stage_existing_candidate.audit_source_tree",
+                            side_effect=audit_then_add_cache):
                 with self.assertRaisesRegex(ValueError, "hidden/cache"):
                     stage_existing_candidate(root, source, digest, source_reviewed=True)
             self.assertFalse((root / ".candidate/project").exists())
@@ -124,14 +123,15 @@ class StageExistingCandidateTests(unittest.TestCase):
                 link.unlink()
             except (OSError, NotImplementedError):
                 self.skipTest("symlinks unavailable")
-            original = shutil.copytree
+            original_audit = audit_source_tree
 
-            def copy_with_late_link(src, dst, **kwargs):
-                link.symlink_to(outside)
-                return original(src, dst, **kwargs)
+            def audit_then_add_link(path):
+                original_audit(path)
+                if Path(path) == source:
+                    link.symlink_to(outside)
 
-            with mock.patch("tools.stage_existing_candidate.shutil.copytree",
-                            side_effect=copy_with_late_link):
+            with mock.patch("tools.stage_existing_candidate.audit_source_tree",
+                            side_effect=audit_then_add_link):
                 with self.assertRaisesRegex(ValueError, "symlink"):
                     stage_existing_candidate(root, source, digest, source_reviewed=True)
             self.assertFalse((root / ".candidate/project").exists())
