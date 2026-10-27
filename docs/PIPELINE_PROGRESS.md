@@ -1,12 +1,12 @@
 # 3D Pipeline Progress
 
 - Ledger schema: `1.0`
-- Updated UTC: `2026-10-27T21:23:44Z`
+- Updated UTC: `2026-10-27T22:22:42.139Z`
 - New-product gate: **HOLD** — No accepted 3D candidate baseline or explicit new_product_allowed=true authorization exists; generation and new staging remain HOLD while existing QA/build/transport are improved.
 - Next stage: `provisioner_windows_build`
 - Next repository: `shihuiarenjinba-png/Repository-Provisioner-3D`
 - Next branch: `codex/e2e-belt-connection-20261027`
-- Next HEAD: `70600e77f2dd4278a989604314eebfa662e05c33`
+- Next HEAD: `8da96245c8d619cbb81091108ee09bfba81ecdb2`
 
 ## Stage status
 
@@ -14,7 +14,7 @@
 | --- | --- | --- | --- |
 | `template_windows_export` | **DONE** | no | Godot 4.3 Windows x64 EXE/PCK export is real, and the same workflow run packages those exact independently hashed template bytes with Windows SDK MakeAppx. Pinned 3d-build-qa e84c448e strict ZIP/CRC/BlockMap/OPC/manifest and EXE/PCK SHA contract passes; a repacked tampered PCK is rejected. Template QA fixture is unsigned and is NOT an accepted/sellable 3D product. |
 | `factory_product_materialization` | **HOLD** | yes | No independently reviewed playable 3D source exists. Factory acceptance now preserves late symlinks, re-audits the copied product tree for Windows safety and checks both the copied bytes and original source against the exact real Godot QA digest before publication. Product acceptance and real Godot candidate QA remain HOLD. New generation/acceptance/staging now also checks an explicit READY/new_product_allowed=true ledger gate and absent active_product, independently of the 120-hour timestamp. |
-| `provisioner_windows_build` | **IN_PROGRESS** | yes | Local 3D manufacturing now accepts a real Godot Windows EXE/PCK export as pre-MSIX payload evidence, preserves its SHA/signature status, requires official Store ID/Identity/Publisher/Version/PFN/Package SID evidence, and returns the full request/product/source correlation key to Factory. Final Identity-to-package match is deliberately deferred to the Factory MSIX. |
+| `provisioner_windows_build` | **IN_PROGRESS** | yes | Provisioner PR7 now rejects stale Godot candidate.exe/candidate.pck surviving a reused retry workspace and selects only the exact current candidate.exe, never an unrelated EXE from output_patterns. Reproducible RED tests (CI 40594142267 and 40594226595) and fixed GREEN CI 40594237767 on 8da96245 prove offline fail-closed behavior. Godot 4.3 real export -> MakeAppx template fixture remains separately PASS, but no accepted 3D product or authenticated Partner Center Identity exists. |
 | `official_identity_roundtrip` | **IN_PROGRESS** | yes | 3D Identity return no longer targets a stale hard-coded Factory branch: it validates the exact active codex/* source_branch, requires original source_sha == expected_head_sha, checks live HEAD and commits with GitHub CAS. Linux/Windows offline tests pass. No real authenticated Partner Center Identity has been supplied or returned; actual Identity stage remains HOLD. |
 | `factory_msix_build` | **IN_PROGRESS** | yes | Factory MSIX builder now consumes the returned 3D correlation/provenance record, keeps the original product source_sha immutable, records the later GitHub packaging commit separately as factory_build_head, and carries local package SHA plus Store ID/PFN/SID into the strict handoff. PowerShell syntax and Factory quality gates pass. |
 | `msix_byte_qa` | **IN_PROGRESS** | yes | Real Godot 4.3 Windows template EXE/PCK (not synthetic bytes) were independently hashed by the template export job, downloaded within the SAME workflow run, and packaged with real Windows SDK MakeAppx. Pinned 3d-build-qa PR4 e84c448e verifies actual MSIX ZIP/CRC/BlockMap/OPC/manifest plus EXE/PCK SHA; a valid repack with modified PCK fails only the independent Godot export SHA check. Template PR1 404214de CI 40586209393 SUCCESS, non-product fixture artifact 12772561732. QA PR4 CI 40578299666 SUCCESS 84/84. This proves template byte compatibility, not an accepted product, Partner Center Identity, Windows install/GPU/GUI, signing, E2E or commercial readiness. |
@@ -25,7 +25,7 @@
 
 ## Next action
 
-3D template PR1 404214de CI 40586209393 SUCCESS proves real Godot 4.3 EXE/PCK in actual Windows SDK MakeAppx unsigned non-product fixture; artifact 12772561732 archive digest sha256:d51dda48d99e004de31c3a78171f17f3485d041f8f474ee6de0d9af2c08e6521, QA verifier pinned e84c448e CI 40578299666 PASS. Next 3D owner: review Provisioner PR7 70600e77 for exact export evidence provenance, request_id/source_sha/factory_build_head/slug correlation and reject template QA artifact as accepted product; add minimal regression only for reproducible gaps. 36min Windows owner: read-only central GAME_3D references remain stale; reconcile Factory PR12 and Template PR1/QA PR4, preserve isolated 3D queue and do not intake this template fixture as product MSIX. No accepted product, authenticated Partner Center Identity, product MSIX, Windows install/GPU/GUI or commercial QA. 120-hour generation HOLD, active_product=null, new_product_allowed=false.
+Provisioner PR7 8da96245 CI 40594237767 SUCCESS after two RED/GREEN regressions: reused Godot export workspaces cannot reuse stale candidate.exe/candidate.pck, and unrelated EXEs cannot replace the exact candidate.exe. Next 3D owner: verify independent export EXE/PCK hash evidence and immutable request_id/source_sha/factory_build_head correlation without generating a new product; only add minimal reproducible fixes. Real Godot 4.3 -> Windows SDK MakeAppx template fixture remains PASS, but no accepted product, official Identity, product MSIX, install/GPU/GUI, E2E or commercial QA. 36min Windows owner: reconcile central GAME_3D Factory/QA/Provisioner refs, preserve 3D isolated queue; central ledger read-only. Gate HOLD; active_product=null, new_product_allowed=false.
 
 Acceptance:
 - 3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.
@@ -51,11 +51,11 @@ Acceptance:
 
 ## Evidence pins
 
-- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-dispatch-guard-current-ledger-20261027-1628` / `ea20fa75f66f2e9843be3ef2f83b1817077ce35a` / run `40578554281`
-- **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/e2e-belt-connection-20261027` / `70600e77f2dd4278a989604314eebfa662e05c33` / run `40454089167`
+- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-dispatch-guard-current-ledger-20261027-1628` / `5c21d8667323e51297f4adbbd93b8ae6215aecc1` / run `40586538003`
+- **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/e2e-belt-connection-20261027` / `8da96245c8d619cbb81091108ee09bfba81ecdb2` / run `40594237767`
 - **template** — `shihuiarenjinba-png/3d-game-template` / `codex/3d-template-godot-bootstrap-20261026` / `404214de6610b118f043b7ca8f62bf12f4b813b1` / run `40586209393`; artifact `godot-4-3-real-export-makeappx-fixture-not-product`
 - **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-zip-path-safety-20261027-1235` / `e84c448e48105d15d2040f87fb279835ddd0119b` / run `40578299666`; artifact `makeappx-3d-offline-unsigned-fixture-not-product`
-- **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/e2e-belt-connection-20261027` / `2e4e33d71d96fdd181d255f0a6c3fd67996003e6` / run `40580391439`
+- **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/e2e-belt-connection-20261027` / `8ef23096e5c96745e7e9e80188fb5cb83cb8de5a` / run `40588540061`
 - **windows_data** — `shihuiarenjinba-png/Windows-data` / `codex/msix-auto-build-identity-20261025` / `664b9afcbed63539b89f594892d831d97b9d4118` / run `40259906737`; artifact `MSIXAutoBuildIdentity-Windows-QA`
 
 ## Automation rule
