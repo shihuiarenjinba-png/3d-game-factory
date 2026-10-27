@@ -46,7 +46,9 @@ python factory3d.py accept
 ```
 
 The `qa` command requires a locally installed Godot **4.3**, imports the project
-headlessly and runs `tests/test_smoke.gd` in a disposable project copy. It records
+headlessly, requires an explicit `PASS:` marker from `tests/test_smoke.gd`,
+and launches the main scene for 60 headless frames in a disposable project copy.
+Any engine/script error or missing smoke PASS blocks acceptance. It records
 a SHA-256 digest and cycle-bound result in `.runtime/candidate-qa.json`.
 `accept` now refuses missing, failed or stale QA evidence, as well as violating
 the 120-hour acceptance gate. These commands do not create a new game, reserve

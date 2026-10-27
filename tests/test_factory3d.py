@@ -12,14 +12,34 @@ def mark_qa(root):
     completed = [
         subprocess.CompletedProcess(["godot", "--version"], 0, stdout="4.3.stable.official\n"),
         subprocess.CompletedProcess(["godot", "--headless"], 0, stdout="import ok"),
-        subprocess.CompletedProcess(["godot", "--headless"], 0, stdout="smoke ok"),
+        subprocess.CompletedProcess(["godot", "--headless"], 0, stdout="PASS: smoke ok"),
+        subprocess.CompletedProcess(["godot", "--headless"], 0, stdout="launch ok"),
     ]
     with patch("factory3d.subprocess.run", side_effect=completed) as run:
         result = verify_candidate_qa(root, godot_executable="godot")
-    assert run.call_count == 3
+    assert run.call_count == 4
     assert result["smoke"] == "PASS"
+    assert result["launch"] == "PASS"
+    assert run.call_args_list[-1].args[0][-2:] == ["--quit-after", "60"]
     return result
 
+
+def minimal_candidate(root):
+    (root/"factory").mkdir()
+    (root/"factory/state.json").write_text('{"schema":1,"cycle":1,"last_completed_utc":null}')
+    prepare(root)
+    project = root/".candidate/project"
+    for name, content in {
+        "project.godot": '[application]\nrun/main_scene="res://scenes/main.tscn"\n',
+        "export_presets.cfg": '[preset.0]\nname="Windows Desktop"\nplatform="Windows Desktop"\n',
+        "scenes/main.tscn": '[gd_scene format=3]\n[node name="Main" type="Node3D"]\n',
+        "scripts/main.gd": "extends Node3D\n",
+        "tests/test_smoke.gd": "func test_run(): pass\n",
+        "README.md": "QA-only candidate",
+    }.items():
+        path = project/name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content)
 
 class FiveDayTests(unittest.TestCase):
     def test_first_run_due(self):
@@ -147,6 +167,48 @@ class FiveDayTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,"smoke failed"):
                     verify_candidate_qa(root,godot_executable="godot")
             self.assertFalse((root/".runtime/candidate-qa.json").exists())
+
+    def test_smoke_must_explicitly_report_pass(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            minimal_candidate(root)
+            outputs = [
+                subprocess.CompletedProcess(["godot"], 0, stdout="4.3.stable.official"),
+                subprocess.CompletedProcess(["godot"], 0, stdout="import ok"),
+                subprocess.CompletedProcess(["godot"], 0, stdout="script exited without tests"),
+            ]
+            with patch("factory3d.subprocess.run", side_effect=outputs):
+                with self.assertRaisesRegex(ValueError, "did not report PASS"):
+                    verify_candidate_qa(root, godot_executable="godot")
+            self.assertFalse((root/".runtime/candidate-qa.json").exists())
+
+    def test_runtime_script_error_blocks_candidate_qa(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            minimal_candidate(root)
+            outputs = [
+                subprocess.CompletedProcess(["godot"], 0, stdout="4.3.stable.official"),
+                subprocess.CompletedProcess(["godot"], 0, stdout="import ok"),
+                subprocess.CompletedProcess(["godot"], 0, stdout="PASS: smoke"),
+                subprocess.CompletedProcess(["godot"], 0, stdout="launch", stderr="SCRIPT ERROR: Invalid access"),
+            ]
+            with patch("factory3d.subprocess.run", side_effect=outputs):
+                with self.assertRaisesRegex(ValueError, "launch logged an engine error"):
+                    verify_candidate_qa(root, godot_executable="godot")
+            self.assertFalse((root/".runtime/candidate-qa.json").exists())
+
+    def test_old_smoke_only_evidence_cannot_accept_product(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            minimal_candidate(root)
+            mark_qa(root)
+            evidence_path = root/".runtime/candidate-qa.json"
+            evidence = json.loads(evidence_path.read_text())
+            evidence.pop("launch")
+            evidence_path.write_text(json.dumps(evidence))
+            with self.assertRaisesRegex(ValueError, "stale or mismatched"):
+                accept(root)
+            self.assertFalse((root/"products").exists())
 
     def test_concurrent_accept_lock_fails_closed(self):
         with tempfile.TemporaryDirectory() as d:

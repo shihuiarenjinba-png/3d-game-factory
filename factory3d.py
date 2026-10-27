@@ -133,6 +133,8 @@ def verify_candidate_qa(root=ROOT, godot_executable=None):
         for args,label in (
             (["--headless","--editor","--path",str(work),"--import"],"import"),
             (["--headless","--path",str(work),"--script","res://tests/test_smoke.gd"],"smoke"),
+            # Launch the actual configured main scene for 60 engine frames.
+            (["--headless","--path",str(work),"--quit-after","60"],"launch"),
         ):
             try:
                 result=subprocess.run([str(godot),*args],capture_output=True,text=True,
@@ -141,6 +143,11 @@ def verify_candidate_qa(root=ROOT, godot_executable=None):
                 raise ValueError(f"Godot candidate {label} did not finish") from exc
             if result.returncode:
                 raise ValueError(f"Godot candidate {label} failed (exit {result.returncode})")
+            output = (result.stdout or "") + "\n" + (result.stderr or "")
+            if "SCRIPT ERROR:" in output or "ERROR:" in output:
+                raise ValueError(f"Godot candidate {label} logged an engine error")
+            if label == "smoke" and "PASS:" not in (result.stdout or ""):
+                raise ValueError("Godot candidate smoke test did not report PASS:")
     if candidate_digest(project)!=before:
         raise ValueError("candidate source changed during Godot QA")
     evidence={
@@ -150,6 +157,7 @@ def verify_candidate_qa(root=ROOT, godot_executable=None):
         "godot_version":version.stdout.strip(),
         "import":"PASS",
         "smoke":"PASS",
+        "launch":"PASS",
         "verified_utc":datetime.now(timezone.utc).isoformat(),
     }
     target=root/".runtime/candidate-qa.json"
@@ -174,6 +182,7 @@ def require_candidate_qa(root: Path, cycle: int) -> None:
             or evidence.get("cycle")!=cycle
             or evidence.get("import")!="PASS"
             or evidence.get("smoke")!="PASS"
+            or evidence.get("launch")!="PASS"
             or not str(evidence.get("godot_version","")).startswith("4.3")
             or evidence.get("candidate_sha256")!=candidate_digest(root/".candidate/project")):
         raise ValueError("Godot candidate QA evidence is stale or mismatched")
