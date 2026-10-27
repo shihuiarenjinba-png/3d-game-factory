@@ -4,9 +4,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 
 from factory3d import candidate_digest
-from tools.stage_existing_candidate import stage_existing_candidate
+from tools.stage_existing_candidate import audit_source_tree, stage_existing_candidate
 
 
 def fixture(root: Path, source: Path):
@@ -86,6 +87,54 @@ class StageExistingCandidateTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "symlink"):
                 stage_existing_candidate(root, source, candidate_digest(source), source_reviewed=True)
             self.assertFalse((root / ".candidate").exists())
+
+    def test_reaudits_snapshot_when_files_appear_during_copy(self):
+        with tempfile.TemporaryDirectory() as factory_dir, tempfile.TemporaryDirectory() as src_dir:
+            root, source = Path(factory_dir), Path(src_dir)
+            fixture(root, source)
+            digest = candidate_digest(source)
+            original_audit = audit_source_tree
+
+            def audit_then_add_cache(path):
+                original_audit(path)
+                if Path(path) == source:
+                    cache = source / ".godot"
+                    cache.mkdir()
+                    (cache / "late.json").write_text("unexpected", encoding="utf-8")
+
+            with mock.patch("tools.stage_existing_candidate.audit_source_tree",
+                            side_effect=audit_then_add_cache):
+                with self.assertRaisesRegex(ValueError, "hidden/cache"):
+                    stage_existing_candidate(root, source, digest, source_reviewed=True)
+            self.assertFalse((root / ".candidate/project").exists())
+            self.assertFalse((root / "products").exists())
+
+    @unittest.skipIf(os.name == "nt", "symlink fixture requires Unix")
+    def test_does_not_follow_symlink_added_after_preflight(self):
+        with tempfile.TemporaryDirectory() as factory_dir, tempfile.TemporaryDirectory() as src_dir:
+            root, source = Path(factory_dir), Path(src_dir)
+            fixture(root, source)
+            digest = candidate_digest(source)
+            outside = root / "outside.gd"
+            outside.write_text("external bytes", encoding="utf-8")
+            link = source / "scripts/late.gd"
+            try:
+                link.symlink_to(outside)
+                link.unlink()
+            except (OSError, NotImplementedError):
+                self.skipTest("symlinks unavailable")
+            original_audit = audit_source_tree
+
+            def audit_then_add_link(path):
+                original_audit(path)
+                if Path(path) == source:
+                    link.symlink_to(outside)
+
+            with mock.patch("tools.stage_existing_candidate.audit_source_tree",
+                            side_effect=audit_then_add_link):
+                with self.assertRaisesRegex(ValueError, "symlink"):
+                    stage_existing_candidate(root, source, digest, source_reviewed=True)
+            self.assertFalse((root / ".candidate/project").exists())
 
     @unittest.skipIf(os.name == "nt", "requires a case-sensitive fixture filesystem")
     def test_rejects_casefold_collision_before_staging(self):

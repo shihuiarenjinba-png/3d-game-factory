@@ -51,6 +51,34 @@ def require_windows_safe_path(relative: Path, seen: set[str]) -> None:
 
 
 
+def audit_source_tree(source: Path) -> None:
+    """Audit source and the copied snapshot before publishing any candidate."""
+    count = 0
+    total = 0
+    seen_windows_paths: set[str] = set()
+    for path in source.rglob("*"):
+        if path.is_symlink():
+            raise ValueError("source contains a symlink")
+        if not path.is_dir() and not path.is_file():
+            raise ValueError("source contains unsupported filesystem entry")
+        relative = path.relative_to(source)
+        require_windows_safe_path(relative, seen_windows_paths)
+        if any(part.startswith(".") for part in relative.parts):
+            raise ValueError("hidden/cache paths are not allowed in source")
+        if path.is_file():
+            if path.suffix.lower() not in EXTENSIONS:
+                raise ValueError("unsupported source file extension")
+            if path.suffix.lower() == ".cfg" and relative.as_posix() != "export_presets.cfg":
+                raise ValueError("only export_presets.cfg is permitted")
+            count += 1
+            total += path.stat().st_size
+            if count > MAX_FILES or total > MAX_BYTES:
+                raise ValueError("source exceeds candidate quotas")
+    if count == 0:
+        raise ValueError("source contains no project files")
+
+
+
 def stage_existing_candidate(
     root: Path,
     source: Path,
@@ -80,29 +108,7 @@ def stage_existing_candidate(
     if not due(state, datetime.now(timezone.utc)):
         raise ValueError("120-hour acceptance gate is not due")
 
-    count = 0
-    total = 0
-    seen_windows_paths: set[str] = set()
-    for path in source.rglob("*"):
-        if path.is_symlink():
-            raise ValueError("source contains a symlink")
-        if not path.is_dir() and not path.is_file():
-            raise ValueError("source contains unsupported filesystem entry")
-        relative = path.relative_to(source)
-        require_windows_safe_path(relative, seen_windows_paths)
-        if any(part.startswith(".") for part in relative.parts):
-            raise ValueError("hidden/cache paths are not allowed in source")
-        if path.is_file():
-            if path.suffix.lower() not in EXTENSIONS:
-                raise ValueError("unsupported source file extension")
-            if path.suffix.lower() == ".cfg" and relative.as_posix() != "export_presets.cfg":
-                raise ValueError("only export_presets.cfg is permitted")
-            count += 1
-            total += path.stat().st_size
-            if count > MAX_FILES or total > MAX_BYTES:
-                raise ValueError("source exceeds candidate quotas")
-    if count == 0:
-        raise ValueError("source contains no project files")
+    audit_source_tree(source)
 
     candidate_root = root / ".candidate"
     dest = candidate_root / "project"
@@ -121,7 +127,10 @@ def stage_existing_candidate(
 
     with tempfile.TemporaryDirectory(prefix="existing-3d-", dir=runtime) as temp:
         staged = Path(temp) / "project"
-        shutil.copytree(source, staged)
+        # Preserve late-appearing links rather than following them outside source.
+        # The second audit catches mutations between preflight and copy.
+        shutil.copytree(source, staged, symlinks=True)
+        audit_source_tree(staged)
         digest = candidate_digest(staged)
         if digest != expected_sha256:
             raise ValueError("source SHA-256 mismatch; no candidate imported")
