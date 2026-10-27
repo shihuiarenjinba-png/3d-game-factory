@@ -1,18 +1,18 @@
 # 3D Pipeline Progress
 
 - Ledger schema: `1.0`
-- Updated UTC: `2026-10-27T02:42:15Z`
+- Updated UTC: `2026-10-27T03:09:15Z`
 - New-product gate: **HOLD** — No accepted 3D candidate baseline is recorded; scheduler must improve QA/build/transport instead of generating a new game.
 - Next stage: `factory_product_materialization`
 - Next repository: `shihuiarenjinba-png/3d-game-factory`
-- Next branch: `codex/3d-staging-copy-revalidation-20261027`
+- Next branch: `codex/3d-accept-qa-snapshot-20261027-1209`
 
 ## Stage status
 
 | Stage | State | Auto-actionable | Result |
 | --- | --- | --- | --- |
 | `template_windows_export` | **DONE** | no | Godot 4.3 Windows x64 EXE/PCK export succeeds and produces a real QA artifact. |
-| `factory_product_materialization` | **HOLD** | yes | No reviewed playable 3D source is available. Existing-source staging now re-audits the actual copied snapshot for Windows paths, hidden/cache entries, symlinks, extensions and quotas before publication; symlinks appearing during copy are preserved and rejected instead of followed. Real Godot QA/product acceptance remain HOLD until reviewed playable source is provided. |
+| `factory_product_materialization` | **HOLD** | yes | No independently reviewed playable 3D source exists. Factory acceptance now preserves late symlinks, re-audits the copied product tree for Windows safety and checks both the copied bytes and original source against the exact real Godot QA digest before publication. Product acceptance and real Godot candidate QA remain HOLD. |
 | `provisioner_windows_build` | **IN_PROGRESS** | yes | Local 3D manufacturing now accepts a real Godot Windows EXE/PCK export as pre-MSIX payload evidence, preserves its SHA/signature status, requires official Store ID/Identity/Publisher/Version/PFN/Package SID evidence, and returns the full request/product/source correlation key to Factory. Final Identity-to-package match is deliberately deferred to the Factory MSIX. |
 | `official_identity_roundtrip` | **IN_PROGRESS** | yes | 3D Identity return now preserves request_id, GAME_3D product type, Factory/repository/branch/source SHA/slug, local package SHA/kind/signature status, and official Store ID/Identity/Publisher/Version/PFN/Package SID. Existing records are reusable only when the whole manufacturing provenance matches. |
 | `factory_msix_build` | **IN_PROGRESS** | yes | Factory MSIX builder now consumes the returned 3D correlation/provenance record, keeps the original product source_sha immutable, records the later GitHub packaging commit separately as factory_build_head, and carries local package SHA plus Store ID/PFN/SID into the strict handoff. PowerShell syntax and Factory quality gates pass. |
@@ -24,17 +24,18 @@
 
 ## Next action
 
-Locate an independently reviewed, authorized playable Godot 4.3 project outside Factory; stage with exact reviewed SHA-256, pre-copy and post-copy audit, and run real Godot 4.3 import/smoke/60-frame launch before 120-hour-gated acceptance. No such source is available; do not generate a game or promote the rotating-cube template.
+Find an independently reviewed authorized playable Godot 4.3 project outside Factory, stage its exact SHA-256 and run real engine QA before accepting. Acceptance now binds the actual copied product bytes to QA evidence; no reviewed game is available, so continue hardening manufacturing/QA/transport without inventing a candidate.
 
 Acceptance:
-- Source rights/gameplay are independently reviewed and --source-reviewed is explicitly provided; no source is invented.
-- Staging verifies expected SHA-256, quotas, Windows-safe paths, symlink/cache exclusion both before and after copy, 120-hour gate and no overwrite.
-- Real Godot 4.3 import, smoke PASS and 60-frame headless main-scene launch produce exact source/cycle-bound QA evidence.
-- Only after real QA and 120-hour recheck is a genuine product committed under products/<slug>/; Identity/Store/security claims remain unguessed.
+- Source ownership, licensing and gameplay are independently reviewed; source_reviewed is explicit and no source is invented.
+- Pre/post-copy audits, expected source digest, Windows-safe paths, no symlinks/cache, quotas, 120-hour gate and no overwrite hold.
+- Real Godot 4.3 import/smoke/60-frame main-scene QA binds exact source digest to the same cycle.
+- Acceptance rechecks the staged product and original source digest against QA evidence before publication; mismatches HOLD with no product or state advancement.
+- After real acceptance, proceed to Provisioner/official Identity/MSIX/Artifact intake; never infer Store Identity or declare E2E PASS without real MSIX.
 
 ## Evidence pins
 
-- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-staging-copy-revalidation-20261027` / `24f58b9e0450326e05891ad29cc5551bc74910e7` / run `40439905556`
+- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-accept-qa-snapshot-20261027-1209` / `e66338f13d553da33e5c52b0ddb4628d132116ee` / run `40439980424`
 - **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/3d-local-identity-provenance-20261027` / `a1727307884176bfa97f714c47705281240d83c3` / run `40431389877`
 - **template** — `shihuiarenjinba-png/3d-game-template` / `codex/3d-template-godot-bootstrap-20261026` / `e5462d0aa1f5d0a50fa484ad1544c11ce8a6085a` / run `40360649193`; artifact `godot-3d-windows-x64-qa-unsigned`
 - **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-executable-payload-20261027` / `04f2b1f74674159197cc3f8fa7503705b4febcfb` / run `40417351553`
