@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T23:29:49.885Z",
+  "updated_at_utc": "2026-10-28T00:21:10.446Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -21,8 +21,8 @@
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
       "branch": "codex/3d-dispatch-guard-current-ledger-20261027-1628",
-      "head": "3b3c5cd6c7e58dcca5a86b94e83ff2401fb8cd0d",
-      "ci_run_id": 40586538003,
+      "head": "88d0c9bcf3d1e140f81f73f00a92c75831029a35",
+      "ci_run_id": 40602534889,
       "draft_pr": 12,
       "ledger_branch": "codex/3d-qa-zip-ledger-20261027-1235",
       "ledger_pr": 10,
@@ -38,8 +38,8 @@
     "provisioner": {
       "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
       "branch": "codex/e2e-belt-connection-20261027",
-      "head": "ea6746ed7b11b602a68ab1aa4485df135379a15a",
-      "ci_run_id": 40602424321,
+      "head": "651e630de3a60cf59bf5d865cdf1cb004ae8a8f4",
+      "ci_run_id": 40608121189,
       "draft_pr": 7
     },
     "template": {
@@ -152,7 +152,7 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
-      "result": "Provisioner PR7 now rejects malformed external Godot PCK GDPC headers, records local EXE and optional external PCK SHA-256/size as explicitly non-independent export evidence, and preserves inspected package bytes in HOLD results when operator Identity is missing. RED CI 40602137397/40602252274 reproduced failures; final Windows+Ubuntu CI 40602424321 SUCCESS, 76 tests (Ubuntu skipped 1). This is PRE_IDENTITY partial contract evidence, not a real accepted product or authenticated Identity.",
+      "result": "Provisioner PR7 rejects a non-Windows EXE lacking the MZ header both immediately after Godot export and during independent local package inspection. RED Ubuntu CI 40608097409 reproduced 2 accepted-invalid-EXE cases; final Windows/Ubuntu CI 40608121189 SUCCESS (78 tests). This is a minimal EXE magic guard only, not full PE validation, independent Factory provenance, an accepted product, Identity, or Windows install/GUI QA.",
       "evidence": [
         "branch:codex/3d-local-identity-provenance-20261027",
         "head:a1727307884176bfa97f714c47705281240d83c3",
@@ -175,12 +175,16 @@
         "commit:6ea50dd88dc477fbed08fe80d11dd49611e65108:RED-PCK-hash-and-HOLD-receipt",
         "run:40602252274:EXPECTED_FAILURE-missing-evidence",
         "commit:ea6746ed7b11b602a68ab1aa4485df135379a15a:PCK-header-hash-HOLD-receipt-and-docs",
-        "run:40602424321:SUCCESS-Windows-Ubuntu-76-tests"
+        "run:40602424321:SUCCESS-Windows-Ubuntu-76-tests",
+        "commit:9389999cb19e02c2f3f481b62ceb5e50ca705540:RED-invalid-EXE-tests",
+        "run:40608097409:EXPECTED_FAILURE-2-invalid-EXE",
+        "commit:651e630de3a60cf59bf5d865cdf1cb004ae8a8f4:MZ-export-and-inspection-guard",
+        "run:40608121189:SUCCESS-Windows-Ubuntu-78-tests"
       ],
       "remaining": [
-        "Cross-check Provisioner local EXE/PCK hashes against independent Factory export evidence with pinned request_id/source_sha/slug and immutable build head; no local digest alone proves provenance.",
-        "Run Provisioner against one accepted Factory products/<slug>/ only after 120-hour gate and explicit new_product_allowed=true authorization.",
-        "Authenticated Partner Center Identity, CAS return and actual product MSIX remain HOLD until operator evidence."
+        "Bind local EXE/PCK SHA to an independently verified Factory export receipt with exact request_id/source_sha/slug; preserve immutable source_sha separately from future factory_build_head.",
+        "MZ magic is only a minimum EXE check; full PE architecture/headers, actual product MSIX, GPU/install/GUI and product E2E are not proven.",
+        "No accepted 3D product may be staged until 120-hour gate and explicit new_product_allowed=true; authenticated Partner Center Identity remains operator-owned."
       ]
     },
     "official_identity_roundtrip": {
@@ -364,7 +368,7 @@
     "stage_id": "provisioner_windows_build",
     "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
     "branch": "codex/e2e-belt-connection-20261027",
-    "goal": "Provisioner PR7 ea6746ed CI 40602424321 SUCCESS (Windows/Ubuntu, 76 tests): malformed external PCK is rejected; local EXE/PCK SHA evidence and pre-Identity HOLD receipt are preserved. Next 3D owner: test independent Factory export digest binding to request_id/source_sha/slug and distinguish immutable source_sha from future factory_build_head, without generating a product. Keep real Godot 4.3 -> Windows SDK MakeAppx non-product template fixture PASS, but no accepted product, official Identity, actual product MSIX, GPU/install/GUI, E2E or commercial QA. 36min Windows owner: reconcile central GAME_3D refs and preserve 3D isolation; central ledger read-only.",
+    "goal": "Provisioner PR7 651e630d CI 40608121189 SUCCESS (78 tests, Windows/Ubuntu). Next: implement independently authenticated Factory export receipt cross-check of request_id/source_sha/slug and exact EXE/PCK SHA, with immutable source_sha distinct from factory_build_head. No new product, no Partner Center Identity lookup by 3D owner. 36min Windows owner: read latest Factory/Provisioner refs, keep 3D queue isolated and central handoff read-only.",
     "acceptance": [
       "3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.",
       "All MSIX ZIP entries pass Windows path/collision/symlink/encryption/expansion preflight; package SHA and manifest executable/Identity are checked against real bytes.",
@@ -386,13 +390,14 @@
       "Actual Windows SDK MakeAppx fixture is unsigned/non-product: 78/78 regressions and ZIP/CRC/BlockMap/b4/OPC byte checks PASS, forged descriptor BLOCKED, but official Identity, real product E2E and Store readiness remain HOLD.",
       "When independently pinned Godot export evidence is supplied, the exact manifest EXE and optional external GDPC PCK bytes must match expected SHA-256. Missing/tampered PCK blocks; embedded PCK mode permits EXE-only. Synthetic MakeAppx PASS never proves real Godot export provenance, E2E, GPU/GUI or commercial readiness.",
       "Real Godot 4.3 template EXE/PCK -> MakeAppx fixture PASS on CI 40586209393; valid MakeAppx repack with modified PCK is BLOCKED by independently pinned SHA. Artifact 12772561732 is QA-only and must not be promoted to accepted product or product E2E.",
-      "Provisioner PCK SHA is LOCAL_EXPORT_NOT_INDEPENDENT; only matching a separate pinned Factory export receipt and immutable request_id/source_sha/slug can upgrade provenance, never template fixture or Identity status."
+      "Provisioner PCK SHA is LOCAL_EXPORT_NOT_INDEPENDENT; only matching a separate pinned Factory export receipt and immutable request_id/source_sha/slug can upgrade provenance, never template fixture or Identity status.",
+      "Godot EXE MZ header must be present at export and inspection (RED 40608097409, GREEN 40608121189); MZ alone does not prove valid PE architecture, Windows GPU/GUI or sellable product."
     ],
-    "expected_head_sha": "ea6746ed7b11b602a68ab1aa4485df135379a15a"
+    "expected_head_sha": "651e630de3a60cf59bf5d865cdf1cb004ae8a8f4"
   },
   "active_product": null,
-  "phase": "PROVISIONER_GODOT_PCK_HEADER_HASH_PRE_IDENTITY_HOLD_RECEIPT_PASS__NO_ACCEPTED_PRODUCT",
-  "last_completed_step": "Provisioner PR7 ea6746ed CI 40602424321 SUCCESS: malformed external PCK RED/GREEN, local EXE/PCK hash contract and pre-Identity HOLD package receipt; no real accepted 3D product.",
+  "phase": "PROVISIONER_GODOT_EXE_MZ_GUARD_PASS__NO_ACCEPTED_PRODUCT",
+  "last_completed_step": "Provisioner PR7 651e630d CI 40608121189 SUCCESS (Windows/Ubuntu, 78 tests): invalid Godot EXE bytes blocked at export and inspection; no product generated.",
   "blocked_by": [
     "NO_ACTIVE_PRODUCT",
     "EXTERNAL_IDENTITY",
@@ -401,18 +406,18 @@
   ],
   "resume_repository": "shihuiarenjinba-png/Repository-Provisioner-3D",
   "resume_branch": "codex/e2e-belt-connection-20261027",
-  "resume_sha": "ea6746ed7b11b602a68ab1aa4485df135379a15a",
+  "resume_sha": "651e630de3a60cf59bf5d865cdf1cb004ae8a8f4",
   "request_id": null,
   "source_sha": null,
   "factory_build_sha": null,
   "quality_gates": {
-    "ci": "PASS_PROVISIONER_40602424321_WINDOWS_UBUNTU_76_TESTS",
-    "contract": "PASS_LOCAL_EXE_PCK_SHA_HOLD_RECEIPT_NOT_INDEPENDENT__REAL_GODOT_MAKEAPPX_TEMPLATE_ONLY",
+    "ci": "PASS_PROVISIONER_40608121189_WINDOWS_UBUNTU_78_TESTS",
+    "contract": "PASS_MINIMAL_EXE_MZ_AND_LOCAL_PCK_SHA_NOT_INDEPENDENT__REAL_GODOT_MAKEAPPX_TEMPLATE_ONLY",
     "e2e": "HOLD",
     "commercial": "HOLD"
   },
   "readiness": {
-    "PRE_IDENTITY_READY": "PARTIAL_PASS__LOCAL_EXE_PCK_SHA_AND_IDENTITY_HOLD_RECEIPT__NO_ACCEPTED_PRODUCT",
+    "PRE_IDENTITY_READY": "PARTIAL_PASS__MZ_EXE_GUARD_LOCAL_EXE_PCK_SHA_HOLD_RECEIPT__NO_INDEPENDENT_FACTORY_PROVENANCE",
     "POST_IDENTITY_READY": "HOLD__NO_OFFICIAL_IDENTITY_NO_ACCEPTED_PRODUCT",
     "REAL_MAKEAPPX": "PASS__UNSIGNED_REAL_GODOT_TEMPLATE_FIXTURE_ONLY",
     "SAFE_QA": "PASS__NON_PRODUCT_FIXTURE_ONLY",
