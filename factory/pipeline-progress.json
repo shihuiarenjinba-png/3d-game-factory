@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-28T01:31:31.851Z",
+  "updated_at_utc": "2026-10-28T02:27:00.000Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -21,8 +21,8 @@
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
       "branch": "codex/3d-dispatch-guard-current-ledger-20261027-1628",
-      "head": "bed4e171bb073c4eb07065918b332c99ac585f1c",
-      "ci_run_id": 40608228767,
+      "head": "968868dc1376698a22fc3b11f2b99efc654e7b28",
+      "ci_run_id": 40615582354,
       "draft_pr": 12,
       "ledger_branch": "codex/3d-qa-zip-ledger-20261027-1235",
       "ledger_pr": 10,
@@ -38,8 +38,8 @@
     "provisioner": {
       "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
       "branch": "codex/e2e-belt-connection-20261027",
-      "head": "0ae0e7ed3f68033729a17bf14bfed54f930f0a2a",
-      "ci_run_id": 40615472142,
+      "head": "959839c7e346ac7d077cca6a9b6dfadaa4c01535",
+      "ci_run_id": 40621009735,
       "draft_pr": 7
     },
     "template": {
@@ -152,7 +152,7 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
-      "result": "Provisioner PR7 now validates actual Godot EXE DOS/PE signature, x64 machine, PE32+ optional header and bounded section table both after export and during independent inspection. RED CI 40615353368 reproduced 6 failures; GREEN CI 40615472142 succeeded on Windows and Ubuntu (85 tests). Synthetic PE fixtures and local EXE/PCK SHA are not independently authenticated Factory provenance, runnable product evidence or GPU/install/GUI proof.",
+      "result": "Provisioner PR7 now rejects PE32+ x64 section headers whose nonempty raw payload points to offset zero or beyond the EXE file, at export and inspection. RED CI 40620902567 reproduced 2 out-of-bounds acceptance cases; GREEN CI 40621009735 passed Windows/Ubuntu after the fix (3 new tests). This is local static byte QA, not independent Factory export provenance, actual Windows loading, GPU/install/GUI or a product E2E PASS.",
       "evidence": [
         "branch:codex/3d-local-identity-provenance-20261027",
         "head:a1727307884176bfa97f714c47705281240d83c3",
@@ -183,7 +183,11 @@
         "commit:0f4f48ae45f8dcad25eeb6e19d99ea818228f547:RED-malformed-PE-regressions",
         "run:40615353368:EXPECTED_FAILURE-six-PE-tests",
         "commit:0ae0e7ed3f68033729a17bf14bfed54f930f0a2a:PE32PLUS-x64-export-and-inspection-guard",
-        "run:40615472142:SUCCESS-Windows-Ubuntu-85-tests"
+        "run:40615472142:SUCCESS-Windows-Ubuntu-85-tests",
+        "commit:e333c8f3de2811b36d888563c01a11a5bbef10ca:RED-PE-raw-section-regressions",
+        "run:40620902567:EXPECTED_FAILURE-two-invalid-raw-section-fixtures",
+        "commit:959839c7e346ac7d077cca6a9b6dfadaa4c01535:PE-raw-section-bounds-guard",
+        "run:40621009735:SUCCESS-Windows-Ubuntu"
       ],
       "remaining": [
         "Bind local EXE/PCK SHA to an independently authenticated Factory export receipt with exact request_id/source_sha/slug and explicit factory_build_head; preserve immutable source_sha separately.",
@@ -372,7 +376,7 @@
     "stage_id": "provisioner_windows_build",
     "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
     "branch": "codex/e2e-belt-connection-20261027",
-    "goal": "Provisioner PR7 0ae0e7ed CI 40615472142 SUCCESS (85 tests, Windows/Ubuntu). Next: bind exact local Godot EXE/PCK SHA to independently authenticated Factory export receipt with request_id, immutable source_sha, source_branch and slug; keep factory_build_head distinct. PE32+ header static PASS is not a runnable game, real MSIX or E2E. 36min Windows owner: reconcile latest Factory/Provisioner refs in read-only central handoff and preserve 3D isolation.",
+    "goal": "Provisioner PR7 959839c7 CI 40621009735 SUCCESS on Windows/Ubuntu. Next: bind exact local Godot EXE/PCK hashes to an independently pinned Factory export receipt with request_id, immutable source_sha, source_branch, slug and separate factory_build_head. PE raw section bounds PASS is static evidence only; no accepted 3D product, Partner Center Identity, actual product MSIX, GPU/install/GUI or E2E.",
     "acceptance": [
       "3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.",
       "All MSIX ZIP entries pass Windows path/collision/symlink/encryption/expansion preflight; package SHA and manifest executable/Identity are checked against real bytes.",
@@ -396,9 +400,10 @@
       "Real Godot 4.3 template EXE/PCK -> MakeAppx fixture PASS on CI 40586209393; valid MakeAppx repack with modified PCK is BLOCKED by independently pinned SHA. Artifact 12772561732 is QA-only and must not be promoted to accepted product or product E2E.",
       "Provisioner PCK SHA is LOCAL_EXPORT_NOT_INDEPENDENT; only matching a separate pinned Factory export receipt and immutable request_id/source_sha/slug can upgrade provenance, never template fixture or Identity status.",
       "Godot EXE MZ header must be present at export and inspection (RED 40608097409, GREEN 40608121189); MZ alone does not prove valid PE architecture, Windows GPU/GUI or sellable product.",
-      "Godot EXE requires bounded DOS/PE signature, x64 machine, PE32+ optional header and valid section table at export and inspection. RED 40615353368, GREEN 40615472142 (85 tests); synthetic PE is not Windows GPU/GUI or product E2E proof."
+      "Godot EXE requires bounded DOS/PE signature, x64 machine, PE32+ optional header and valid section table at export and inspection. RED 40615353368, GREEN 40615472142 (85 tests); synthetic PE is not Windows GPU/GUI or product E2E proof.",
+      "Godot Windows PE32+ x64 section table raw pointers and lengths must reference actual EXE bytes: reject zero pointers for nonempty sections and end-of-file overflow. RED 40620902567 and GREEN 40621009735 are synthetic/static only."
     ],
-    "expected_head_sha": "0ae0e7ed3f68033729a17bf14bfed54f930f0a2a"
+    "expected_head_sha": "959839c7e346ac7d077cca6a9b6dfadaa4c01535"
   },
   "active_product": null,
   "phase": "PROVISIONER_GODOT_X64_PE32PLUS_STATIC_GUARD_PASS__NO_ACCEPTED_PRODUCT",
