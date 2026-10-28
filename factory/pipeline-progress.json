@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-27T06:25:49Z",
+  "updated_at_utc": "2026-10-28T04:27:27.000Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -20,41 +20,56 @@
   "repositories": {
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
-      "branch": "codex/3d-dispatch-guard-integration-20261027-1452",
-      "head": "273b4bcd750432e2ba899414107de7177166848d",
-      "ci_run_id": 40457985405,
-      "draft_pr": 11,
+      "branch": "codex/3d-dispatch-guard-current-ledger-20261027-1628",
+      "head": "5ca9f7df06154e365c92c049af8dcc1878de023b",
+      "ci_run_id": 40621133502,
+      "draft_pr": 12,
       "ledger_branch": "codex/3d-qa-zip-ledger-20261027-1235",
-      "ledger_pr": 10
+      "ledger_pr": 10,
+      "safe_dispatch_integration": {
+        "branch": "codex/3d-dispatch-guard-current-ledger-20261027-1628",
+        "base_sha": "2e5d74100113bdfaa303dd312e617550fe664dc3",
+        "guard_commit_sha": "197ffb95bf8e2af0c0060d8f9e5906b58d5e9bb2",
+        "source_pr": 11,
+        "status": "CODE_PORTED_CI_SUCCESS_LEDGER_REFRESH",
+        "ci_run_id": 40467528271
+      }
     },
     "provisioner": {
       "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
       "branch": "codex/e2e-belt-connection-20261027",
-      "head": "70600e77f2dd4278a989604314eebfa662e05c33",
-      "ci_run_id": 40454089167,
+      "head": "6e944cd923dbbf03eab1a8e940f8ce7c51903d7f",
+      "ci_run_id": 40632371897,
       "draft_pr": 7
     },
     "template": {
       "repo": "shihuiarenjinba-png/3d-game-template",
       "branch": "codex/3d-template-godot-bootstrap-20261026",
-      "head": "e5462d0aa1f5d0a50fa484ad1544c11ce8a6085a",
-      "ci_run_id": 40360649193,
-      "artifact": "godot-3d-windows-x64-qa-unsigned"
+      "head": "404214de6610b118f043b7ca8f62bf12f4b813b1",
+      "ci_run_id": 40586209393,
+      "artifact": "godot-4-3-real-export-makeappx-fixture-not-product",
+      "artifact_id": 12772561732,
+      "artifact_digest": "sha256:d51dda48d99e004de31c3a78171f17f3485d041f8f474ee6de0d9af2c08e6521",
+      "export_artifact_id": 12770749974,
+      "export_artifact_digest": "sha256:88d456ad3c7f585f58bb321bd5998a850fc2db97e0ac3fa846a7a56b7f19e9f2"
     },
     "qa": {
       "repo": "shihuiarenjinba-png/3d-build-qa",
       "branch": "codex/3d-msix-zip-path-safety-20261027-1235",
-      "head": "ea6540037e359860775fbfd423244ea3f9ffeee6",
-      "ci_run_id": 40461036388,
-      "draft_pr": 4
+      "head": "e84c448e48105d15d2040f87fb279835ddd0119b",
+      "ci_run_id": 40578299666,
+      "draft_pr": 4,
+      "artifact": "makeappx-3d-offline-unsigned-fixture-not-product",
+      "artifact_id": 12768726218,
+      "artifact_digest": "sha256:e51a2154c09b1faee1151d8cce5e8bfedb00de9530f4a2de9a1046989c64157b"
     },
     "intake": {
       "repo": "shihuiarenjinba-png/Windows-all-auto",
       "branch": "codex/e2e-belt-connection-20261027",
-      "head": "cca585d07eaa1e7e1e5b82d63613f59667989184",
-      "ci_run_id": 40458042620,
+      "head": "990be77e9cf6104cb8e92cb8c860d19ff4ba440f",
+      "ci_run_id": 40622032781,
       "draft_pr": 14,
-      "compare_against_3d_cas": "diverged: 31 ahead / 20 behind; no automatic merge"
+      "compare_against_3d_cas": "diverged: 54 ahead / 20 behind; no automatic merge"
     },
     "windows_data": {
       "repo": "shihuiarenjinba-png/Windows-data",
@@ -81,11 +96,15 @@
       "state": "DONE",
       "auto_actionable": false,
       "owner_repo": "shihuiarenjinba-png/3d-game-template",
-      "result": "Godot 4.3 Windows x64 EXE/PCK export succeeds and produces a real QA artifact.",
+      "result": "Godot 4.3 Windows x64 EXE/PCK export is real, and the same workflow run packages those exact independently hashed template bytes with Windows SDK MakeAppx. Pinned 3d-build-qa e84c448e strict ZIP/CRC/BlockMap/OPC/manifest and EXE/PCK SHA contract passes; a repacked tampered PCK is rejected. Template QA fixture is unsigned and is NOT an accepted/sellable 3D product.",
       "evidence": [
         "run:40360649193",
         "artifact:godot-3d-windows-x64-qa-unsigned",
-        "artifact-archive-sha256:5e229677d5fea2b8025f8f90e7eed5f17ea14ed61083f18ac1745b8b56e240ee"
+        "artifact-archive-sha256:5e229677d5fea2b8025f8f90e7eed5f17ea14ed61083f18ac1745b8b56e240ee",
+        "template-head:404214de6610b118f043b7ca8f62bf12f4b813b1",
+        "run:40586209393:SUCCESS-real-Godot-export-and-Windows-MakeAppx",
+        "artifact:12772561732:sha256:d51dda48d99e004de31c3a78171f17f3485d041f8f474ee6de0d9af2c08e6521",
+        "export-artifact:12770749974:sha256:88d456ad3c7f585f58bb321bd5998a850fc2db97e0ac3fa846a7a56b7f19e9f2"
       ],
       "remaining": []
     },
@@ -133,7 +152,7 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
-      "result": "Local 3D manufacturing now accepts a real Godot Windows EXE/PCK export as pre-MSIX payload evidence, preserves its SHA/signature status, requires official Store ID/Identity/Publisher/Version/PFN/Package SID evidence, and returns the full request/product/source correlation key to Factory. Final Identity-to-package match is deliberately deferred to the Factory MSIX.",
+      "result": "Provisioner PR7 now wires the standalone Factory export provenance verifier into the actual 3D EXE pre-Identity execution path. Authenticated gh api fetches GitHub run/artifact metadata independently, downloads the ZIP, verifies SHA-256 and request_id/source_sha/slug/source_branch/factory_build_head plus EXE/PCK bytes, and HOLDs before Identity on missing/mismatched evidence. CI 40632371897 passes Windows/Ubuntu offline and mocked transport tests. No accepted Factory product or eligible export Artifact exists, so live authenticated download, PRE_IDENTITY_READY, POST_IDENTITY_READY, real product MSIX/GPU/install/GUI/E2E remain HOLD.",
       "evidence": [
         "branch:codex/3d-local-identity-provenance-20261027",
         "head:a1727307884176bfa97f714c47705281240d83c3",
@@ -142,11 +161,47 @@
         "commit:d106231a2520ae055829ba49c55132ae821c550b",
         "commit:52ac8a90789a33ca38ef9606a6c450e987a4d9e3",
         "pr:7:HEAD:70600e77f2dd4278a989604314eebfa662e05c33",
-        "run:40454089167:SUCCESS"
+        "run:40454089167:SUCCESS",
+        "commit:d2d945b38068edbf0191569cf15daac0387f4318:RED-stale-export-tests",
+        "run:40594142267:EXPECTED_FAILURE",
+        "commit:4e16be26d2ce3404eef323f508518482d01369f7:clear-stale-export-targets",
+        "run:40594164677:SUCCESS",
+        "commit:ec6d55511fa98cb7d9ef3537c0df3ffbbdaef045:RED-unrelated-output-selection",
+        "run:40594226595:EXPECTED_FAILURE",
+        "commit:8da96245c8d619cbb81091108ee09bfba81ecdb2:exact-candidate-selection",
+        "run:40594237767:SUCCESS",
+        "commit:0283e154e0cd31761b755bfa3ce1e41890a0be46:RED-invalid-PCK-header",
+        "run:40602137397:EXPECTED_FAILURE-invalid-PCK-header",
+        "commit:6ea50dd88dc477fbed08fe80d11dd49611e65108:RED-PCK-hash-and-HOLD-receipt",
+        "run:40602252274:EXPECTED_FAILURE-missing-evidence",
+        "commit:ea6746ed7b11b602a68ab1aa4485df135379a15a:PCK-header-hash-HOLD-receipt-and-docs",
+        "run:40602424321:SUCCESS-Windows-Ubuntu-76-tests",
+        "commit:9389999cb19e02c2f3f481b62ceb5e50ca705540:RED-invalid-EXE-tests",
+        "run:40608097409:EXPECTED_FAILURE-2-invalid-EXE",
+        "commit:651e630de3a60cf59bf5d865cdf1cb004ae8a8f4:MZ-export-and-inspection-guard",
+        "run:40608121189:SUCCESS-Windows-Ubuntu-78-tests",
+        "commit:0f4f48ae45f8dcad25eeb6e19d99ea818228f547:RED-malformed-PE-regressions",
+        "run:40615353368:EXPECTED_FAILURE-six-PE-tests",
+        "commit:0ae0e7ed3f68033729a17bf14bfed54f930f0a2a:PE32PLUS-x64-export-and-inspection-guard",
+        "run:40615472142:SUCCESS-Windows-Ubuntu-85-tests",
+        "commit:e333c8f3de2811b36d888563c01a11a5bbef10ca:RED-PE-raw-section-regressions",
+        "run:40620902567:EXPECTED_FAILURE-two-invalid-raw-section-fixtures",
+        "commit:959839c7e346ac7d077cca6a9b6dfadaa4c01535:PE-raw-section-bounds-guard",
+        "run:40621009735:SUCCESS-Windows-Ubuntu",
+        "commit:b4ba4b869bc0881102335917eacd7485ce6f0b00:standalone-Factory-export-artifact-verifier",
+        "commit:defa8ac3b69bfeb1ee4a8c1aed036dfe4ebd5ee4:adversarial-exe-pck-provenance-tests",
+        "commit:c934aec2c54716c560ac579726363d5705f29405:document-pre-identity-contract",
+        "commit:2e1224e7f5756ccaeb91ea1bbea3f23368098324:fail-closed-missing-run-repo",
+        "run:40626352369:SUCCESS-Windows-Ubuntu",
+        "commit:6e944cd923dbbf03eab1a8e940f8ce7c51903d7f:authenticated-Factory-transport-runtime-wired",
+        "run:40632371897:SUCCESS-Windows-Ubuntu",
+        "pr:7:handoff-comment:6460647258"
       ],
       "remaining": [
-        "Run the Provisioner against one real accepted Factory products/<slug>/ checkout and retain the actual EXE/PCK SHA/signature evidence.",
-        "Supply authenticated Partner Center evidence for the same request_id/source SHA; official Identity values remain HOLD until then."
+        "Verify live authenticated gh api ZIP download and independent Factory run/artifact metadata after a real accepted Factory export Artifact exists; offline mocked transport CI does not prove live download.",
+        "Produce the exact Factory export evidence artifact for a future authorized accepted product; template fixtures cannot satisfy the contract.",
+        "Preserve original immutable source_sha and separate factory_build_head; a passing offline ZIP fixture is not product E2E or commercial readiness.",
+        "Windows GPU/install/GUI, official Partner Center Identity, signed product MSIX and Store submission remain HOLD."
       ]
     },
     "official_identity_roundtrip": {
@@ -182,7 +237,9 @@
         "commit:dced8d5a2091d6b4d895f72826114fcc2cca81a1",
         "workflow:.github/workflows/msix-export.yml",
         "pr:11:HEAD:273b4bcd750432e2ba899414107de7177166848d",
-        "run:40457985405:SUCCESS-dispatch-guard"
+        "run:40457985405:SUCCESS-dispatch-guard",
+        "dispatch-guard-port-branch:codex/3d-dispatch-guard-current-ledger-20261027-1628",
+        "dispatch-guard-port-commit:197ffb95bf8e2af0c0060d8f9e5906b58d5e9bb2"
       ],
       "remaining": [
         "Commit one accepted 3D product, real Store assets and authenticated approved-identity.json.",
@@ -193,7 +250,7 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/3d-build-qa",
-      "result": "3D MSIX QA rejects unsafe Windows ZIP paths/collisions, symlinks, Unix device/FIFO/socket entries, file-type/directory-marker conflicts, encrypted/unsupported entries and expansion bombs. Synthetic offline tests and CI pass; no actual Factory 3D MSIX has been produced or inspected, so byte QA and real-device QA remain HOLD for a real product. Latest guard now also rejects Win32 COM¹/²/³ and LPT¹/²/³ device names inside ZIP paths; regression tests pass on PR #4 HEAD ea6540037e35 (CI 40461036388). Still no real Factory 3D MSIX.",
+      "result": "Real Godot 4.3 Windows template EXE/PCK (not synthetic bytes) were independently hashed by the template export job, downloaded within the SAME workflow run, and packaged with real Windows SDK MakeAppx. Pinned 3d-build-qa PR4 e84c448e verifies actual MSIX ZIP/CRC/BlockMap/OPC/manifest plus EXE/PCK SHA; a valid repack with modified PCK fails only the independent Godot export SHA check. Template PR1 404214de CI 40586209393 SUCCESS, non-product fixture artifact 12772561732. QA PR4 CI 40578299666 SUCCESS 84/84. This proves template byte compatibility, not an accepted product, Partner Center Identity, Windows install/GPU/GUI, signing, E2E or commercial readiness.",
       "evidence": [
         "head:04f2b1f74674159197cc3f8fa7503705b4febcfb",
         "run:40417351553",
@@ -209,12 +266,63 @@
         "run:40449263074:SUCCESS-special-file-ZIP-tests",
         "commit:bd5019d009d145c33d41269c96b01d3efe05d96f",
         "commit:ea6540037e359860775fbfd423244ea3f9ffeee6",
-        "run:40461036388:SUCCESS-Windows-superscript-reserved-path-regression"
+        "run:40461036388:SUCCESS-Windows-superscript-reserved-path-regression",
+        "commit:dac8cec5527649cb0c7ab649babc29ea0c508467:full-member-CRC-check",
+        "commit:349eb9b285818272b72ecbce34e5b1fed67afbb2:corrupt-asset-regression",
+        "run:40473547781:SUCCESS-offline-CRC-integrity",
+        "commit:204e70f42ac6ff59840d234b63ef7de8e62f5224:canonical-XML-namespace-guard",
+        "commit:cb53c79ea5a49b78044e273c8c40c3a3509bc123:namespace-spoof-regressions",
+        "run:40480201284:SUCCESS-namespace-guard",
+        "commit:102b9a7ef3e8966aca0208559990c024cc70b3a9:AppxBlockMap-structural-hash-guard",
+        "run:40487988099:SUCCESS-synthetic-blockmap-regressions",
+        "commit:ba6fdd35ba8ca0a64ec3038f17242dc287afaa48:OPC-content-types-guard",
+        "run:40495633089:SUCCESS-OPC-content-types-regressions",
+        "commit:6a5a04e9e4da420838cfe11753a5b19188b9d3a5:ZIP-local-header-directory-crosscheck",
+        "run:40503050077:SUCCESS-directory-LFH-regressions",
+        "commit:0ac2e74ad45ded3a90e4f75a3b210ab54c01c348:alias-regression-red",
+        "run:40512191980:FAILURE_EXPECTED-2-alias-fixtures",
+        "commit:c3ada4a79994c5bed68ca27774bc67910f018724:canonical-BlockMap-file-name-guard",
+        "run:40512250911:SUCCESS-62-tests",
+        "commit:90277723a9643175ca1e4f79a7e3ca195d23de70:BlockMap-XML-metadata-red-regressions",
+        "run:40520215071:FAILURE_EXPECTED-6-metadata-cases",
+        "commit:89411111e7fa4ab66b1fdd64aa51e658770754cf:metadata-guard",
+        "run:40520281226:SUCCESS-64-tests",
+        "commit:afd92a65807f98a61a74d6b528705e0a52dd5e3f:whitespace-fixture-initial",
+        "commit:12fd7b4f8020c183c2842090d26e86c4e0dd462c:corrected-positive-whitespace-fixture",
+        "run:40520471059:SUCCESS-65-tests",
+        "commit:e94043258b8f249c2def0046348efea6fe7738be:local-header-CRC-and-size-crosscheck",
+        "run:40530733297:SUCCESS-local-header-regressions",
+        "commit:230f01e248269362dc694956d2fab3459c124343:ZIP64-local-extra-RED-fixtures",
+        "run:40540394870:EXPECTED_FAILURE-3-ZIP64-forgeries",
+        "commit:ef73d56bdd1d6b1e0b1de2b0d20af2f38e884f9f:ZIP64-local-extra-guard",
+        "run:40540481221:SUCCESS-68-tests",
+        "commit:eca1b19e3f814fe5bd29390f3a49327d8e532617:descriptor-guard-and-regressions",
+        "run:40550321344:FAILED-incorrect-escaped-signature",
+        "commit:064b82631f93378aa72bacb44729edd8492bbb2d:corrected-binary-descriptor-signature",
+        "run:40550405898:SUCCESS-70-tests",
+        "commit:90730ac2f83f08ef191776c95642e5eeefa3d404:signatureless-and-bit3-LFH-RED-fixtures",
+        "run:40560260636:EXPECTED_FAILURE-6-bit3-local-header-forgeries",
+        "commit:5fb3c2c59f222ba44951d16848b6e2e0f6275319:bit3-local-placeholder-guard",
+        "run:40560378006:SUCCESS-72-tests",
+        "qa-head:4f70c0454fa5b44fb054c2171b8de397e77aa951",
+        "run:40570709568:SUCCESS-78-tests-and-Windows-MakeAppx-fixture",
+        "artifact:makeappx-3d-offline-unsigned-fixture-not-product:id:12764902990:zip-sha256:64341e28019345eef9227ecc665d553d889eed568f76e8525d851bf3090300da",
+        "fixture-msix-sha256:a4cbceb7bb5828714f8859bd3164833201bf584a640856b4056afaff412eb413:unsigned-not-product",
+        "makeappx:10.0.26100:real-Windows-SDK:multiblock-and-forged-descriptor-rejection",
+        "qa-head:e84c448e48105d15d2040f87fb279835ddd0119b",
+        "run:40578299666:SUCCESS-84-tests-and-Windows-MakeAppx-synthetic-EXE-PCK-fixture",
+        "artifact:12768726218:sha256:e51a2154c09b1faee1151d8cce5e8bfedb00de9530f4a2de9a1046989c64157b",
+        "contract:optional-independent-Godot-EXE-PCK-SHA256-and-manifest-path-check-NOT-PROVENANCE",
+        "template-pr:1:head:404214de6610b118f043b7ca8f62bf12f4b813b1",
+        "template-run:40586209393:SUCCESS-real-Godot-MakeAppx-byte-contract",
+        "template-artifact:12772561732:sha256:d51dda48d99e004de31c3a78171f17f3485d041f8f474ee6de0d9af2c08e6521",
+        "repacked-real-Godot-PCK-substitution:BLOCKED-independent-SHA"
       ],
       "remaining": [
-        "Acquire a real, accepted Factory 3D candidate MSIX with original request_id/source_sha, authenticated Partner Center Identity, and actual artifact SHA; no such MSIX exists.",
-        "Run the stricter verifier against the exact MSIX bytes and compare the Factory build/run provenance; synthetic ZIP fixtures cannot establish an E2E PASS.",
-        "Perform real Windows install, GPU gameplay, controls, save/restart, security/signature and WACK QA separately before any Store handoff."
+        "Validate independent export evidence and immutable request_id/source_sha/factory_build_head correlation through Provisioner against one authorized accepted product only after generation gate; template source SHA is not a product source SHA.",
+        "Verify the exact Godot 4.3 exported EXE/PCK inside a genuine accepted-product MSIX only after generation gate authorization, approved source and authenticated Partner Center Identity.",
+        "Validate real accepted product payload, signature, Windows install/launch, GPU, GUI, language and commercial quality separately; MakeAppx fixture is not E2E PASS.",
+        "Keep multi-block b4 FileHash and 64-bit descriptor adversarial regressions; do not relax ZIP, CRC, BlockMap, OPC, path or manifest guards."
       ]
     },
     "windows_all_auto_intake": {
@@ -231,7 +339,10 @@
         "commit:d0ad76c0312669e9cb8ff67dfd893dd61539388b",
         "pr:14:HEAD:cca585d07eaa1e7e1e5b82d63613f59667989184",
         "run:40458042620:SUCCESS",
-        "compare:3d-cas-to-crosslane:diverged-ahead31-behind20:do-not-merge"
+        "compare:3d-cas-to-crosslane:diverged-ahead31-behind20:do-not-merge",
+        "pr:14:HEAD:e3d637cc659cc18d35764139af9175fcc11a01a1",
+        "run:40463213981:SUCCESS-offline",
+        "compare:3d-cas-to-crosslane:diverged-ahead33-behind20:do-not-merge"
       ],
       "remaining": [
         "Receive one real Factory 3D MSIX Artifact and prove byte/Identity/source/build-head correlation through the local-QA queue.",
@@ -271,19 +382,68 @@
     }
   },
   "next_action": {
-    "stage_id": "msix_byte_qa",
-    "repo": "shihuiarenjinba-png/3d-build-qa",
-    "branch": "codex/3d-msix-zip-path-safety-20261027-1235",
-    "goal": "PR #4 exact-byte guard now rejects superscript Windows COM/LPT device names (CI 40461036388 SUCCESS). Continue bounded MSIX ZIP/manifest contract QA and verify the Factory PR #11 / Provisioner PR #7 / Windows-all-auto PR #14 integration branches without merging divergent histories. Await independently accepted playable Godot source, authenticated Partner Center Identity, first real Factory 3D MSIX, then byte QA, local GPU and launch QA. No template-as-product, no generation while 120h gate HOLD and new_product_allowed=false.",
+    "stage_id": "provisioner_windows_build",
+    "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
+    "branch": "codex/e2e-belt-connection-20261027",
+    "goal": "Strengthen authenticated Factory export evidence transport in Provisioner PR7, then prove a real accepted Factory artifact end-to-end when one exists. Current runtime integration and Windows/Ubuntu CI 40632371897 PASS are offline/mock evidence only; no 3D product, Partner Center Identity, real product MSIX or GPU/install/GUI/E2E.",
     "acceptance": [
       "3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.",
       "All MSIX ZIP entries pass Windows path/collision/symlink/encryption/expansion preflight; package SHA and manifest executable/Identity are checked against real bytes.",
       "Factory→Provisioner→Windows→Factory→MSIX→Windows-all-auto retains request_id, source_repository, source_branch, source_sha and slug; HEAD mismatch is CONFLICT and replay only same request_id plus same source_sha.",
       "Real Factory MSIX Artifact, official Partner Center Identity, GPU QA, signing and Store validation remain individually HOLD until independently evidenced.",
       "Official Identity return uses only the exact active safe codex/* Factory source branch and expected HEAD CAS; stale hard-coded branch targets are rejected.",
-      "Reject Win32 superscript COM¹/²/³ and LPT¹/²/³ device filenames in all ZIP entries, even with extensions; PR #4 CI success is not real MSIX verification."
+      "Reject Win32 superscript COM¹/²/³ and LPT¹/²/³ device filenames in all ZIP entries, even with extensions; PR #4 CI success is not real MSIX verification.",
+      "Reject CRC-corrupt ZIP members even when receipt package SHA matches the tampered archive; offline CI PASS is not real MSIX E2E PASS.",
+      "Reject forged XML namespaces for MSIX Package, Identity, Applications and Application; synthetic CI PASS does not establish AppxBlockMap integrity or real MSIX installability.",
+      "AppxBlockMap root namespace, SHA-256 method, complete file coverage, exact LFH sizes and all 64-KiB payload hashes must match MSIX bytes; synthetic PASS is not authenticated signing or E2E.",
+      "Reject absent/forged OPC [Content_Types].xml, missing or conflicting per-part declarations, duplicate case-insensitive extensions/overrides, unknown parts, encoded path separators and incorrect manifest/BlockMap MIME types; synthetic PASS is not real MakeAppx evidence.",
+      "Reject ZIP local-header filename/flags/compression method disagreement with central-directory entries, including directories; offline CI PASS does not establish real MSIX E2E.",
+      "AppxBlockMap File Name must exactly match the corresponding ZIP member with canonical Windows backslashes and original case; reject slash and case aliases before trusting block hashes. Synthetic PASS is not real MakeAppx validation.",
+      "Reject unexpected AppxBlockMap BlockMap/File/Block attributes and non-whitespace text; allow indentation whitespace. CI 40520471059 synthetic 65/65 PASS does not prove real MakeAppx MSIX compatibility.",
+      "Reject contradictory ZIP local CRC/compressed/uncompressed sizes when data-descriptor bit is absent; preserve ZIP64 sentinel compatibility pending real MakeAppx evidence. CI 40530733297 is synthetic, not product E2E.",
+      "ZIP64 local 0xffffffff size sentinels require an actual local ZIP64 extra field with 64-bit uncompressed/compressed sizes matching the central directory; malformed/forged values are rejected, valid force_zip64 fixture passes. QA 40540481221 68/68 synthetic tests PASS, not real MakeAppx evidence.",
+      "For GPBF bit 3, reject forged ZIP data-descriptor CRC and compressed/uncompressed sizes, including ZIP64 variants; Python non-seekable ZIP fixtures PASS 70/70 on CI 40550405898 but real MakeAppx compatibility remains unproven.",
+      "For GPBF bit 3, accept both signed and signatureless ZIP data descriptors for 32-bit and ZIP64 fixtures; reject forged nonzero local CRC or nonzero/non-ZIP64 local size placeholders. RED CI 40560260636 and GREEN CI 40560378006 (72 tests) are synthetic only, not MakeAppx/E2E proof.",
+      "Actual Windows SDK MakeAppx fixture is unsigned/non-product: 78/78 regressions and ZIP/CRC/BlockMap/b4/OPC byte checks PASS, forged descriptor BLOCKED, but official Identity, real product E2E and Store readiness remain HOLD.",
+      "When independently pinned Godot export evidence is supplied, the exact manifest EXE and optional external GDPC PCK bytes must match expected SHA-256. Missing/tampered PCK blocks; embedded PCK mode permits EXE-only. Synthetic MakeAppx PASS never proves real Godot export provenance, E2E, GPU/GUI or commercial readiness.",
+      "Real Godot 4.3 template EXE/PCK -> MakeAppx fixture PASS on CI 40586209393; valid MakeAppx repack with modified PCK is BLOCKED by independently pinned SHA. Artifact 12772561732 is QA-only and must not be promoted to accepted product or product E2E.",
+      "Provisioner PCK SHA is LOCAL_EXPORT_NOT_INDEPENDENT; only matching a separate pinned Factory export receipt and immutable request_id/source_sha/slug can upgrade provenance, never template fixture or Identity status.",
+      "Godot EXE MZ header must be present at export and inspection (RED 40608097409, GREEN 40608121189); MZ alone does not prove valid PE architecture, Windows GPU/GUI or sellable product.",
+      "Godot EXE requires bounded DOS/PE signature, x64 machine, PE32+ optional header and valid section table at export and inspection. RED 40615353368, GREEN 40615472142 (85 tests); synthetic PE is not Windows GPU/GUI or product E2E proof.",
+      "Godot Windows PE32+ x64 section table raw pointers and lengths must reference actual EXE bytes: reject zero pointers for nonempty sections and end-of-file overflow. RED 40620902567 and GREEN 40621009735 are synthetic/static only.",
+      "Standalone Factory artifact verifier CI 40626352369 PASS on Windows/Ubuntu; it must be wired to independently authenticated API+download before PRE_IDENTITY_READY can be promoted. The template MakeAppx fixture remains NOT_PRODUCT.",
+      "Authenticated Factory export transport is wired to the actual 3D EXE pre-Identity path and HOLDs on missing IDs, invalid metadata or mismatched EXE/PCK; Windows/Ubuntu CI 40632371897 PASS is mocked/offline, not an accepted Factory product or live GitHub artifact download."
     ],
-    "expected_head_sha": "ea6540037e359860775fbfd423244ea3f9ffeee6"
+    "expected_head_sha": "6e944cd923dbbf03eab1a8e940f8ce7c51903d7f"
   },
-  "active_product": null
+  "active_product": null,
+  "phase": "PROVISIONER_FACTORY_EXPORT_AUTHENTICATED_TRANSPORT_WIRED_OFFLINE_CI_PASS__NO_ACCEPTED_PRODUCT",
+  "last_completed_step": "PROVISIONER_FACTORY_EXPORT_TRANSPORT_RUNTIME_WIRED",
+  "blocked_by": [
+    "NO_ACTIVE_PRODUCT",
+    "EXTERNAL_IDENTITY",
+    "NO_REAL_3D_MSIX",
+    "NO_LOCAL_WINDOWS_GPU_QA"
+  ],
+  "resume_repository": "shihuiarenjinba-png/Repository-Provisioner-3D",
+  "resume_branch": "codex/e2e-belt-connection-20261027",
+  "resume_sha": "6e944cd923dbbf03eab1a8e940f8ce7c51903d7f",
+  "request_id": null,
+  "source_sha": null,
+  "factory_build_sha": null,
+  "quality_gates": {
+    "ci": "PASS_PROVISIONER_40632371897_WINDOWS_UBUNTU",
+    "contract": "PASS_AUTHENTICATED_GITHUB_TRANSPORT_MOCKED_AND_INTEGRATED_PRE_IDENTITY__NO_REAL_FACTORY_EXPORT_ARTIFACT",
+    "e2e": "HOLD",
+    "commercial": "HOLD"
+  },
+  "readiness": {
+    "PRE_IDENTITY_READY": "PARTIAL_PASS__FACTORY_PROVENANCE_RUNTIME_WIRED_OFFLINE_TESTED__NO_ACCEPTED_PRODUCT_ARTIFACT",
+    "POST_IDENTITY_READY": "HOLD__NO_OFFICIAL_IDENTITY_NO_ACCEPTED_PRODUCT",
+    "REAL_MAKEAPPX": "PASS__UNSIGNED_REAL_GODOT_TEMPLATE_FIXTURE_ONLY",
+    "SAFE_QA": "PASS__NON_PRODUCT_FIXTURE_ONLY",
+    "GPU_INSTALL_GUI": "NOT_PROVEN",
+    "active_product": null,
+    "new_product_allowed": false
+  }
 }
