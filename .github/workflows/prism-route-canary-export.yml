@@ -1,0 +1,103 @@
+name: Prism Route 3D — real Godot 4.3 Factory export
+
+on:
+  push:
+    branches:
+      - codex/3d-canary-prism-route-20261028
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  godot-canary-export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check exact single-product manifest and source structure
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('products/prism-route-3d')
+          m=json.loads((p/'product-manifest.json').read_text())
+          assert (m['slug'],m['lane'],m['registration_type'],m['second_3d_product_allowed'])==('prism-route-3d','GAME_3D','MSIX_OR_PWA_GAME',False)
+          assert m['store_identity'] is None and m['packaging_strategy']=='GODOT_WINDOWS_EXE_PCK_MAKEAPPX_MSIX'
+          assert not list(Path('products').glob('*/store/approved-identity.json'))
+          for name in ['project.godot','export_presets.cfg','scenes/main.tscn','scripts/main.gd','scripts/game_logic.gd','scripts/save_store.gd','tests/test_smoke.gd']:
+              assert (p/name).is_file(),name
+          print('PASS: single playable source candidate; no Store Identity')
+          PY
+      - name: Install official Godot 4.3 and export templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 --retry-delay 3 'https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip' -o /tmp/godot.zip
+          curl -fL --retry 3 --retry-delay 3 'https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz' -o /tmp/templates.tpz
+          mkdir -p /tmp/godot-bin /tmp/godot-tpl "$HOME/.local/share/godot/export_templates/4.3.stable"
+          unzip -q /tmp/godot.zip -d /tmp/godot-bin
+          unzip -q /tmp/templates.tpz -d /tmp/godot-tpl
+          cp -a /tmp/godot-tpl/templates/. "$HOME/.local/share/godot/export_templates/4.3.stable/"
+          chmod +x /tmp/godot-bin/Godot_v4.3-stable_linux.x86_64
+          test -s "$HOME/.local/share/godot/export_templates/4.3.stable/windows_release_x86_64.exe"
+      - name: Real Godot import, deterministic gameplay regression, main scene launch
+        shell: bash
+        run: |
+          set -euo pipefail
+          GODOT=/tmp/godot-bin/Godot_v4.3-stable_linux.x86_64
+          PROJECT="$GITHUB_WORKSPACE/products/prism-route-3d"
+          "$GODOT" --headless --editor --path "$PROJECT" --import
+          "$GODOT" --headless --path "$PROJECT" --script res://tests/test_smoke.gd | tee /tmp/prism-smoke.log
+          grep -q 'PASS: Prism Route 3D gameplay' /tmp/prism-smoke.log
+          "$GODOT" --headless --path "$PROJECT" --quit-after 60
+      - name: Real Godot Windows x64 EXE/PCK export
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p export
+          /tmp/godot-bin/Godot_v4.3-stable_linux.x86_64 --headless --path "$GITHUB_WORKSPACE/products/prism-route-3d" --export-release 'Windows Desktop' "$GITHUB_WORKSPACE/export/candidate.exe"
+      - name: Validate actual export bytes and record strict Factory provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          out=Path('export')
+          exe,pck=out/'candidate.exe',out/'candidate.pck'
+          if not exe.is_file() or exe.stat().st_size<1024 or exe.open('rb').read(2)!=b'MZ':
+              raise SystemExit('HOLD: real Godot Windows EXE missing/invalid')
+          if not pck.is_file() or pck.stat().st_size<4 or pck.open('rb').read(4)!=b'GDPC':
+              raise SystemExit('HOLD: real Godot PCK missing/invalid')
+          sha=os.environ['GITHUB_SHA']
+          branch=os.environ['GITHUB_REF_NAME']
+          if branch!='codex/3d-canary-prism-route-20261028' or len(sha)!=40:
+              raise SystemExit('HOLD: unexpected source branch/SHA')
+          record=dict(schema_version=1,request_id='3d-prism-route-3d-'+sha[:12],
+            product_type='GAME_3D',source_repository=os.environ['GITHUB_REPOSITORY'],
+            source_branch=branch,source_sha=sha,factory_build_head=sha,
+            slug='prism-route-3d',exe_path='candidate.exe',
+            exe_sha256=hashlib.sha256(exe.read_bytes()).hexdigest(),exe_size_bytes=exe.stat().st_size,
+            pck_path='candidate.pck',pck_sha256=hashlib.sha256(pck.read_bytes()).hexdigest(),
+            pck_size_bytes=pck.stat().st_size)
+          (out/'export-evidence.json').write_text(json.dumps(record,sort_keys=True,indent=2)+'\n')
+          print(json.dumps(record,sort_keys=True,indent=2))
+          PY
+      - name: Publish exact three-file Factory export evidence for Provisioner
+        uses: actions/upload-artifact@v4
+        with:
+          name: godot-3d-factory-export-evidence
+          path: |
+            export/candidate.exe
+            export/candidate.pck
+            export/export-evidence.json
+          if-no-files-found: error
+          retention-days: 7
