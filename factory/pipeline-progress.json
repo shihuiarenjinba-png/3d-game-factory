@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "lane": "3d-game",
-  "updated_at_utc": "2026-10-28T02:27:00.000Z",
+  "updated_at_utc": "2026-10-28T03:23:00.000Z",
   "policy": {
     "new_product_min_interval_hours": 120,
     "store_submission_allowed": false,
@@ -21,8 +21,8 @@
     "factory": {
       "repo": "shihuiarenjinba-png/3d-game-factory",
       "branch": "codex/3d-dispatch-guard-current-ledger-20261027-1628",
-      "head": "968868dc1376698a22fc3b11f2b99efc654e7b28",
-      "ci_run_id": 40615582354,
+      "head": "00f7d2e177b8ec749408955139d28a5c77dd96ad",
+      "ci_run_id": 40621133502,
       "draft_pr": 12,
       "ledger_branch": "codex/3d-qa-zip-ledger-20261027-1235",
       "ledger_pr": 10,
@@ -38,8 +38,8 @@
     "provisioner": {
       "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
       "branch": "codex/e2e-belt-connection-20261027",
-      "head": "959839c7e346ac7d077cca6a9b6dfadaa4c01535",
-      "ci_run_id": 40621009735,
+      "head": "2e1224e7f5756ccaeb91ea1bbea3f23368098324",
+      "ci_run_id": 40626352369,
       "draft_pr": 7
     },
     "template": {
@@ -66,8 +66,8 @@
     "intake": {
       "repo": "shihuiarenjinba-png/Windows-all-auto",
       "branch": "codex/e2e-belt-connection-20261027",
-      "head": "78e4614115aad7564c4583b4fd925f483a4fc8d5",
-      "ci_run_id": 40609893724,
+      "head": "990be77e9cf6104cb8e92cb8c860d19ff4ba440f",
+      "ci_run_id": 40622032781,
       "draft_pr": 14,
       "compare_against_3d_cas": "diverged: 54 ahead / 20 behind; no automatic merge"
     },
@@ -152,7 +152,7 @@
       "state": "IN_PROGRESS",
       "auto_actionable": true,
       "owner_repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
-      "result": "Provisioner PR7 now rejects PE32+ x64 section headers whose nonempty raw payload points to offset zero or beyond the EXE file, at export and inspection. RED CI 40620902567 reproduced 2 out-of-bounds acceptance cases; GREEN CI 40621009735 passed Windows/Ubuntu after the fix (3 new tests). This is local static byte QA, not independent Factory export provenance, actual Windows loading, GPU/install/GUI or a product E2E PASS.",
+      "result": "Provisioner PR7 added standalone fail-closed Factory export ZIP provenance verifier: exact request_id/source_sha/slug/source_branch, distinct factory_build_head pinned to independent GitHub run, GitHub artifact SHA-256, and local EXE/PCK byte/size checks. Offline adversarial tests pass on Windows and Ubuntu CI 40626352369. The verifier is NOT wired into Provisioner CLI or a real accepted Factory product; PRE_IDENTITY_READY remains PARTIAL, POST_IDENTITY_READY HOLD, no Store Identity/MSIX/GPU/install/GUI/E2E proof.",
       "evidence": [
         "branch:codex/3d-local-identity-provenance-20261027",
         "head:a1727307884176bfa97f714c47705281240d83c3",
@@ -187,12 +187,18 @@
         "commit:e333c8f3de2811b36d888563c01a11a5bbef10ca:RED-PE-raw-section-regressions",
         "run:40620902567:EXPECTED_FAILURE-two-invalid-raw-section-fixtures",
         "commit:959839c7e346ac7d077cca6a9b6dfadaa4c01535:PE-raw-section-bounds-guard",
-        "run:40621009735:SUCCESS-Windows-Ubuntu"
+        "run:40621009735:SUCCESS-Windows-Ubuntu",
+        "commit:b4ba4b869bc0881102335917eacd7485ce6f0b00:standalone-Factory-export-artifact-verifier",
+        "commit:defa8ac3b69bfeb1ee4a8c1aed036dfe4ebd5ee4:adversarial-exe-pck-provenance-tests",
+        "commit:c934aec2c54716c560ac579726363d5705f29405:document-pre-identity-contract",
+        "commit:2e1224e7f5756ccaeb91ea1bbea3f23368098324:fail-closed-missing-run-repo",
+        "run:40626352369:SUCCESS-Windows-Ubuntu"
       ],
       "remaining": [
-        "Bind local EXE/PCK SHA to an independently authenticated Factory export receipt with exact request_id/source_sha/slug and explicit factory_build_head; preserve immutable source_sha separately.",
-        "Static x64 PE32+ header check does not prove actual executable loading, import/relocation validity, product GPU/install/GUI, commercial readiness or an accepted product.",
-        "No accepted 3D product may be staged until 120-hour gate and explicit new_product_allowed=true; authenticated Partner Center Identity remains operator-owned."
+        "Integrate the standalone verifier into the 3D-only Provisioner CLI; independently authenticate GitHub run/artifact metadata and downloaded ZIP before Identity lookup.",
+        "Produce the exact Factory export evidence artifact for a future authorized accepted product; template fixtures cannot satisfy the contract.",
+        "Preserve original immutable source_sha and separate factory_build_head; a passing offline ZIP fixture is not product E2E or commercial readiness.",
+        "Windows GPU/install/GUI, official Partner Center Identity, signed product MSIX and Store submission remain HOLD."
       ]
     },
     "official_identity_roundtrip": {
@@ -376,7 +382,7 @@
     "stage_id": "provisioner_windows_build",
     "repo": "shihuiarenjinba-png/Repository-Provisioner-3D",
     "branch": "codex/e2e-belt-connection-20261027",
-    "goal": "Provisioner PR7 959839c7 CI 40621009735 SUCCESS on Windows/Ubuntu. Next: bind exact local Godot EXE/PCK hashes to an independently pinned Factory export receipt with request_id, immutable source_sha, source_branch, slug and separate factory_build_head. PE raw section bounds PASS is static evidence only; no accepted 3D product, Partner Center Identity, actual product MSIX, GPU/install/GUI or E2E.",
+    "goal": "Wire Provisioner PR7 standalone Factory export artifact byte verifier into the GAME_3D pre-Identity flow using independently fetched GitHub workflow run and artifact metadata, exact request_id/source_sha/slug, and separate factory_build_head. CI 40626352369 PASS is offline contract evidence only. No accepted 3D product, official Identity, product MSIX or GPU/install/GUI/E2E.",
     "acceptance": [
       "3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.",
       "All MSIX ZIP entries pass Windows path/collision/symlink/encryption/expansion preflight; package SHA and manifest executable/Identity are checked against real bytes.",
@@ -401,9 +407,10 @@
       "Provisioner PCK SHA is LOCAL_EXPORT_NOT_INDEPENDENT; only matching a separate pinned Factory export receipt and immutable request_id/source_sha/slug can upgrade provenance, never template fixture or Identity status.",
       "Godot EXE MZ header must be present at export and inspection (RED 40608097409, GREEN 40608121189); MZ alone does not prove valid PE architecture, Windows GPU/GUI or sellable product.",
       "Godot EXE requires bounded DOS/PE signature, x64 machine, PE32+ optional header and valid section table at export and inspection. RED 40615353368, GREEN 40615472142 (85 tests); synthetic PE is not Windows GPU/GUI or product E2E proof.",
-      "Godot Windows PE32+ x64 section table raw pointers and lengths must reference actual EXE bytes: reject zero pointers for nonempty sections and end-of-file overflow. RED 40620902567 and GREEN 40621009735 are synthetic/static only."
+      "Godot Windows PE32+ x64 section table raw pointers and lengths must reference actual EXE bytes: reject zero pointers for nonempty sections and end-of-file overflow. RED 40620902567 and GREEN 40621009735 are synthetic/static only.",
+      "Standalone Factory artifact verifier CI 40626352369 PASS on Windows/Ubuntu; it must be wired to independently authenticated API+download before PRE_IDENTITY_READY can be promoted. The template MakeAppx fixture remains NOT_PRODUCT."
     ],
-    "expected_head_sha": "959839c7e346ac7d077cca6a9b6dfadaa4c01535"
+    "expected_head_sha": "2e1224e7f5756ccaeb91ea1bbea3f23368098324"
   },
   "active_product": null,
   "phase": "PROVISIONER_GODOT_X64_PE32PLUS_STATIC_GUARD_PASS__NO_ACCEPTED_PRODUCT",
