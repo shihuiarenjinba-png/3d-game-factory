@@ -1,12 +1,12 @@
 # 3D Pipeline Progress
 
 - Ledger schema: `1.0`
-- Updated UTC: `2026-10-28T03:23:00.000Z`
+- Updated UTC: `2026-10-28T04:27:27.000Z`
 - New-product gate: **HOLD** — No accepted 3D candidate baseline or explicit new_product_allowed=true authorization exists; generation and new staging remain HOLD while existing QA/build/transport are improved.
 - Next stage: `provisioner_windows_build`
 - Next repository: `shihuiarenjinba-png/Repository-Provisioner-3D`
 - Next branch: `codex/e2e-belt-connection-20261027`
-- Next HEAD: `2e1224e7f5756ccaeb91ea1bbea3f23368098324`
+- Next HEAD: `6e944cd923dbbf03eab1a8e940f8ce7c51903d7f`
 
 ## Stage status
 
@@ -14,7 +14,7 @@
 | --- | --- | --- | --- |
 | `template_windows_export` | **DONE** | no | Godot 4.3 Windows x64 EXE/PCK export is real, and the same workflow run packages those exact independently hashed template bytes with Windows SDK MakeAppx. Pinned 3d-build-qa e84c448e strict ZIP/CRC/BlockMap/OPC/manifest and EXE/PCK SHA contract passes; a repacked tampered PCK is rejected. Template QA fixture is unsigned and is NOT an accepted/sellable 3D product. |
 | `factory_product_materialization` | **HOLD** | yes | No independently reviewed playable 3D source exists. Factory acceptance now preserves late symlinks, re-audits the copied product tree for Windows safety and checks both the copied bytes and original source against the exact real Godot QA digest before publication. Product acceptance and real Godot candidate QA remain HOLD. New generation/acceptance/staging now also checks an explicit READY/new_product_allowed=true ledger gate and absent active_product, independently of the 120-hour timestamp. |
-| `provisioner_windows_build` | **IN_PROGRESS** | yes | Provisioner PR7 added standalone fail-closed Factory export ZIP provenance verifier: exact request_id/source_sha/slug/source_branch, distinct factory_build_head pinned to independent GitHub run, GitHub artifact SHA-256, and local EXE/PCK byte/size checks. Offline adversarial tests pass on Windows and Ubuntu CI 40626352369. The verifier is NOT wired into Provisioner CLI or a real accepted Factory product; PRE_IDENTITY_READY remains PARTIAL, POST_IDENTITY_READY HOLD, no Store Identity/MSIX/GPU/install/GUI/E2E proof. |
+| `provisioner_windows_build` | **IN_PROGRESS** | yes | Provisioner PR7 now wires the standalone Factory export provenance verifier into the actual 3D EXE pre-Identity execution path. Authenticated gh api fetches GitHub run/artifact metadata independently, downloads the ZIP, verifies SHA-256 and request_id/source_sha/slug/source_branch/factory_build_head plus EXE/PCK bytes, and HOLDs before Identity on missing/mismatched evidence. CI 40632371897 passes Windows/Ubuntu offline and mocked transport tests. No accepted Factory product or eligible export Artifact exists, so live authenticated download, PRE_IDENTITY_READY, POST_IDENTITY_READY, real product MSIX/GPU/install/GUI/E2E remain HOLD. |
 | `official_identity_roundtrip` | **IN_PROGRESS** | yes | 3D Identity return no longer targets a stale hard-coded Factory branch: it validates the exact active codex/* source_branch, requires original source_sha == expected_head_sha, checks live HEAD and commits with GitHub CAS. Linux/Windows offline tests pass. No real authenticated Partner Center Identity has been supplied or returned; actual Identity stage remains HOLD. |
 | `factory_msix_build` | **IN_PROGRESS** | yes | Factory MSIX builder now consumes the returned 3D correlation/provenance record, keeps the original product source_sha immutable, records the later GitHub packaging commit separately as factory_build_head, and carries local package SHA plus Store ID/PFN/SID into the strict handoff. PowerShell syntax and Factory quality gates pass. |
 | `msix_byte_qa` | **IN_PROGRESS** | yes | Real Godot 4.3 Windows template EXE/PCK (not synthetic bytes) were independently hashed by the template export job, downloaded within the SAME workflow run, and packaged with real Windows SDK MakeAppx. Pinned 3d-build-qa PR4 e84c448e verifies actual MSIX ZIP/CRC/BlockMap/OPC/manifest plus EXE/PCK SHA; a valid repack with modified PCK fails only the independent Godot export SHA check. Template PR1 404214de CI 40586209393 SUCCESS, non-product fixture artifact 12772561732. QA PR4 CI 40578299666 SUCCESS 84/84. This proves template byte compatibility, not an accepted product, Partner Center Identity, Windows install/GPU/GUI, signing, E2E or commercial readiness. |
@@ -25,7 +25,7 @@
 
 ## Next action
 
-Wire Provisioner PR7 standalone Factory export artifact byte verifier into the GAME_3D pre-Identity flow using independently fetched GitHub workflow run and artifact metadata, exact request_id/source_sha/slug, and separate factory_build_head. CI 40626352369 PASS is offline contract evidence only. No accepted 3D product, official Identity, product MSIX or GPU/install/GUI/E2E.
+Strengthen authenticated Factory export evidence transport in Provisioner PR7, then prove a real accepted Factory artifact end-to-end when one exists. Current runtime integration and Windows/Ubuntu CI 40632371897 PASS are offline/mock evidence only; no 3D product, Partner Center Identity, real product MSIX or GPU/install/GUI/E2E.
 
 Acceptance:
 - 3D QA remains isolated from GAME/APP: product_type GAME_3D, source_factory 3d-game-factory and Windows-all-auto type 3d-game must remain unchanged.
@@ -53,11 +53,12 @@ Acceptance:
 - Godot EXE requires bounded DOS/PE signature, x64 machine, PE32+ optional header and valid section table at export and inspection. RED 40615353368, GREEN 40615472142 (85 tests); synthetic PE is not Windows GPU/GUI or product E2E proof.
 - Godot Windows PE32+ x64 section table raw pointers and lengths must reference actual EXE bytes: reject zero pointers for nonempty sections and end-of-file overflow. RED 40620902567 and GREEN 40621009735 are synthetic/static only.
 - Standalone Factory artifact verifier CI 40626352369 PASS on Windows/Ubuntu; it must be wired to independently authenticated API+download before PRE_IDENTITY_READY can be promoted. The template MakeAppx fixture remains NOT_PRODUCT.
+- Authenticated Factory export transport is wired to the actual 3D EXE pre-Identity path and HOLDs on missing IDs, invalid metadata or mismatched EXE/PCK; Windows/Ubuntu CI 40632371897 PASS is mocked/offline, not an accepted Factory product or live GitHub artifact download.
 
 ## Evidence pins
 
-- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-dispatch-guard-current-ledger-20261027-1628` / `00f7d2e177b8ec749408955139d28a5c77dd96ad` / run `40621133502`
-- **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/e2e-belt-connection-20261027` / `2e1224e7f5756ccaeb91ea1bbea3f23368098324` / run `40626352369`
+- **factory** — `shihuiarenjinba-png/3d-game-factory` / `codex/3d-dispatch-guard-current-ledger-20261027-1628` / `5ca9f7df06154e365c92c049af8dcc1878de023b` / run `40621133502`
+- **provisioner** — `shihuiarenjinba-png/Repository-Provisioner-3D` / `codex/e2e-belt-connection-20261027` / `6e944cd923dbbf03eab1a8e940f8ce7c51903d7f` / run `40632371897`
 - **template** — `shihuiarenjinba-png/3d-game-template` / `codex/3d-template-godot-bootstrap-20261026` / `404214de6610b118f043b7ca8f62bf12f4b813b1` / run `40586209393`; artifact `godot-4-3-real-export-makeappx-fixture-not-product`
 - **qa** — `shihuiarenjinba-png/3d-build-qa` / `codex/3d-msix-zip-path-safety-20261027-1235` / `e84c448e48105d15d2040f87fb279835ddd0119b` / run `40578299666`; artifact `makeappx-3d-offline-unsigned-fixture-not-product`
 - **intake** — `shihuiarenjinba-png/Windows-all-auto` / `codex/e2e-belt-connection-20261027` / `990be77e9cf6104cb8e92cb8c860d19ff4ba440f` / run `40622032781`
