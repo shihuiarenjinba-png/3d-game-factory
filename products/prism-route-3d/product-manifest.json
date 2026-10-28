@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "lane": "GAME_3D",
+  "slug": "prism-route-3d",
+  "display_name": "Prism Route 3D",
+  "gameplay": "Visit three gold towers in order on a 3D board within 120 seconds",
+  "engine": "Godot 4.3",
+  "platform": "Windows Desktop x64",
+  "packaging_strategy": "GODOT_WINDOWS_EXE_PCK_MAKEAPPX_MSIX",
+  "registration_type": "MSIX_OR_PWA_GAME",
+  "partner_center_selection": "MSIX or PWA game",
+  "store_identity": null,
+  "external_api": false,
+  "login": false,
+  "telemetry": false,
+  "in_app_purchase": false,
+  "network_required": false,
+  "status": "CANDIDATE_PENDING_REAL_GODOT_QA",
+  "second_3d_product_allowed": false,
+  "local_gate": "DEFERRED_LOCAL_GATE"
+}
