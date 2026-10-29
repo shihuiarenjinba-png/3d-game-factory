@@ -8,6 +8,13 @@ const WARP_TRAPS = [Vector2i(0, 2), Vector2i(2, 4)]
 const TIME_TRAP_PENALTY = 15.0
 const WARP_TRAP_PENALTY = 8.0
 const START_CELL = Vector2i(2, 2)
+# One stationary Prism Sentinel projects a deterministic, telegraphed scan lane.
+# The player is never chased; a scan hit costs time and safely resets position.
+const SCAN_TELEGRAPH_SECONDS = 4.0
+const SCAN_ACTIVE_SECONDS = 2.0
+const SCAN_CYCLE_SECONDS = SCAN_TELEGRAPH_SECONDS + SCAN_ACTIVE_SECONDS
+const SCAN_PENALTY_SECONDS = 6.0
+const SCAN_DIRECTION_NAMES = ["N", "E", "S", "W"]
 
 var player: Vector2i = START_CELL
 var next_target: int = 0
@@ -17,6 +24,9 @@ var paused: bool = false
 var trap_hits: int = 0
 var last_event: String = ""
 var triggered_time_traps: Array[Vector2i] = []
+var scan_elapsed: float = 0.0
+var scan_hits: int = 0
+var last_scan_hit_cycle: int = -1
 
 func reset() -> void:
     player = START_CELL
@@ -27,6 +37,9 @@ func reset() -> void:
     trap_hits = 0
     last_event = ""
     triggered_time_traps.clear()
+    scan_elapsed = 0.0
+    scan_hits = 0
+    last_scan_hit_cycle = -1
 
 func move(step: Vector2i) -> bool:
     if status != "playing" or paused or abs(step.x) + abs(step.y) != 1:
@@ -62,12 +75,47 @@ func _apply_trap() -> void:
     if remaining <= 0.0:
         status = "failed"
 
+func scan_direction() -> int:
+    return int(floor(scan_elapsed / SCAN_CYCLE_SECONDS)) % 4
+
+func scan_active() -> bool:
+    return fposmod(scan_elapsed, SCAN_CYCLE_SECONDS) >= SCAN_TELEGRAPH_SECONDS
+
+func scan_seconds_until_change() -> float:
+    var phase: float = fposmod(scan_elapsed, SCAN_CYCLE_SECONDS)
+    return SCAN_CYCLE_SECONDS - phase if scan_active() else SCAN_TELEGRAPH_SECONDS - phase
+
+func scan_cells(direction: int) -> Array[Vector2i]:
+    var cells: Array[Vector2i] = []
+    for distance in range(1, 3):
+        match direction:
+            0:
+                cells.append(START_CELL + Vector2i(0, -distance))
+            1:
+                cells.append(START_CELL + Vector2i(distance, 0))
+            2:
+                cells.append(START_CELL + Vector2i(0, distance))
+            3:
+                cells.append(START_CELL + Vector2i(-distance, 0))
+    return cells
+
 func tick(seconds: float) -> void:
     if status != "playing" or paused or seconds <= 0.0:
         return
     remaining = maxf(0.0, remaining - seconds)
     if remaining <= 0.0:
         status = "failed"
+        return
+    scan_elapsed += seconds
+    var cycle: int = int(floor(scan_elapsed / SCAN_CYCLE_SECONDS))
+    if scan_active() and player in scan_cells(scan_direction()) and last_scan_hit_cycle != cycle:
+        last_scan_hit_cycle = cycle
+        scan_hits += 1
+        remaining = maxf(0.0, remaining - SCAN_PENALTY_SECONDS)
+        player = START_CELL
+        last_event = "sentinel_scan"
+        if remaining <= 0.0:
+            status = "failed"
 
 func toggle_pause() -> void:
     if status == "playing":
