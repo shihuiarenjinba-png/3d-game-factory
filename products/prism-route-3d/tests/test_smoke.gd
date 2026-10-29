@@ -15,6 +15,7 @@ func _initialize() -> void:
     test_sentinel()
     test_save()
     test_focus_pause()
+    test_ui_state_priority()
     print("PASS: Prism Route 3D gameplay, visible traps, telegraphed Sentinel, pause, win, timeout, restart, corrupt/empty save, focus-loss pause, EN/JA")
     quit(0)
 
@@ -121,6 +122,41 @@ func test_focus_pause() -> void:
     check(scene.game.paused, "repeat focus loss does not toggle back to playing")
     scene.game.toggle_pause()
     check(not scene.game.paused, "player explicitly resumes")
+    scene.free()
+
+func test_ui_state_priority() -> void:
+    # A stale trap event must not hide Pause, Win, or Time Up. This was
+    # especially confusing when focus loss auto-paused just after a trap.
+    var scene = MAIN.new()
+    scene.status_label = Label.new()
+    scene.scan_label = Label.new()
+    scene.hint_label = Label.new()
+    scene.restart_button = Button.new()
+    scene.pause_button = Button.new()
+    scene.language_button = Button.new()
+    for control in [scene.status_label, scene.scan_label, scene.hint_label,
+                    scene.restart_button, scene.pause_button, scene.language_button]:
+        scene.add_child(control)
+    scene.game.last_event = "time_trap"
+    scene.game.toggle_pause()
+    scene._refresh_ui()
+    check(scene.hint_label.text.begins_with("Paused."), "English pause outranks stale trap")
+    scene.language = "ja"
+    scene._refresh_ui()
+    check(scene.hint_label.text.begins_with("一時停止中"), "Japanese pause outranks stale trap")
+    scene.game.toggle_pause()
+    scene.game.status = "won"
+    scene._refresh_ui()
+    check(scene.hint_label.text.begins_with("クリア！"), "Japanese win outranks stale trap")
+    scene.language = "en"
+    scene._refresh_ui()
+    check(scene.hint_label.text.begins_with("Route complete!"), "English win outranks stale trap")
+    scene.game.status = "failed"
+    scene._refresh_ui()
+    check(scene.hint_label.text.begins_with("Time up."), "English failure outranks stale trap")
+    scene.language = "ja"
+    scene._refresh_ui()
+    check(scene.hint_label.text.begins_with("時間切れ"), "Japanese failure outranks stale trap")
     scene.free()
 
 func test_save() -> void:
