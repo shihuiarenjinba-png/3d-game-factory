@@ -1,5 +1,5 @@
 extends Node3D
-## Playable 3D board: ordered towers, obstacles, 120s clock, pause, restart, EN/JA, best score.
+## Playable 3D board: ordered towers, visible traps, 90s clock, pause, restart, EN/JA, best score.
 const LOGIC = preload("res://scripts/game_logic.gd")
 const SAVE = preload("res://scripts/save_store.gd")
 const SAVE_PATH = "user://prism_route_progress.cfg"
@@ -89,6 +89,10 @@ func _build_world() -> void:
             var cell := Vector2i(x, z)
             var pos := Vector3(float(x - 2) * 1.3, -0.18, float(z - 2) * 1.3)
             _box(pos, Vector3(1.23, 0.3, 1.23), Color(0.12, 0.22, 0.30) if (x + z) % 2 == 0 else Color(0.16, 0.29, 0.36))
+            if cell in LOGIC.TIME_TRAPS:
+                _box(pos + Vector3(0, 0.18, 0), Vector3(1.0, 0.08, 1.0), Color(0.96, 0.43, 0.10))
+            elif cell in LOGIC.WARP_TRAPS:
+                _box(pos + Vector3(0, 0.18, 0), Vector3(1.0, 0.08, 1.0), Color(0.55, 0.20, 0.72))
             if cell in LOGIC.BLOCKED:
                 _box(pos + Vector3(0, 0.55, 0), Vector3(0.85, 0.9, 0.85), Color(0.48, 0.16, 0.18))
     for target in LOGIC.TARGETS:
@@ -138,7 +142,7 @@ func _build_ui() -> void:
     bottom.anchor_bottom = 1.0
     bottom.offset_left = 16
     bottom.offset_right = -16
-    bottom.offset_top = -82
+    bottom.offset_top = -96
     bottom.offset_bottom = -12
     layer.add_child(bottom)
     hint_label = Label.new()
@@ -153,24 +157,32 @@ func _refresh_ui() -> void:
     var best: String = "--" if best_seconds < 0.0 else "%.1fs" % best_seconds
     var remaining: int = int(ceil(game.remaining))
     if language == "ja":
-        status_label.text = "Prism Route 3D | 塔 %s | 残り %d秒 | 最速 %s" % [progress, remaining, best]
-        hint_label.text = "黄色の塔を左上→右上→右下の順に踏む。WASD/矢印で移動、Pで一時停止、Rで再開、Lで言語切替。"
-        if game.status == "won":
+        status_label.text = "Prism Route 3D | 塔 %s | 残り %d秒 | 罠 %d | 最速 %s" % [progress, remaining, game.trap_hits, best]
+        hint_label.text = "黄色の塔を順番に踏む。橙=15秒減、紫=8秒減+中央へ転送。赤い柱は進入不可。"
+        if game.last_event == "time_trap":
+            hint_label.text = "時間罠！ 15秒失いました。短い道ほど安全とは限りません。"
+        elif game.last_event == "warp_trap":
+            hint_label.text = "ワープ罠！ 8秒失い、中央へ戻されました。"
+        elif game.status == "won":
             hint_label.text = "クリア！ R または再スタートで再挑戦できます。"
         elif game.status == "failed":
-            hint_label.text = "時間切れ。R または再スタートで再挑戦できます。"
+            hint_label.text = "時間切れ。罠を避けるルートを考えて再挑戦。"
         elif game.paused:
             hint_label.text = "一時停止中。P または再開ボタンで続行。"
         pause_button.text = "再開 (P)" if game.paused else "一時停止 (P)"
         restart_button.text = "再スタート (R)"
         language_button.text = "English (L)"
     else:
-        status_label.text = "Prism Route 3D | Towers %s | %ds left | Best %s" % [progress, remaining, best]
-        hint_label.text = "Visit gold towers top-left, top-right, bottom-right in order. WASD/arrows move; P pauses; R restarts; L changes language."
-        if game.status == "won":
+        status_label.text = "Prism Route 3D | Towers %s | %ds left | Traps %d | Best %s" % [progress, remaining, game.trap_hits, best]
+        hint_label.text = "Visit towers in order. Orange = -15s; purple = -8s + warp to center; red pillars block movement."
+        if game.last_event == "time_trap":
+            hint_label.text = "Time trap! Lost 15 seconds. The shortest route is not always the safest."
+        elif game.last_event == "warp_trap":
+            hint_label.text = "Warp trap! Lost 8 seconds and returned to the center."
+        elif game.status == "won":
             hint_label.text = "Route complete! Press R or Restart to play again."
         elif game.status == "failed":
-            hint_label.text = "Time up. Press R or Restart to try again."
+            hint_label.text = "Time up. Plan a safer route and try again."
         elif game.paused:
             hint_label.text = "Paused. Press P or Resume to continue."
         pause_button.text = "Resume (P)" if game.paused else "Pause (P)"
