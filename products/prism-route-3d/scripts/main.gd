@@ -41,6 +41,13 @@ func _process(delta: float) -> void:
         _persist()
     _refresh_ui()
 
+# A timed route must not expire while Windows focus is elsewhere. Do not
+# automatically resume on focus return: the player chooses when it is safe.
+func _notification(what: int) -> void:
+    if what == NOTIFICATION_WM_WINDOW_FOCUS_OUT and game != null and game.status == "playing" and not game.paused:
+        game.toggle_pause()
+        _refresh_ui()
+
 func _unhandled_key_input(event: InputEvent) -> void:
     if not (event is InputEventKey) or not event.pressed or event.echo:
         return
@@ -190,7 +197,7 @@ func _refresh_ui() -> void:
     if language == "ja":
         status_label.text = "Prism Route 3D | 塔 %s | 残り %d秒 | 罠 %d | 最速 %s" % [progress, remaining, game.trap_hits, best]
         scan_label.text = "Sentinel %s | %s %.1f秒 | 被弾 %d" % [scan_direction_name, "照射中・終了まで" if game.scan_active() else "予告・照射まで", scan_countdown, game.scan_hits]
-        hint_label.text = "塔を順番に起動。橙=-15秒、紫=-8秒+中央転送。Sentinelの予告帯は照射前に離れよう。"
+        hint_label.text = "WASD/矢印で移動。塔を順番に起動。橙=-15秒、紫=-8秒+中央転送。Sentinel予告帯から離れよう。"
         if game.last_event == "sentinel_scan":
             hint_label.text = "Sentinel照射！ 6秒失い中央へ押し戻されました。予告帯を避けよう。"
         elif game.last_event == "time_trap":
@@ -209,7 +216,7 @@ func _refresh_ui() -> void:
     else:
         status_label.text = "Prism Route 3D | Towers %s | %ds left | Traps %d | Best %s" % [progress, remaining, game.trap_hits, best]
         scan_label.text = "Sentinel %s | %s %.1fs | Hits %d" % [scan_direction_name, "SCAN ends in" if game.scan_active() else "warning, fires in", scan_countdown, game.scan_hits]
-        hint_label.text = "Activate towers in order. Orange=-15s, purple=-8s+warp. Leave the Sentinel's warned lane before it fires."
+        hint_label.text = "Move: WASD/arrows. Activate towers in order. Orange=-15s, purple=-8s+warp. Avoid the warned Sentinel lane."
         if game.last_event == "sentinel_scan":
             hint_label.text = "Sentinel scan! Lost 6 seconds and pushed to center. Avoid the warned lane."
         elif game.last_event == "time_trap":
