@@ -198,18 +198,20 @@ func _refresh_ui() -> void:
         status_label.text = "Prism Route 3D | 塔 %s | 残り %d秒 | 罠 %d | 最速 %s" % [progress, remaining, game.trap_hits, best]
         scan_label.text = "Sentinel %s | %s %.1f秒 | 被弾 %d" % [scan_direction_name, "照射中・終了まで" if game.scan_active() else "予告・照射まで", scan_countdown, game.scan_hits]
         hint_label.text = "WASD/矢印で移動。塔を順番に起動。橙=-15秒、紫=-8秒+中央転送。Sentinel予告帯から離れよう。"
-        if game.last_event == "sentinel_scan":
-            hint_label.text = "Sentinel照射！ 6秒失い中央へ押し戻されました。予告帯を避けよう。"
-        elif game.last_event == "time_trap":
-            hint_label.text = "時間罠！ 15秒失いました。短い道ほど安全とは限りません。"
-        elif game.last_event == "warp_trap":
-            hint_label.text = "ワープ罠！ 8秒失い、中央へ戻されました。"
-        elif game.status == "won":
+        # Current state must outrank a stale trap/scan event, otherwise pause
+        # and completion can be invisible immediately after a penalty.
+        if game.status == "won":
             hint_label.text = "クリア！ R または再スタートで再挑戦できます。"
         elif game.status == "failed":
             hint_label.text = "時間切れ。罠を避けるルートを考えて再挑戦。"
         elif game.paused:
             hint_label.text = "一時停止中。P または再開ボタンで続行。"
+        elif game.last_event == "sentinel_scan":
+            hint_label.text = "Sentinel照射！ 6秒失い中央へ押し戻されました。予告帯を避けよう。"
+        elif game.last_event == "time_trap":
+            hint_label.text = "時間罠！ 15秒失いました。短い道ほど安全とは限りません。"
+        elif game.last_event == "warp_trap":
+            hint_label.text = "ワープ罠！ 8秒失い、中央へ戻されました。"
         pause_button.text = "再開 (P)" if game.paused else "一時停止 (P)"
         restart_button.text = "再スタート (R)"
         language_button.text = "English (L)"
@@ -217,18 +219,18 @@ func _refresh_ui() -> void:
         status_label.text = "Prism Route 3D | Towers %s | %ds left | Traps %d | Best %s" % [progress, remaining, game.trap_hits, best]
         scan_label.text = "Sentinel %s | %s %.1fs | Hits %d" % [scan_direction_name, "SCAN ends in" if game.scan_active() else "warning, fires in", scan_countdown, game.scan_hits]
         hint_label.text = "Move: WASD/arrows. Activate towers in order. Orange=-15s, purple=-8s+warp. Avoid the warned Sentinel lane."
-        if game.last_event == "sentinel_scan":
-            hint_label.text = "Sentinel scan! Lost 6 seconds and pushed to center. Avoid the warned lane."
-        elif game.last_event == "time_trap":
-            hint_label.text = "Time trap! Lost 15 seconds. The shortest route is not always the safest."
-        elif game.last_event == "warp_trap":
-            hint_label.text = "Warp trap! Lost 8 seconds and returned to the center."
-        elif game.status == "won":
+        if game.status == "won":
             hint_label.text = "Route complete! Press R or Restart to play again."
         elif game.status == "failed":
             hint_label.text = "Time up. Plan a safer route and try again."
         elif game.paused:
             hint_label.text = "Paused. Press P or Resume to continue."
+        elif game.last_event == "sentinel_scan":
+            hint_label.text = "Sentinel scan! Lost 6 seconds and pushed to center. Avoid the warned lane."
+        elif game.last_event == "time_trap":
+            hint_label.text = "Time trap! Lost 15 seconds. The shortest route is not always the safest."
+        elif game.last_event == "warp_trap":
+            hint_label.text = "Warp trap! Lost 8 seconds and returned to the center."
         pause_button.text = "Resume (P)" if game.paused else "Pause (P)"
         restart_button.text = "Restart (R)"
         language_button.text = "日本語 (L)"
