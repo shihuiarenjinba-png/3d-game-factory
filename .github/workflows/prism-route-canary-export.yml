@@ -81,7 +81,7 @@ jobs:
           # when logic tests pass. Use Mesa software OpenGL under virtual X11
           # to exercise actual MeshInstance3D and CanvasLayer construction.
           LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a "$GODOT" \
-            --rendering-method gl_compatibility --resolution 1024x768 \
+            --rendering-method gl_compatibility --audio-driver Dummy --resolution 1024x768 \
             --path "$PROJECT" --quit-after 60 2>&1 | tee /tmp/prism-render-smoke.log
           if grep -Eq '(^|[[:space:]])(SCRIPT )?ERROR:' /tmp/prism-render-smoke.log; then
             echo 'HOLD: rendered scene reported Godot errors' >&2
