@@ -3,7 +3,7 @@
   "lane": "GAME_3D",
   "slug": "prism-route-3d",
   "display_name": "Prism Route 3D",
-  "gameplay": "Visit three gold towers in order on a 3D board within 120 seconds",
+  "gameplay": "Activate three gold towers in order within 90 seconds; visible time/warp traps and a single telegraphed rotating Prism Sentinel scan",
   "engine": "Godot 4.3",
   "platform": "Windows Desktop x64",
   "packaging_strategy": "GODOT_WINDOWS_EXE_PCK_MAKEAPPX_MSIX",
@@ -17,5 +17,9 @@
   "network_required": false,
   "status": "CANDIDATE_PENDING_REAL_GODOT_QA",
   "second_3d_product_allowed": false,
-  "local_gate": "DEFERRED_LOCAL_GATE"
+  "local_gate": "DEFERRED_LOCAL_GATE",
+  "gameplay_revision": "TRAP_TENSION_SENTINEL",
+  "identity_reuse_base_source_sha": "15fdcb52e46e35e6de8e87c55af99719c21e09b9",
+  "new_revision_identity_binding": "PENDING_INDEPENDENT_VERIFICATION",
+  "package_version_gate": "HOLD"
 }

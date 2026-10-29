@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - codex/3d-canary-prism-route-20261028
+      - codex/prism-route-trap-tension-20261029
   workflow_dispatch:
 
 permissions:
@@ -25,16 +26,25 @@ jobs:
         run: |
           set -euo pipefail
           python - <<'PY'
-          import json
+          import json,os
           from pathlib import Path
           p=Path('products/prism-route-3d')
           m=json.loads((p/'product-manifest.json').read_text())
           assert (m['slug'],m['lane'],m['registration_type'],m['second_3d_product_allowed'])==('prism-route-3d','GAME_3D','MSIX_OR_PWA_GAME',False)
           assert m['store_identity'] is None and m['packaging_strategy']=='GODOT_WINDOWS_EXE_PCK_MAKEAPPX_MSIX'
-          assert not list(Path('products').glob('*/store/approved-identity.json'))
+          # Revision reuses a real, previously returned Partner Center product,
+          # but the old package/source SHA must NEVER authenticate the new build.
+          identity=json.loads((p/'store/approved-identity.json').read_text())
+          old='15fdcb52e46e35e6de8e87c55af99719c21e09b9'
+          assert identity['source_sha']==old and identity['verified_source_sha']==old
+          assert identity['store_id'] and identity['package_family_name'] and identity['package_sid']
+          assert identity['package_version_gate']=='HOLD'
+          assert identity['signature_status']=='PRE_IDENTITY_EXE_NOT_MSIX'
+          assert os.environ['GITHUB_REF_NAME']=='codex/prism-route-trap-tension-20261029'
+          assert os.environ['GITHUB_SHA']!=old
           for name in ['project.godot','export_presets.cfg','scenes/main.tscn','scripts/main.gd','scripts/game_logic.gd','scripts/save_store.gd','tests/test_smoke.gd']:
               assert (p/name).is_file(),name
-          print('PASS: single playable source candidate; no Store Identity')
+          print('PASS: single revision source; old Partner Center Identity is provenance only, new package HOLD')
           PY
       - name: Install official Godot 4.3 and export templates
         shell: bash
@@ -57,7 +67,27 @@ jobs:
           "$GODOT" --headless --editor --path "$PROJECT" --import
           "$GODOT" --headless --path "$PROJECT" --script res://tests/test_smoke.gd | tee /tmp/prism-smoke.log
           grep -q 'PASS: Prism Route 3D gameplay' /tmp/prism-smoke.log
-          "$GODOT" --headless --path "$PROJECT" --quit-after 60
+      - name: Software-rendered 1024x768 scene smoke (no dummy renderer)
+        shell: bash
+        run: |
+          set -euo pipefail
+          GODOT=/tmp/godot-bin/Godot_v4.3-stable_linux.x86_64
+          PROJECT="$GITHUB_WORKSPACE/products/prism-route-3d"
+          if ! command -v xvfb-run >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y xvfb
+          fi
+          # Headless dummy-renderer scene launches emit mesh-storage errors even
+          # when logic tests pass. Use Mesa software OpenGL under virtual X11
+          # to exercise actual MeshInstance3D and CanvasLayer construction.
+          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a "$GODOT" \
+            --rendering-method gl_compatibility --audio-driver Dummy --resolution 1024x768 \
+            --path "$PROJECT" --quit-after 60 2>&1 | tee /tmp/prism-render-smoke.log
+          if grep -Eq '(^|[[:space:]])(SCRIPT )?ERROR:' /tmp/prism-render-smoke.log; then
+            echo 'HOLD: rendered scene reported Godot errors' >&2
+            exit 1
+          fi
+          echo 'PASS: 1024x768 Mesa software-rendered scene started without Godot ERROR diagnostics'
       - name: Real Godot Windows x64 EXE/PCK export
         shell: bash
         run: |
@@ -79,7 +109,7 @@ jobs:
               raise SystemExit('HOLD: real Godot PCK missing/invalid')
           sha=os.environ['GITHUB_SHA']
           branch=os.environ['GITHUB_REF_NAME']
-          if branch!='codex/3d-canary-prism-route-20261028' or len(sha)!=40:
+          if branch!='codex/prism-route-trap-tension-20261029' or len(sha)!=40:
               raise SystemExit('HOLD: unexpected source branch/SHA')
           record=dict(schema_version=1,request_id='3d-prism-route-3d-'+sha[:12],
             product_type='GAME_3D',source_repository=os.environ['GITHUB_REPOSITORY'],
@@ -91,6 +121,44 @@ jobs:
           (out/'export-evidence.json').write_text(json.dumps(record,sort_keys=True,indent=2)+'\n')
           print(json.dumps(record,sort_keys=True,indent=2))
           PY
+      - name: Record independent old-Identity reuse versus new-revision binding
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path('products/prism-route-3d/store/approved-identity.json')
+          identity=json.loads(p.read_text())
+          export=json.loads(Path('export/export-evidence.json').read_text())
+          old='15fdcb52e46e35e6de8e87c55af99719c21e09b9'
+          assert export['source_sha']==os.environ['GITHUB_SHA']
+          assert export['request_id']=='3d-prism-route-3d-'+os.environ['GITHUB_SHA'][:12]
+          assert export['source_sha']!=old
+          assert identity['source_sha']==old and identity['verified_source_sha']==old
+          receipt={
+            'schema_version':1,'product':'Prism Route 3D','slug':'prism-route-3d',
+            'old_identity_provenance_sha':old,
+            'new_revision_source_sha':export['source_sha'],
+            'new_revision_request_id':export['request_id'],
+            'partner_center_product_reuse':True,
+            'store_id':identity['store_id'],
+            'identity_rebinding_status':'PENDING_INDEPENDENT_VERIFICATION',
+            'approved_package_version':None,
+            'signed_msix_verified':False,
+            'windows_all_auto_intake_verified':False,
+            'product_e2e':'HOLD'
+          }
+          Path('export/revision-identity-reuse.json').write_text(json.dumps(receipt,sort_keys=True,indent=2)+'\n')
+          print('PASS: separate old Identity provenance from new revision; package remains HOLD')
+          PY
+      - name: Publish revision binding receipt separately from Factory byte contract
+        uses: actions/upload-artifact@v4
+        with:
+          name: prism-route-3d-revision-identity-reuse
+          path: export/revision-identity-reuse.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Publish exact three-file Factory export evidence for Provisioner
         uses: actions/upload-artifact@v4
         with:
