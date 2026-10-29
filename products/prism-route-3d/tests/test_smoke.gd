@@ -11,8 +11,9 @@ func check(value: bool, message: String) -> void:
 func _initialize() -> void:
     test_gameplay()
     test_traps()
+    test_sentinel()
     test_save()
-    print("PASS: Prism Route 3D gameplay, visible traps, pause, win, timeout, restart, corrupt/empty save, EN/JA")
+    print("PASS: Prism Route 3D gameplay, visible traps, telegraphed Sentinel, pause, win, timeout, restart, corrupt/empty save, EN/JA")
     quit(0)
 
 func test_gameplay() -> void:
@@ -60,6 +61,33 @@ func test_traps() -> void:
     check(game.move(Vector2i(-1, 0)), "enter warp trap")
     check(game.player == Vector2i(2, 2), "warp returns player to center")
     check(game.remaining == 82.0 and game.trap_hits == 1 and game.last_event == "warp_trap", "warp trap penalty")
+
+func test_sentinel() -> void:
+    var game = LOGIC.new()
+    check(game.scan_direction() == 0 and not game.scan_active(), "north scan is visibly telegraphed")
+    check(game.scan_cells(0) == [Vector2i(2, 1), Vector2i(2, 0)], "north beam geometry")
+    check(game.scan_cells(1) == [Vector2i(3, 2), Vector2i(4, 2)], "east beam geometry")
+    check(game.move(Vector2i(0, -1)), "enter north danger lane")
+    game.tick(3.9)
+    check(not game.scan_active() and game.scan_hits == 0, "no damage during warning")
+    game.toggle_pause()
+    var frozen: float = game.scan_elapsed
+    game.tick(10.0)
+    check(game.scan_elapsed == frozen and game.scan_hits == 0, "pause freezes Sentinel")
+    game.toggle_pause()
+    game.tick(0.2)
+    check(game.scan_active() and game.scan_hits == 1, "predictable active scan hit")
+    check(game.player == Vector2i(2, 2) and game.last_event == "sentinel_scan", "nonlethal center knockback")
+    check(absf(game.remaining - 79.9) < 0.01, "six-second scan penalty")
+    game.tick(0.2)
+    check(game.scan_hits == 1, "no repeat hit during same scan")
+    game.tick(1.9)
+    check(game.scan_direction() == 1 and not game.scan_active(), "next warning rotates clockwise")
+    game.reset()
+    check(game.scan_elapsed == 0.0 and game.scan_hits == 0 and game.last_scan_hit_cycle == -1, "restart resets Sentinel")
+    game.move(Vector2i(0, -1))
+    game.tick(4.1)
+    check(game.scan_hits == 1, "new run may be hit again")
 
 func test_save() -> void:
     var path := "user://prism_route_smoke_test.cfg"
