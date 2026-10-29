@@ -106,9 +106,19 @@ func tick(seconds: float) -> void:
     if remaining <= 0.0:
         status = "failed"
         return
+    # A stalled frame can cross an entire two-second scan. Check every
+    # active interval intersected by the tick, not only the ending phase.
+    var previous_scan_elapsed: float = scan_elapsed
     scan_elapsed += seconds
-    var cycle: int = int(floor(scan_elapsed / SCAN_CYCLE_SECONDS))
-    if scan_active() and player in scan_cells(scan_direction()) and last_scan_hit_cycle != cycle:
+    var first_cycle: int = int(floor(previous_scan_elapsed / SCAN_CYCLE_SECONDS))
+    var last_cycle: int = int(floor(scan_elapsed / SCAN_CYCLE_SECONDS))
+    for cycle in range(first_cycle, last_cycle + 1):
+        var active_start: float = float(cycle) * SCAN_CYCLE_SECONDS + SCAN_TELEGRAPH_SECONDS
+        var active_end: float = float(cycle + 1) * SCAN_CYCLE_SECONDS
+        if previous_scan_elapsed >= active_end or scan_elapsed < active_start:
+            continue
+        if last_scan_hit_cycle == cycle or player not in scan_cells(cycle % 4):
+            continue
         last_scan_hit_cycle = cycle
         scan_hits += 1
         remaining = maxf(0.0, remaining - SCAN_PENALTY_SECONDS)
@@ -116,6 +126,7 @@ func tick(seconds: float) -> void:
         last_event = "sentinel_scan"
         if remaining <= 0.0:
             status = "failed"
+            break
 
 func toggle_pause() -> void:
     if status == "playing":
