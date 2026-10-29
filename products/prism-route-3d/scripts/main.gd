@@ -1,5 +1,5 @@
 extends Node3D
-## Playable 3D board: ordered towers, visible traps, 90s clock, pause, restart, EN/JA, best score.
+## Floating tower network with deterministic Sentinel scan, traps, pause, restart, EN/JA and local best.
 const LOGIC = preload("res://scripts/game_logic.gd")
 const SAVE = preload("res://scripts/save_store.gd")
 const SAVE_PATH = "user://prism_route_progress.cfg"
@@ -14,6 +14,9 @@ var restart_button: Button
 var pause_button: Button
 var language_button: Button
 var recorded_win: bool = false
+var scan_markers: Array[MeshInstance3D] = []
+var scan_marker_directions: Array[int] = []
+var scan_label: Label
 
 func _ready() -> void:
     var saved: Dictionary = SAVE.load_data(SAVE_PATH)
@@ -25,7 +28,11 @@ func _ready() -> void:
     _refresh_ui()
 
 func _process(delta: float) -> void:
+    var hits_before: int = game.scan_hits
     game.tick(delta)
+    if game.scan_hits != hits_before:
+        _sync_world()
+    _sync_scan_world()
     if game.status == "won" and not recorded_win:
         recorded_win = true
         var score: float = game.elapsed()
@@ -99,11 +106,30 @@ func _build_world() -> void:
         var pos := Vector3(float(target.x - 2) * 1.3, 0.48, float(target.y - 2) * 1.3)
         targets.append(_box(pos, Vector3(0.55, 0.8, 0.55), Color(0.94, 0.73, 0.24)))
     player_mesh = _box(Vector3(0, 0.53, 0), Vector3(0.7, 0.85, 0.7), Color(0.22, 0.84, 0.90))
+    # One stationary elevated Sentinel. Its warning tiles are visible before firing.
+    _box(Vector3(0.0, 1.85, 0.0), Vector3(0.62, 0.62, 0.62), Color(0.70, 0.33, 0.87))
+    for direction in range(4):
+        for cell in game.scan_cells(direction):
+            var pos := Vector3(float(cell.x - 2) * 1.3, 0.11, float(cell.y - 2) * 1.3)
+            var marker := _box(pos, Vector3(1.03, 0.035, 1.03), Color(1.0, 0.65, 0.14, 0.58))
+            marker.material_override.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+            marker.visible = false
+            scan_markers.append(marker)
+            scan_marker_directions.append(direction)
+    _sync_scan_world()
 
 func _sync_world() -> void:
     player_mesh.position = Vector3(float(game.player.x - 2) * 1.3, 0.53, float(game.player.y - 2) * 1.3)
     for i in range(targets.size()):
         targets[i].material_override = _material(Color(0.17, 0.65, 0.32) if i < game.next_target else Color(0.95, 0.72, 0.17))
+
+func _sync_scan_world() -> void:
+    var direction: int = game.scan_direction()
+    var beam_color := Color(1.0, 0.19, 0.24, 0.72) if game.scan_active() else Color(1.0, 0.69, 0.15, 0.58)
+    for i in range(scan_markers.size()):
+        scan_markers[i].visible = scan_marker_directions[i] == direction and game.status == "playing"
+        if scan_markers[i].visible:
+            scan_markers[i].material_override.albedo_color = beam_color
 
 func _build_ui() -> void:
     var layer := CanvasLayer.new()
@@ -113,7 +139,7 @@ func _build_ui() -> void:
     top.offset_left = 16
     top.offset_top = 12
     top.offset_right = -16
-    top.offset_bottom = 142
+    top.offset_bottom = 164
     layer.add_child(top)
     var stack := VBoxContainer.new()
     stack.add_theme_constant_override("separation", 8)
@@ -121,6 +147,9 @@ func _build_ui() -> void:
     status_label = Label.new()
     status_label.add_theme_font_size_override("font_size", 19)
     stack.add_child(status_label)
+    scan_label = Label.new()
+    scan_label.add_theme_font_size_override("font_size", 16)
+    stack.add_child(scan_label)
     var buttons := HBoxContainer.new()
     buttons.add_theme_constant_override("separation", 12)
     stack.add_child(buttons)
@@ -156,10 +185,15 @@ func _refresh_ui() -> void:
     var progress: String = "%d/3" % game.next_target
     var best: String = "--" if best_seconds < 0.0 else "%.1fs" % best_seconds
     var remaining: int = int(ceil(game.remaining))
+    var scan_direction_name: String = LOGIC.SCAN_DIRECTION_NAMES[game.scan_direction()]
+    var scan_countdown: float = game.scan_seconds_until_change()
     if language == "ja":
         status_label.text = "Prism Route 3D | 塔 %s | 残り %d秒 | 罠 %d | 最速 %s" % [progress, remaining, game.trap_hits, best]
-        hint_label.text = "黄色の塔を順番に踏む。橙=15秒減、紫=8秒減+中央へ転送。赤い柱は進入不可。"
-        if game.last_event == "time_trap":
+        scan_label.text = "Sentinel %s | %s %.1f秒 | 被弾 %d" % [scan_direction_name, "照射中・終了まで" if game.scan_active() else "予告・照射まで", scan_countdown, game.scan_hits]
+        hint_label.text = "塔を順番に起動。橙=-15秒、紫=-8秒+中央転送。Sentinelの予告帯は照射前に離れよう。"
+        if game.last_event == "sentinel_scan":
+            hint_label.text = "Sentinel照射！ 6秒失い中央へ押し戻されました。予告帯を避けよう。"
+        elif game.last_event == "time_trap":
             hint_label.text = "時間罠！ 15秒失いました。短い道ほど安全とは限りません。"
         elif game.last_event == "warp_trap":
             hint_label.text = "ワープ罠！ 8秒失い、中央へ戻されました。"
@@ -174,8 +208,11 @@ func _refresh_ui() -> void:
         language_button.text = "English (L)"
     else:
         status_label.text = "Prism Route 3D | Towers %s | %ds left | Traps %d | Best %s" % [progress, remaining, game.trap_hits, best]
-        hint_label.text = "Visit towers in order. Orange = -15s; purple = -8s + warp to center; red pillars block movement."
-        if game.last_event == "time_trap":
+        scan_label.text = "Sentinel %s | %s %.1fs | Hits %d" % [scan_direction_name, "SCAN ends in" if game.scan_active() else "warning, fires in", scan_countdown, game.scan_hits]
+        hint_label.text = "Activate towers in order. Orange=-15s, purple=-8s+warp. Leave the Sentinel's warned lane before it fires."
+        if game.last_event == "sentinel_scan":
+            hint_label.text = "Sentinel scan! Lost 6 seconds and pushed to center. Avoid the warned lane."
+        elif game.last_event == "time_trap":
             hint_label.text = "Time trap! Lost 15 seconds. The shortest route is not always the safest."
         elif game.last_event == "warp_trap":
             hint_label.text = "Warp trap! Lost 8 seconds and returned to the center."
@@ -193,6 +230,7 @@ func _restart() -> void:
     game.reset()
     recorded_win = false
     _sync_world()
+    _sync_scan_world()
     _refresh_ui()
 
 func _toggle_pause() -> void:
