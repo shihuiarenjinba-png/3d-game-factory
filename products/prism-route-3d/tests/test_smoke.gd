@@ -89,6 +89,22 @@ func test_sentinel() -> void:
     game.tick(4.1)
     check(game.scan_hits == 1, "new run may be hit again")
 
+    # A frame stall that skips past the two-second active window must not
+    # silently let the player escape an already-telegraphed scan.
+    var stalled = LOGIC.new()
+    check(stalled.move(Vector2i(0, -1)), "stalled-frame player enters north lane")
+    stalled.tick(6.1)
+    check(stalled.scan_direction() == 1 and not stalled.scan_active(), "stalled frame ends in east warning")
+    check(stalled.scan_hits == 1 and stalled.player == LOGIC.START_CELL, "crossed active scan still hits once")
+    check(absf(stalled.remaining - 77.9) < 0.01, "stalled frame charges time plus one scan penalty")
+    stalled.tick(0.1)
+    check(stalled.scan_hits == 1, "no duplicate hit after crossed active scan")
+
+    var boundary = LOGIC.new()
+    check(boundary.move(Vector2i(0, -1)), "boundary player enters north lane")
+    boundary.tick(6.0)
+    check(boundary.scan_hits == 1, "scan ending exactly at cycle boundary is not skipped")
+
 func test_save() -> void:
     var path := "user://prism_route_smoke_test.cfg"
     var absolute := ProjectSettings.globalize_path(path)
