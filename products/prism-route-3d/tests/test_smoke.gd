@@ -1,6 +1,7 @@
 extends SceneTree
 const LOGIC = preload("res://scripts/game_logic.gd")
 const SAVE = preload("res://scripts/save_store.gd")
+const MAIN = preload("res://scripts/main.gd")
 
 func check(value: bool, message: String) -> void:
     if not value:
@@ -13,7 +14,8 @@ func _initialize() -> void:
     test_traps()
     test_sentinel()
     test_save()
-    print("PASS: Prism Route 3D gameplay, visible traps, telegraphed Sentinel, pause, win, timeout, restart, corrupt/empty save, EN/JA")
+    test_focus_pause()
+    print("PASS: Prism Route 3D gameplay, visible traps, telegraphed Sentinel, pause, win, timeout, restart, corrupt/empty save, focus-loss pause, EN/JA")
     quit(0)
 
 func test_gameplay() -> void:
@@ -104,6 +106,22 @@ func test_sentinel() -> void:
     check(boundary.move(Vector2i(0, -1)), "boundary player enters north lane")
     boundary.tick(6.0)
     check(boundary.scan_hits == 1, "scan ending exactly at cycle boundary is not skipped")
+
+func test_focus_pause() -> void:
+    # Simulate Windows losing foreground focus while the timed run is active.
+    # A second focus-out must not resume an already paused game.
+    var scene = MAIN.new()
+    check(not scene.game.paused, "initially active before focus loss")
+    scene.notification(Node.NOTIFICATION_WM_WINDOW_FOCUS_OUT)
+    check(scene.game.paused, "focus loss auto-pauses gameplay")
+    var frozen: float = scene.game.remaining
+    scene.game.tick(5.0)
+    check(scene.game.remaining == frozen, "focus loss freezes timer")
+    scene.notification(Node.NOTIFICATION_WM_WINDOW_FOCUS_OUT)
+    check(scene.game.paused, "repeat focus loss does not toggle back to playing")
+    scene.game.toggle_pause()
+    check(not scene.game.paused, "player explicitly resumes")
+    scene.free()
 
 func test_save() -> void:
     var path := "user://prism_route_smoke_test.cfg"
