@@ -67,7 +67,27 @@ jobs:
           "$GODOT" --headless --editor --path "$PROJECT" --import
           "$GODOT" --headless --path "$PROJECT" --script res://tests/test_smoke.gd | tee /tmp/prism-smoke.log
           grep -q 'PASS: Prism Route 3D gameplay' /tmp/prism-smoke.log
-          "$GODOT" --headless --path "$PROJECT" --quit-after 60
+      - name: Software-rendered 1024x768 scene smoke (no dummy renderer)
+        shell: bash
+        run: |
+          set -euo pipefail
+          GODOT=/tmp/godot-bin/Godot_v4.3-stable_linux.x86_64
+          PROJECT="$GITHUB_WORKSPACE/products/prism-route-3d"
+          if ! command -v xvfb-run >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y xvfb
+          fi
+          # Headless dummy-renderer scene launches emit mesh-storage errors even
+          # when logic tests pass. Use Mesa software OpenGL under virtual X11
+          # to exercise actual MeshInstance3D and CanvasLayer construction.
+          LIBGL_ALWAYS_SOFTWARE=1 xvfb-run -a "$GODOT" \\
+            --rendering-method gl_compatibility --resolution 1024x768 \\
+            --path "$PROJECT" --quit-after 60 2>&1 | tee /tmp/prism-render-smoke.log
+          if grep -Eq '(^|[[:space:]])(SCRIPT )?ERROR:' /tmp/prism-render-smoke.log; then
+            echo 'HOLD: rendered scene reported Godot errors' >&2
+            exit 1
+          fi
+          echo 'PASS: 1024x768 Mesa software-rendered scene started without Godot ERROR diagnostics'
       - name: Real Godot Windows x64 EXE/PCK export
         shell: bash
         run: |
