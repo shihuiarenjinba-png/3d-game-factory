@@ -15,11 +15,14 @@
   "telemetry": false,
   "in_app_purchase": false,
   "network_required": false,
-  "status": "CANDIDATE_PENDING_REAL_GODOT_QA",
+  "status": "CANDIDATE_PENDING_NEW_REAL_GODOT_EXPORT_QA",
   "second_3d_product_allowed": false,
   "local_gate": "DEFERRED_LOCAL_GATE",
-  "gameplay_revision": "TRAP_TENSION_SENTINEL",
+  "gameplay_revision": "SENTINEL_CONSUMER_PCK_HYGIENE_TOWER_ORDER",
   "identity_reuse_base_source_sha": "15fdcb52e46e35e6de8e87c55af99719c21e09b9",
   "new_revision_identity_binding": "PENDING_INDEPENDENT_VERIFICATION",
-  "package_version_gate": "HOLD"
+  "package_version_gate": "HOLD",
+  "consumer_export_content_gate": "REQUIRES_CURRENT_SOURCE_PCK_AUDIT",
+  "consumer_tower_order": "WORLD_SPACE_LABELS_1_2_3_EN_JA_NEXT_TARGET",
+  "historical_sentinel_source_sha": "e432d94ed0db22878f61f1a8af140d7d7de2288f"
 }

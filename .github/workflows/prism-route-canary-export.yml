@@ -5,6 +5,10 @@ on:
     branches:
       - codex/3d-canary-prism-route-20261028
       - codex/prism-route-trap-tension-20261029
+      - codex/prism-sentinel-consumer-pck-20261102
+  pull_request:
+    branches:
+      - codex/prism-route-trap-tension-20261029
   workflow_dispatch:
 
 permissions:
@@ -14,10 +18,14 @@ jobs:
   godot-canary-export:
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    env:
+      SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      SOURCE_BRANCH: ${{ github.head_ref || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          ref: ${{ env.SOURCE_SHA }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -40,12 +48,17 @@ jobs:
           assert identity['store_id'] and identity['package_family_name'] and identity['package_sid']
           assert identity['package_version_gate']=='HOLD'
           assert identity['signature_status']=='PRE_IDENTITY_EXE_NOT_MSIX'
-          assert os.environ['GITHUB_REF_NAME']=='codex/prism-route-trap-tension-20261029'
-          assert os.environ['GITHUB_SHA']!=old
+          assert os.environ['SOURCE_BRANCH']=='codex/prism-sentinel-consumer-pck-20261102'
+          assert os.environ['SOURCE_SHA']!=old
           for name in ['project.godot','export_presets.cfg','scenes/main.tscn','scripts/main.gd','scripts/game_logic.gd','scripts/save_store.gd','tests/test_smoke.gd']:
               assert (p/name).is_file(),name
-          print('PASS: single revision source; old Partner Center Identity is provenance only, new package HOLD')
+          preset=(p/"export_presets.cfg").read_text()
+          assert 'exclude_filter="store/*,tests/*,product-manifest.json"' in preset
+          assert m["gameplay_revision"]=="SENTINEL_CONSUMER_PCK_HYGIENE_TOWER_ORDER"
+          print('PASS: new consumer revision, old Identity provenance only, package HOLD')
           PY
+      - name: Fail-closed synthetic negative PCK regression (not product evidence)
+        run: python -m unittest discover -s tests -p "test_prism_consumer_pck_audit.py" -v
       - name: Install official Godot 4.3 and export templates
         shell: bash
         run: |
@@ -107,9 +120,9 @@ jobs:
               raise SystemExit('HOLD: real Godot Windows EXE missing/invalid')
           if not pck.is_file() or pck.stat().st_size<4 or pck.open('rb').read(4)!=b'GDPC':
               raise SystemExit('HOLD: real Godot PCK missing/invalid')
-          sha=os.environ['GITHUB_SHA']
-          branch=os.environ['GITHUB_REF_NAME']
-          if branch!='codex/prism-route-trap-tension-20261029' or len(sha)!=40:
+          sha=os.environ['SOURCE_SHA']
+          branch=os.environ['SOURCE_BRANCH']
+          if branch!='codex/prism-sentinel-consumer-pck-20261102' or len(sha)!=40:
               raise SystemExit('HOLD: unexpected source branch/SHA')
           record=dict(schema_version=1,request_id='3d-prism-route-3d-'+sha[:12],
             product_type='GAME_3D',source_repository=os.environ['GITHUB_REPOSITORY'],
@@ -120,6 +133,24 @@ jobs:
             pck_size_bytes=pck.stat().st_size)
           (out/'export-evidence.json').write_text(json.dumps(record,sort_keys=True,indent=2)+'\n')
           print(json.dumps(record,sort_keys=True,indent=2))
+          PY
+      - name: Audit actual Godot-exported consumer PCK (fail closed)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python tools/prism_consumer_pck_audit.py \
+            --exe export/candidate.exe \
+            --pck export/candidate.pck \
+            --evidence export/export-evidence.json \
+            --out export/consumer-pck-audit.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result=json.loads(Path('export/consumer-pck-audit.json').read_text())
+          assert result['status']=='PCK_CONTENT_CLEAN_QA_ONLY'
+          assert result['sale_ready'] is False
+          assert result['official_identity_cas']=='HOLD'
+          print('PASS: current-run real PCK content hygiene; not Store authorization')
           PY
       - name: Record independent old-Identity reuse versus new-revision binding
         shell: bash
@@ -132,8 +163,8 @@ jobs:
           identity=json.loads(p.read_text())
           export=json.loads(Path('export/export-evidence.json').read_text())
           old='15fdcb52e46e35e6de8e87c55af99719c21e09b9'
-          assert export['source_sha']==os.environ['GITHUB_SHA']
-          assert export['request_id']=='3d-prism-route-3d-'+os.environ['GITHUB_SHA'][:12]
+          assert export['source_sha']==os.environ['SOURCE_SHA']
+          assert export['request_id']=='3d-prism-route-3d-'+os.environ['SOURCE_SHA'][:12]
           assert export['source_sha']!=old
           assert identity['source_sha']==old and identity['verified_source_sha']==old
           receipt={
@@ -152,6 +183,13 @@ jobs:
           Path('export/revision-identity-reuse.json').write_text(json.dumps(receipt,sort_keys=True,indent=2)+'\n')
           print('PASS: separate old Identity provenance from new revision; package remains HOLD')
           PY
+      - name: Publish new revision PCK resource audit separately (not sale approval)
+        uses: actions/upload-artifact@v4
+        with:
+          name: prism-consumer-pck-current-run-resource-audit
+          path: export/consumer-pck-audit.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Publish revision binding receipt separately from Factory byte contract
         uses: actions/upload-artifact@v4
         with:

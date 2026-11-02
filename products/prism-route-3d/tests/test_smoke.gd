@@ -16,6 +16,7 @@ func _initialize() -> void:
     test_save()
     test_focus_pause()
     test_ui_state_priority()
+    test_tower_order_discoverability()
     print("PASS: Prism Route 3D gameplay, visible traps, telegraphed Sentinel, pause, win, timeout, restart, corrupt/empty save, focus-loss pause, EN/JA")
     quit(0)
 
@@ -157,6 +158,40 @@ func test_ui_state_priority() -> void:
     scene.language = "ja"
     scene._refresh_ui()
     check(scene.hint_label.text.begins_with("時間切れ"), "Japanese failure outranks stale trap")
+    scene.free()
+
+
+func test_tower_order_discoverability() -> void:
+    # Pure headless UI state checks; the real Label3D render remains a separate
+    # software-rendered/physical-Windows gate, not a human usability PASS.
+    var scene = MAIN.new()
+    scene.status_label = Label.new()
+    scene.scan_label = Label.new()
+    scene.hint_label = Label.new()
+    scene.restart_button = Button.new()
+    scene.pause_button = Button.new()
+    scene.language_button = Button.new()
+    for control in [scene.status_label, scene.scan_label, scene.hint_label,
+                    scene.restart_button, scene.pause_button, scene.language_button]:
+        scene.add_child(control)
+    scene._refresh_ui()
+    check(scene.status_label.text.contains("NEXT Tower 1"), "first-frame next tower number")
+    check(scene.hint_label.text.contains("1→2→3"), "first-frame tower order instructions")
+    check(scene._tower_marker_color(0) != scene._tower_marker_color(1),
+          "current tower must be visually distinguished from later towers")
+    scene.game.next_target = 1
+    scene._refresh_ui()
+    check(scene.status_label.text.contains("NEXT Tower 2"), "next target updates after tower 1")
+    check(scene._tower_marker_color(0) != scene._tower_marker_color(1),
+          "completed and current tower colors differ")
+    scene.language = "ja"
+    scene._refresh_ui()
+    check(scene.status_label.text.contains("次の塔 2"), "Japanese next tower state")
+    check(scene.hint_label.text.contains("1→2→3"), "Japanese tower order instructions")
+    scene.game.next_target = 3
+    scene.game.status = "won"
+    scene._refresh_ui()
+    check(scene.status_label.text.contains("次の塔 --"), "no next tower after completion")
     scene.free()
 
 func test_save() -> void:

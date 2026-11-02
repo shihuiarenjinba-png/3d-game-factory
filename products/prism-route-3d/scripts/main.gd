@@ -8,6 +8,7 @@ var language: String = "en"
 var best_seconds: float = -1.0
 var player_mesh: MeshInstance3D
 var targets: Array[MeshInstance3D] = []
+var tower_order_labels: Array[Label3D] = []
 var status_label: Label
 var hint_label: Label
 var restart_button: Button
@@ -109,9 +110,24 @@ func _build_world() -> void:
                 _box(pos + Vector3(0, 0.18, 0), Vector3(1.0, 0.08, 1.0), Color(0.55, 0.20, 0.72))
             if cell in LOGIC.BLOCKED:
                 _box(pos + Vector3(0, 0.55, 0), Vector3(0.85, 0.9, 0.85), Color(0.48, 0.16, 0.18))
-    for target in LOGIC.TARGETS:
+    for i in range(LOGIC.TARGETS.size()):
+        var target: Vector2i = LOGIC.TARGETS[i]
         var pos := Vector3(float(target.x - 2) * 1.3, 0.48, float(target.y - 2) * 1.3)
         targets.append(_box(pos, Vector3(0.55, 0.8, 0.55), Color(0.94, 0.73, 0.24)))
+        # World-space, camera-facing numerals make the required 1 -> 2 -> 3
+        # order visible without relying on HUD text or color perception.
+        var order_label := Label3D.new()
+        order_label.name = "TowerOrder%d" % (i + 1)
+        order_label.text = str(i + 1)
+        order_label.position = pos + Vector3(0, 0.93, 0)
+        order_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+        order_label.no_depth_test = true
+        order_label.font_size = 70
+        order_label.pixel_size = 0.009
+        order_label.outline_size = 12
+        order_label.modulate = Color(1, 0.94, 0.68)
+        add_child(order_label)
+        tower_order_labels.append(order_label)
     player_mesh = _box(Vector3(0, 0.53, 0), Vector3(0.7, 0.85, 0.7), Color(0.22, 0.84, 0.90))
     # One stationary elevated Sentinel. Its warning tiles are visible before firing.
     _box(Vector3(0.0, 1.85, 0.0), Vector3(0.62, 0.62, 0.62), Color(0.70, 0.33, 0.87))
@@ -125,10 +141,19 @@ func _build_world() -> void:
             scan_marker_directions.append(direction)
     _sync_scan_world()
 
+func _tower_marker_color(index: int) -> Color:
+    if index < game.next_target:
+        return Color(0.32, 0.93, 0.49)
+    if index == game.next_target:
+        return Color(0.29, 0.96, 1.0)
+    return Color(1.0, 0.85, 0.42)
+
 func _sync_world() -> void:
     player_mesh.position = Vector3(float(game.player.x - 2) * 1.3, 0.53, float(game.player.y - 2) * 1.3)
     for i in range(targets.size()):
         targets[i].material_override = _material(Color(0.17, 0.65, 0.32) if i < game.next_target else Color(0.95, 0.72, 0.17))
+        tower_order_labels[i].text = str(i + 1)
+        tower_order_labels[i].modulate = _tower_marker_color(i)
 
 func _sync_scan_world() -> void:
     var direction: int = game.scan_direction()
@@ -190,14 +215,15 @@ func _refresh_ui() -> void:
     if status_label == null:
         return
     var progress: String = "%d/3" % game.next_target
+    var next_tower: String = str(game.next_target + 1) if game.next_target < LOGIC.TARGETS.size() else "--"
     var best: String = "--" if best_seconds < 0.0 else "%.1fs" % best_seconds
     var remaining: int = int(ceil(game.remaining))
     var scan_direction_name: String = LOGIC.SCAN_DIRECTION_NAMES[game.scan_direction()]
     var scan_countdown: float = game.scan_seconds_until_change()
     if language == "ja":
-        status_label.text = "Prism Route 3D | 塔 %s | 残り %d秒 | 罠 %d | 最速 %s" % [progress, remaining, game.trap_hits, best]
+        status_label.text = "Prism Route 3D | 次の塔 %s | 完了 %s | 残り %d秒 | 最速 %s" % [next_tower, progress, remaining, best]
         scan_label.text = "Sentinel %s | %s %.1f秒 | 被弾 %d" % [scan_direction_name, "照射中・終了まで" if game.scan_active() else "予告・照射まで", scan_countdown, game.scan_hits]
-        hint_label.text = "WASD/矢印で移動。塔を順番に起動。橙=-15秒、紫=-8秒+中央転送。Sentinel予告帯から離れよう。"
+        hint_label.text = "頭上の番号 1→2→3 の順に塔へ。WASD/矢印で移動。橙=-15秒、紫=-8秒+転送。光るSentinel予告帯を避けよう。"
         # Current state must outrank a stale trap/scan event, otherwise pause
         # and completion can be invisible immediately after a penalty.
         if game.status == "won":
@@ -216,9 +242,9 @@ func _refresh_ui() -> void:
         restart_button.text = "再スタート (R)"
         language_button.text = "English (L)"
     else:
-        status_label.text = "Prism Route 3D | Towers %s | %ds left | Traps %d | Best %s" % [progress, remaining, game.trap_hits, best]
+        status_label.text = "Prism Route 3D | NEXT Tower %s | Done %s | %ds left | Best %s" % [next_tower, progress, remaining, best]
         scan_label.text = "Sentinel %s | %s %.1fs | Hits %d" % [scan_direction_name, "SCAN ends in" if game.scan_active() else "warning, fires in", scan_countdown, game.scan_hits]
-        hint_label.text = "Move: WASD/arrows. Activate towers in order. Orange=-15s, purple=-8s+warp. Avoid the warned Sentinel lane."
+        hint_label.text = "Follow tower numbers 1→2→3. WASD/arrows move. Orange=-15s, purple=-8s+warp. Avoid the glowing Sentinel warning lane."
         if game.status == "won":
             hint_label.text = "Route complete! Press R or Restart to play again."
         elif game.status == "failed":
