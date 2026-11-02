@@ -250,13 +250,19 @@ func test_first_run_orientation() -> void:
     for control in [scene.onboarding_title, scene.onboarding_details, scene.start_button]:
         scene.add_child(control)
     scene._refresh_onboarding()
-    check(scene.onboarding_details.text.contains("1 → 2 → 3") and scene.onboarding_details.text.contains("Yellow") and scene.onboarding_details.text.contains("Orange"),
-          "English guide explains goal, scan, and both trap types")
+    check(scene.onboarding_title.text.contains("1 → 2 → 3") and scene.onboarding_details.text.contains("YELLOW") and scene.onboarding_details.text.contains("ORANGE") and scene.onboarding_details.text.contains("PURPLE"),
+          "English guide prioritizes numbered goal, warning colors, and both trap types")
+    check(scene.onboarding_details.text.split("\n").size() == 4, "English first-run copy limited to four readable lines")
+    for line in scene.onboarding_details.text.split("\n"):
+        check(line.length() <= 65, "English first-run line too long at 1024x768")
     check(scene.start_button.text.contains("Enter"), "keyboard start discoverable")
     scene.language = "ja"
     scene._refresh_onboarding()
-    check(scene.onboarding_details.text.contains("1 → 2 → 3") and scene.onboarding_details.text.contains("黄色") and scene.onboarding_details.text.contains("橙"),
-          "Japanese guide explains goal, scan, and both trap types")
+    check(scene.onboarding_title.text.contains("1 → 2 → 3") and scene.onboarding_details.text.contains("黄色") and scene.onboarding_details.text.contains("赤") and scene.onboarding_details.text.contains("橙") and scene.onboarding_details.text.contains("紫"),
+          "Japanese guide prioritizes numbered goal, warning colors, and both trap types")
+    check(scene.onboarding_details.text.split("\n").size() == 4, "Japanese first-run copy limited to four readable lines")
+    for line in scene.onboarding_details.text.split("\n"):
+        check(line.length() <= 65, "Japanese first-run line too long at 1024x768")
     check(scene.start_button.text.contains("開始"), "Japanese start action discoverable")
     scene._start_run()
     check(not scene.onboarding_active, "Start dismisses guide")
