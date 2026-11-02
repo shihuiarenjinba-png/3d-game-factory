@@ -241,24 +241,48 @@ func _build_ui() -> void:
     onboarding_panel = PanelContainer.new()
     onboarding_panel.name = "FirstRunGuide"
     onboarding_panel.set_anchors_preset(Control.PRESET_CENTER)
-    onboarding_panel.offset_left = -310
-    onboarding_panel.offset_top = -165
-    onboarding_panel.offset_right = 310
-    onboarding_panel.offset_bottom = 165
+    onboarding_panel.offset_left = -335
+    onboarding_panel.offset_top = -185
+    onboarding_panel.offset_right = 335
+    onboarding_panel.offset_bottom = 185
+    var guide_style := StyleBoxFlat.new()
+    guide_style.bg_color = Color(0.07, 0.10, 0.14, 0.98)
+    guide_style.border_color = Color(0.26, 0.78, 0.90)
+    guide_style.set_border_width_all(2)
+    guide_style.set_corner_radius_all(12)
+    onboarding_panel.add_theme_stylebox_override("panel", guide_style)
     layer.add_child(onboarding_panel)
+    var guide_margin := MarginContainer.new()
+    guide_margin.add_theme_constant_override("margin_left", 24)
+    guide_margin.add_theme_constant_override("margin_right", 24)
+    guide_margin.add_theme_constant_override("margin_top", 20)
+    guide_margin.add_theme_constant_override("margin_bottom", 20)
+    onboarding_panel.add_child(guide_margin)
     var guide_stack := VBoxContainer.new()
     guide_stack.add_theme_constant_override("separation", 15)
-    onboarding_panel.add_child(guide_stack)
+    guide_margin.add_child(guide_stack)
     onboarding_title = Label.new()
     onboarding_title.add_theme_font_size_override("font_size", 24)
+    onboarding_title.add_theme_color_override("font_color", Color(0.97, 0.99, 1.0))
     onboarding_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     guide_stack.add_child(onboarding_title)
     onboarding_details = Label.new()
-    onboarding_details.add_theme_font_size_override("font_size", 18)
+    onboarding_details.add_theme_font_size_override("font_size", 19)
+    onboarding_details.add_theme_color_override("font_color", Color(0.95, 0.98, 1.0))
     onboarding_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     guide_stack.add_child(onboarding_details)
     start_button = Button.new()
-    start_button.custom_minimum_size = Vector2(220, 48)
+    start_button.custom_minimum_size = Vector2(220, 52)
+    start_button.add_theme_font_size_override("font_size", 20)
+    start_button.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0))
+    var start_style := StyleBoxFlat.new()
+    start_style.bg_color = Color(0.07, 0.48, 0.61)
+    start_style.set_corner_radius_all(8)
+    var hover_style := start_style.duplicate() as StyleBoxFlat
+    hover_style.bg_color = Color(0.11, 0.62, 0.73)
+    start_button.add_theme_stylebox_override("normal", start_style)
+    start_button.add_theme_stylebox_override("hover", hover_style)
+    start_button.add_theme_stylebox_override("pressed", hover_style)
     start_button.pressed.connect(_start_run)
     guide_stack.add_child(start_button)
 
