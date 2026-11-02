@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.prism_consumer_pck_audit import PckAuditError, audit, parse_pck
 
 SHA = "a" * 40
-BRANCH = "codex/prism-sentinel-consumer-pck-20261102"
+BRANCH = "codex/prism-consumer-jp-font-20261102"
 EXE = b"MZ" + b"x" * 2048
 
 
@@ -44,7 +44,9 @@ def evidence(pck):
 
 CLEAN = [("res://scripts/main.gdc", b"main"),
          ("res://scripts/game_logic.gdc", b"logic"),
-         ("res://scenes/main.tscn", b"scene")]
+         ("res://scenes/main.tscn", b"scene"),
+         ("res://assets/fonts/NotoSansJP.ttf.remap", b"font"),
+         ("res://assets/fonts/OFL.txt", b"license")]
 
 
 class PckGateTests(unittest.TestCase):
@@ -54,6 +56,14 @@ class PckGateTests(unittest.TestCase):
         self.assertEqual(result["status"], "PCK_CONTENT_CLEAN_QA_ONLY")
         self.assertFalse(result["sale_ready"])
         self.assertEqual(result["official_identity_cas"], "HOLD")
+
+    def test_font_and_license_missing_must_hold(self):
+        for missing in ("res://assets/fonts/NotoSansJP.ttf.remap",
+                        "res://assets/fonts/OFL.txt"):
+            with self.subTest(missing=missing):
+                pck = pack([(name, payload) for name, payload in CLEAN if name != missing])
+                with self.assertRaisesRegex(PckAuditError, "RELEASE_JP_FONT"):
+                    audit(EXE, pck, evidence(pck), SHA, BRANCH)
 
     def test_forbidden_internal_payloads(self):
         for name in ("res://store/approved-identity.json",

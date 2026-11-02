@@ -211,6 +211,17 @@ func _build_ui() -> void:
     hint_label.add_theme_font_size_override("font_size", 17)
     bottom.add_child(hint_label)
 
+    # Font bytes and OFL notice are pinned and embedded at export time.
+    # No font download or system-installed Japanese font is needed at runtime.
+    var consumer_font := load("res://assets/fonts/NotoSansJP.ttf") as Font
+    if consumer_font == null or not consumer_font.has_char(0x65E5):
+        push_error("RELEASE_JP_FONT_MISSING: refuse consumer GUI promotion")
+    else:
+        var consumer_theme := Theme.new()
+        consumer_theme.default_font = consumer_font
+        top.theme = consumer_theme
+        bottom.theme = consumer_theme
+
 func _refresh_ui() -> void:
     if status_label == null:
         return

@@ -90,7 +90,7 @@ def forbidden(name: str) -> bool:
 def audit(exe: bytes, pck: bytes, evidence: dict, source: str, branch: str) -> dict:
     require(len(source) == 40 and all(c in "0123456789abcdef" for c in source),
             "source SHA invalid")
-    require(branch == "codex/prism-sentinel-consumer-pck-20261102",
+    require(branch == "codex/prism-consumer-jp-font-20261102",
             "unexpected consumer revision branch")
     request = "3d-prism-route-3d-" + source[:12]
     require(evidence.get("source_sha") == source and
@@ -110,6 +110,10 @@ def audit(exe: bytes, pck: bytes, evidence: dict, source: str, branch: str) -> d
             "main gameplay script missing from PCK")
     require(any(p.startswith("res://scripts/game_logic.") for p in paths),
             "game logic script missing from PCK")
+    require(any("res://assets/fonts/NotoSansJP.ttf" in p for p in paths),
+            "RELEASE_JP_FONT_MISSING: Japanese font absent from real PCK")
+    require("res://assets/fonts/OFL.txt" in paths,
+            "RELEASE_JP_FONT_LICENSE_MISSING: OFL notice absent from real PCK")
     return {
         "schema_version": 1,
         "receipt_type": "PRISM_CONSUMER_NEW_REVISION_REAL_EXPORT_PCK_AUDIT",
