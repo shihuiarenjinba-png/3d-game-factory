@@ -353,6 +353,20 @@ func _start_run() -> void:
         onboarding_panel.hide()
     _refresh_ui()
 
+func _failure_hint(locale: String) -> String:
+    # The final cause is immutable once failed. A stale last_event must not
+    # mislabel an ordinary timeout as a trap or Sentinel penalty.
+    match game.failure_reason:
+        "trap":
+            return "罠で時間切れ。橙・紫のマスを避けて再挑戦。" if locale == "ja" else "Trap drained the clock. Avoid orange/purple tiles; retry."
+        "sentinel":
+            return "Sentinel照射で時間切れ。予告帯を避けて再挑戦。" if locale == "ja" else "Sentinel scan ended the run. Avoid the warning lane; retry."
+        "timeout":
+            return "時間切れ。塔1→2→3の順に急いで再挑戦。" if locale == "ja" else "Time up. Reach towers 1→2→3 faster; retry."
+        _:
+            # Unknown reason: fail closed rather than invent a cause.
+            return "失敗しました。再スタートで再挑戦。" if locale == "ja" else "Run ended. Press Restart to retry."
+
 func _refresh_ui() -> void:
     _refresh_onboarding()
     if status_label == null:
@@ -372,7 +386,7 @@ func _refresh_ui() -> void:
         if game.status == "won":
             hint_label.text = "クリア！ R または再スタートで再挑戦できます。"
         elif game.status == "failed":
-            hint_label.text = "時間切れ。罠を避けるルートを考えて再挑戦。"
+            hint_label.text = _failure_hint("ja")
         elif game.paused:
             hint_label.text = "一時停止中。P または再開ボタンで続行。"
         elif game.last_event == "sentinel_scan":
@@ -391,7 +405,7 @@ func _refresh_ui() -> void:
         if game.status == "won":
             hint_label.text = "Route complete! Press R or Restart to play again."
         elif game.status == "failed":
-            hint_label.text = "Time up. Plan a safer route and try again."
+            hint_label.text = _failure_hint("en")
         elif game.paused:
             hint_label.text = "Paused. Press P or Resume to continue."
         elif game.last_event == "sentinel_scan":
