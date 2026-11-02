@@ -366,7 +366,7 @@ func _refresh_ui() -> void:
     if language == "ja":
         status_label.text = "Prism Route 3D | 次の塔 %s | 完了 %s | 残り %d秒 | 最速 %s" % [next_tower, progress, remaining, best]
         scan_label.text = "Sentinel %s | %s %.1f秒 | 被弾 %d" % [scan_direction_name, "照射中・終了まで" if game.scan_active() else "予告・照射まで", scan_countdown, game.scan_hits]
-        hint_label.text = "頭上の番号 1→2→3 の順に塔へ。WASD/矢印で移動。橙=-15秒、紫=-8秒+転送。光るSentinel予告帯を避けよう。"
+        hint_label.text = "塔1→2→3へ。WASD/矢印で移動。橙=-15秒、紫=-8秒+転送。光る帯を避けよう。"
         # Current state must outrank a stale trap/scan event, otherwise pause
         # and completion can be invisible immediately after a penalty.
         if game.status == "won":
@@ -387,7 +387,7 @@ func _refresh_ui() -> void:
     else:
         status_label.text = "Prism Route 3D | NEXT Tower %s | Done %s | %ds left | Best %s" % [next_tower, progress, remaining, best]
         scan_label.text = "Sentinel %s | %s %.1fs | Hits %d" % [scan_direction_name, "SCAN ends in" if game.scan_active() else "warning, fires in", scan_countdown, game.scan_hits]
-        hint_label.text = "Follow tower numbers 1→2→3. WASD/arrows move. Orange=-15s, purple=-8s+warp. Avoid the glowing Sentinel warning lane."
+        hint_label.text = "Towers 1→2→3. Move: WASD/arrows. Orange -15s; purple -8s + warp. Avoid Sentinel's glow."
         if game.status == "won":
             hint_label.text = "Route complete! Press R or Restart to play again."
         elif game.status == "failed":
