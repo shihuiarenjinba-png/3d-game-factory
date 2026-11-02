@@ -262,12 +262,12 @@ func _build_ui() -> void:
     guide_stack.add_theme_constant_override("separation", 15)
     guide_margin.add_child(guide_stack)
     onboarding_title = Label.new()
-    onboarding_title.add_theme_font_size_override("font_size", 24)
+    onboarding_title.add_theme_font_size_override("font_size", 26)
     onboarding_title.add_theme_color_override("font_color", Color(0.97, 0.99, 1.0))
     onboarding_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     guide_stack.add_child(onboarding_title)
     onboarding_details = Label.new()
-    onboarding_details.add_theme_font_size_override("font_size", 19)
+    onboarding_details.add_theme_font_size_override("font_size", 21)
     onboarding_details.add_theme_color_override("font_color", Color(0.95, 0.98, 1.0))
     onboarding_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     guide_stack.add_child(onboarding_details)
@@ -302,13 +302,15 @@ func _build_ui() -> void:
 func _refresh_onboarding() -> void:
     if onboarding_title == null:
         return
+    # First-time readers need the action and color legend, not every penalty.
+    # Full time/warp costs remain in the in-game hint and event feedback.
     if language == "ja":
-        onboarding_title.text = "90秒で3つの塔を起動！"
-        onboarding_details.text = "目的：塔の番号 1 → 2 → 3 の順に到達。\n操作：WASD / 矢印キーで移動。\nSentinel：黄色は予告、赤は照射（被弾で6秒減）。\n罠：橙は15秒減、紫は8秒減＋中央へ転送。\n準備ができたら開始。時計は開始まで止まります。"
+        onboarding_title.text = "塔を 1 → 2 → 3 の順に起動"
+        onboarding_details.text = "移動：WASD / 矢印キー。番号順に塔へ。\n黄色の帯は予告、赤は照射中。光る帯を避けよう。\n橙・紫の床は罠。時間が減るので迂回しよう。\n開始を押すまで90秒タイマーは止まります。"
         start_button.text = "ゲーム開始 (Enter)"
     else:
-        onboarding_title.text = "Activate 3 towers in 90 seconds!"
-        onboarding_details.text = "GOAL: Reach towers 1 → 2 → 3 in order.\nMOVE: WASD or arrow keys.\nSENTINEL: Yellow warns; red scans (hit costs 6s).\nTRAPS: Orange costs 15s; purple costs 8s + warp.\nPress Start when ready. The clock waits for you."
+        onboarding_title.text = "Activate towers 1 → 2 → 3"
+        onboarding_details.text = "MOVE: WASD / arrows. Reach towers in number order.\nYELLOW warns; RED scans. Avoid the glowing lane.\nORANGE / PURPLE tiles are traps. Choose a safe route.\nYour 90-second clock starts only when you press Start."
         start_button.text = "Start Game (Enter)"
 
 func _start_run() -> void:
