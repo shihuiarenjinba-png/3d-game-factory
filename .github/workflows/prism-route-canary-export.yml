@@ -13,6 +13,7 @@ on:
       - codex/prism-hud-contrast-20261102
   pull_request:
     branches:
+      - codex/prism-first30s-clarity-20261102
       - codex/prism-route-trap-tension-20261029
       - codex/prism-sentinel-consumer-pck-20261102
       - codex/prism-consumer-jp-font-20261102
