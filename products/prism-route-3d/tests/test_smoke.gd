@@ -241,6 +241,10 @@ func test_failure_reason_guidance() -> void:
     scene._refresh_ui()
     check(scene.hint_label.text.begins_with("失敗しました"),
           "unknown Japanese cause stays neutral")
+    # The headless test has no 3D scene; provide the minimal player mesh that
+    # _restart uses when synchronizing world state.
+    scene.player_mesh = MeshInstance3D.new()
+    scene.add_child(scene.player_mesh)
     scene._restart()
     check(scene.game.status == "playing" and scene.game.failure_reason.is_empty()
           and scene.game.remaining == 90.0,
