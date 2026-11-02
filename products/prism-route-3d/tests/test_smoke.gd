@@ -17,6 +17,7 @@ func _initialize() -> void:
     test_focus_pause()
     test_ui_state_priority()
     test_tower_order_discoverability()
+    test_board_visibility_contract()
     print("PASS: Prism Route 3D gameplay, visible traps, telegraphed Sentinel, pause, win, timeout, restart, corrupt/empty save, focus-loss pause, EN/JA")
     quit(0)
 
@@ -215,3 +216,22 @@ func test_save() -> void:
     check(not SAVE.save_data(path, -4.0, "en"), "invalid best")
     check(not SAVE.save_data(path, 10.0, "xx"), "invalid language")
     DirAccess.remove_absolute(absolute)
+
+func test_board_visibility_contract() -> void:
+    # Source-level framing guard only. Real exported PCK screenshot and
+    # physical Windows 125%/150% DPI remain independent release gates.
+    var camera_distance: float = MAIN.BOARD_CAMERA_POSITION.length()
+    check(camera_distance > 8.5 and camera_distance < 10.0,
+          "camera must fill more of the 1024x768 play area without clipping HUD")
+    check(MAIN.BOARD_CAMERA_FOV >= 70.0 and MAIN.BOARD_CAMERA_FOV <= 73.0,
+          "consumer camera field of view pinned")
+    var scene = MAIN.new()
+    var warning: Color = scene._scan_marker_color()
+    check(warning.g > 0.85 and warning.b < 0.4 and warning.a >= 0.7,
+          "Sentinel warning is bright yellow, not orange time-trap color")
+    scene.game.tick(4.1)
+    var active: Color = scene._scan_marker_color()
+    check(active.r > 0.9 and active.g < 0.3 and active.a >= 0.8,
+          "active scan must be clearly red and more opaque than warning")
+    check(active != warning, "warning and active scan colors differ")
+    scene.free()

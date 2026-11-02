@@ -3,6 +3,10 @@ extends Node3D
 const LOGIC = preload("res://scripts/game_logic.gd")
 const SAVE = preload("res://scripts/save_store.gd")
 const SAVE_PATH = "user://prism_route_progress.cfg"
+# The previous camera (6.5, 9, 8) made the 5x5 route only ~330px wide at
+# 1024x768. This framing targets ~500px while preserving HUD clearance.
+const BOARD_CAMERA_POSITION = Vector3(4.5, 6.2, 5.5)
+const BOARD_CAMERA_FOV = 72.0
 var game = LOGIC.new()
 var language: String = "en"
 var best_seconds: float = -1.0
@@ -91,7 +95,9 @@ func _box(pos: Vector3, size: Vector3, color: Color) -> MeshInstance3D:
 
 func _build_world() -> void:
     var camera := Camera3D.new()
-    camera.position = Vector3(6.5, 9.0, 8.0)
+    camera.name = "GameplayCamera"
+    camera.position = BOARD_CAMERA_POSITION
+    camera.fov = BOARD_CAMERA_FOV
     add_child(camera)
     camera.look_at(Vector3.ZERO, Vector3.UP)
     camera.current = true
@@ -155,9 +161,14 @@ func _sync_world() -> void:
         tower_order_labels[i].text = str(i + 1)
         tower_order_labels[i].modulate = _tower_marker_color(i)
 
+func _scan_marker_color() -> Color:
+    # Yellow telegraph is distinguishable from orange time traps; active
+    # crimson scan is distinguishable from both. No random instant damage.
+    return Color(1.0, 0.19, 0.24, 0.85) if game.scan_active() else Color(1.0, 0.94, 0.22, 0.76)
+
 func _sync_scan_world() -> void:
     var direction: int = game.scan_direction()
-    var beam_color := Color(1.0, 0.19, 0.24, 0.72) if game.scan_active() else Color(1.0, 0.69, 0.15, 0.58)
+    var beam_color := _scan_marker_color()
     for i in range(scan_markers.size()):
         scan_markers[i].visible = scan_marker_directions[i] == direction and game.status == "playing"
         if scan_markers[i].visible:

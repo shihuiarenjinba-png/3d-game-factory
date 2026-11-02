@@ -15,10 +15,10 @@
   "telemetry": false,
   "in_app_purchase": false,
   "network_required": false,
-  "status": "CANDIDATE_PENDING_JP_FONT_REAL_PCK_AND_GUI_QA",
+  "status": "CANDIDATE_PENDING_REAL_PCK_BOARD_VISIBILITY_AND_GUI_QA",
   "second_3d_product_allowed": false,
   "local_gate": "DEFERRED_LOCAL_GATE",
-  "gameplay_revision": "SENTINEL_CONSUMER_EMBEDDED_JP_FONT",
+  "gameplay_revision": "SENTINEL_CONSUMER_JP_FONT_BOARD_FRAMING",
   "identity_reuse_base_source_sha": "15fdcb52e46e35e6de8e87c55af99719c21e09b9",
   "new_revision_identity_binding": "PENDING_INDEPENDENT_VERIFICATION",
   "package_version_gate": "HOLD",
@@ -28,5 +28,14 @@
   "consumer_font_gate": "REQUIRES_CURRENT_RUN_GODOT_GLYPH_AND_PCK_AUDIT",
   "font_license": "SIL_OPEN_FONT_LICENSE_1_1",
   "font_source_commit": "295d98a7a0c17c68f1341eaeea354e7960ea70d3",
-  "previous_consumer_source_sha": "da6f7c129687922c58c43496da4667ecef903e17"
+  "previous_consumer_source_sha": "da6f7c129687922c58c43496da4667ecef903e17",
+  "previous_jp_font_source_sha": "dc2235a481b50ffe77a20c07bc7fdf46b023236e",
+  "board_visibility_gate": "REQUIRES_CURRENT_RUN_REAL_PCK_SCREENSHOT_AND_PHYSICAL_WINDOWS_QA",
+  "board_camera_position": [
+    4.5,
+    6.2,
+    5.5
+  ],
+  "board_camera_fov": 72,
+  "sentinel_warning_color": "YELLOW_TELEGRAPH_RED_ACTIVE"
 }
