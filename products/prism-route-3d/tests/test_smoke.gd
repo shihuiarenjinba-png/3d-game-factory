@@ -18,6 +18,7 @@ func _initialize() -> void:
     test_ui_state_priority()
     test_tower_order_discoverability()
     test_board_visibility_contract()
+    test_first_run_orientation()
     print("PASS: Prism Route 3D gameplay, visible traps, telegraphed Sentinel, pause, win, timeout, restart, corrupt/empty save, focus-loss pause, EN/JA")
     quit(0)
 
@@ -234,4 +235,34 @@ func test_board_visibility_contract() -> void:
     check(active.r > 0.9 and active.g < 0.3 and active.a >= 0.8,
           "active scan must be clearly red and more opaque than warning")
     check(active != warning, "warning and active scan colors differ")
+    scene.free()
+
+func test_first_run_orientation() -> void:
+    # This is a source/headless contract, not a human first-30s usability pass.
+    var scene = MAIN.new()
+    check(scene.onboarding_active, "first-run guide visible before the 90s clock")
+    scene._process(30.0)
+    check(scene.game.remaining == 90.0 and scene.game.scan_elapsed == 0.0,
+          "reading the guide never consumes time or advances Sentinel")
+    scene.onboarding_title = Label.new()
+    scene.onboarding_details = Label.new()
+    scene.start_button = Button.new()
+    for control in [scene.onboarding_title, scene.onboarding_details, scene.start_button]:
+        scene.add_child(control)
+    scene._refresh_onboarding()
+    check(scene.onboarding_details.text.contains("1 → 2 → 3") and scene.onboarding_details.text.contains("Yellow") and scene.onboarding_details.text.contains("Orange"),
+          "English guide explains goal, scan, and both trap types")
+    check(scene.start_button.text.contains("Enter"), "keyboard start discoverable")
+    scene.language = "ja"
+    scene._refresh_onboarding()
+    check(scene.onboarding_details.text.contains("1 → 2 → 3") and scene.onboarding_details.text.contains("黄色") and scene.onboarding_details.text.contains("橙"),
+          "Japanese guide explains goal, scan, and both trap types")
+    check(scene.start_button.text.contains("開始"), "Japanese start action discoverable")
+    scene._start_run()
+    check(not scene.onboarding_active, "Start dismisses guide")
+    scene._process(1.0)
+    check(scene.game.remaining < 90.0 and scene.game.scan_elapsed > 0.0,
+          "90s clock and scan resume only after Start")
+    scene._start_run()
+    check(not scene.onboarding_active, "duplicate Start is idempotent")
     scene.free()
