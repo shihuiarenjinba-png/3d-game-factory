@@ -15,10 +15,10 @@
   "telemetry": false,
   "in_app_purchase": false,
   "network_required": false,
-  "status": "CANDIDATE_PENDING_REAL_PCK_BOARD_VISIBILITY_AND_GUI_QA",
+  "status": "CANDIDATE_PENDING_CURRENT_RUN_REAL_PCK_FIRST30S_AND_GUI_QA",
   "second_3d_product_allowed": false,
   "local_gate": "DEFERRED_LOCAL_GATE",
-  "gameplay_revision": "SENTINEL_CONSUMER_JP_FONT_BOARD_FRAMING",
+  "gameplay_revision": "SENTINEL_FIRST30S_ONBOARDING",
   "identity_reuse_base_source_sha": "15fdcb52e46e35e6de8e87c55af99719c21e09b9",
   "new_revision_identity_binding": "PENDING_INDEPENDENT_VERIFICATION",
   "package_version_gate": "HOLD",
@@ -37,5 +37,9 @@
     5.5
   ],
   "board_camera_fov": 72,
-  "sentinel_warning_color": "YELLOW_TELEGRAPH_RED_ACTIVE"
+  "sentinel_warning_color": "YELLOW_TELEGRAPH_RED_ACTIVE",
+  "first_run_orientation_gate": "REQUIRES_CURRENT_RUN_REAL_PCK_EN_JA_SCREENSHOTS_AND_HEADLESS_90S",
+  "first_run_timer_policy": "PAUSED_UNTIL_START",
+  "previous_board_source_sha": "9a73d0d56427b70fc0e0eba705a6be3e71c59390",
+  "consumer_readability_gate": "PHYSICAL_WINDOWS_FIRST30S_HUMAN_QA_HOLD"
 }
