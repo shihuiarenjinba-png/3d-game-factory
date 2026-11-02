@@ -138,7 +138,7 @@ def main() -> int:
             require(path.is_file() and not path.is_symlink(), "missing or symlinked export input")
         result = audit(args.exe.read_bytes(), args.pck.read_bytes(),
                        json.loads(args.evidence.read_text(encoding="utf-8")),
-                       os.environ["GITHUB_SHA"], os.environ["GITHUB_REF_NAME"])
+                       os.environ["SOURCE_SHA"], os.environ["SOURCE_BRANCH"])
         status = 0
     except (OSError, ValueError, TypeError, KeyError) as exc:
         result = {"status": "RELEASE_PCK_CONTENT_HOLD", "reason": str(exc)[:400],
