@@ -7,6 +7,10 @@ const SAVE_PATH = "user://prism_route_progress.cfg"
 # 1024x768. This framing targets ~500px while preserving HUD clearance.
 const BOARD_CAMERA_POSITION = Vector3(4.5, 6.2, 5.5)
 const BOARD_CAMERA_FOV = 72.0
+# High-contrast, larger type for the always-visible top/bottom gameplay HUD.
+const HUD_TEXT_COLOR = Color(0.97, 0.99, 1.0)
+const HUD_PANEL_COLOR = Color(0.055, 0.085, 0.12, 0.97)
+const HUD_BORDER_COLOR = Color(0.25, 0.70, 0.82)
 var game = LOGIC.new()
 var language: String = "en"
 var best_seconds: float = -1.0
@@ -188,6 +192,26 @@ func _sync_scan_world() -> void:
         if scan_markers[i].visible:
             scan_markers[i].material_override.albedo_color = beam_color
 
+func _style_gameplay_hud_panel(panel: PanelContainer) -> void:
+    var style := StyleBoxFlat.new()
+    style.bg_color = HUD_PANEL_COLOR
+    style.border_color = HUD_BORDER_COLOR
+    style.set_border_width_all(1)
+    style.set_corner_radius_all(5)
+    panel.add_theme_stylebox_override("panel", style)
+
+func _style_gameplay_hud_button(button: Button) -> void:
+    button.add_theme_font_size_override("font_size", 19)
+    button.add_theme_color_override("font_color", HUD_TEXT_COLOR)
+    var normal := StyleBoxFlat.new()
+    normal.bg_color = Color(0.13, 0.23, 0.31, 1.0)
+    normal.set_corner_radius_all(5)
+    button.add_theme_stylebox_override("normal", normal)
+    var hover := normal.duplicate() as StyleBoxFlat
+    hover.bg_color = Color(0.19, 0.35, 0.44, 1.0)
+    button.add_theme_stylebox_override("hover", hover)
+    button.add_theme_stylebox_override("pressed", hover)
+
 func _build_ui() -> void:
     var layer := CanvasLayer.new()
     add_child(layer)
@@ -198,14 +222,17 @@ func _build_ui() -> void:
     top.offset_right = -16
     top.offset_bottom = 164
     layer.add_child(top)
+    _style_gameplay_hud_panel(top)
     var stack := VBoxContainer.new()
     stack.add_theme_constant_override("separation", 8)
     top.add_child(stack)
     status_label = Label.new()
-    status_label.add_theme_font_size_override("font_size", 19)
+    status_label.add_theme_font_size_override("font_size", 22)
+    status_label.add_theme_color_override("font_color", HUD_TEXT_COLOR)
     stack.add_child(status_label)
     scan_label = Label.new()
-    scan_label.add_theme_font_size_override("font_size", 16)
+    scan_label.add_theme_font_size_override("font_size", 19)
+    scan_label.add_theme_color_override("font_color", HUD_TEXT_COLOR)
     stack.add_child(scan_label)
     var buttons := HBoxContainer.new()
     buttons.add_theme_constant_override("separation", 12)
@@ -213,14 +240,17 @@ func _build_ui() -> void:
     restart_button = Button.new()
     restart_button.custom_minimum_size = Vector2(155, 42)
     restart_button.pressed.connect(_restart)
+    _style_gameplay_hud_button(restart_button)
     buttons.add_child(restart_button)
     pause_button = Button.new()
     pause_button.custom_minimum_size = Vector2(155, 42)
     pause_button.pressed.connect(_toggle_pause)
+    _style_gameplay_hud_button(pause_button)
     buttons.add_child(pause_button)
     language_button = Button.new()
     language_button.custom_minimum_size = Vector2(155, 42)
     language_button.pressed.connect(_toggle_language)
+    _style_gameplay_hud_button(language_button)
     buttons.add_child(language_button)
     var bottom := PanelContainer.new()
     bottom.anchor_top = 1.0
@@ -231,9 +261,11 @@ func _build_ui() -> void:
     bottom.offset_top = -96
     bottom.offset_bottom = -12
     layer.add_child(bottom)
+    _style_gameplay_hud_panel(bottom)
     hint_label = Label.new()
     hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-    hint_label.add_theme_font_size_override("font_size", 17)
+    hint_label.add_theme_font_size_override("font_size", 20)
+    hint_label.add_theme_color_override("font_color", HUD_TEXT_COLOR)
     bottom.add_child(hint_label)
 
     # Deliberate, bilingual first-30-second orientation: no clock pressure

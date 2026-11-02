@@ -18,6 +18,7 @@ func _initialize() -> void:
     test_ui_state_priority()
     test_tower_order_discoverability()
     test_board_visibility_contract()
+    test_hud_readability_contract()
     test_first_run_orientation()
     print("PASS: Prism Route 3D gameplay, visible traps, telegraphed Sentinel, pause, win, timeout, restart, corrupt/empty save, focus-loss pause, EN/JA")
     quit(0)
@@ -235,6 +236,30 @@ func test_board_visibility_contract() -> void:
     check(active.r > 0.9 and active.g < 0.3 and active.a >= 0.8,
           "active scan must be clearly red and more opaque than warning")
     check(active != warning, "warning and active scan colors differ")
+    scene.free()
+
+func hud_has_sufficient_contrast(text_color: Color, panel_color: Color) -> bool:
+    return text_color.get_luminance() - panel_color.get_luminance() >= 0.70
+
+func test_hud_readability_contract() -> void:
+    # Source/headless regression; actual 1024x768 PCK frames and physical DPI
+    # must be separately reviewed. This is not human legibility evidence.
+    check(hud_has_sufficient_contrast(MAIN.HUD_TEXT_COLOR, MAIN.HUD_PANEL_COLOR),
+          "gameplay HUD white text contrasts with dark opaque panel")
+    check(not hud_has_sufficient_contrast(Color(0.5, 0.5, 0.5), Color(0.25, 0.25, 0.25)),
+          "reject low-contrast gray-on-gray HUD regression")
+    var scene = MAIN.new()
+    var panel := PanelContainer.new()
+    var button := Button.new()
+    scene.add_child(panel)
+    scene.add_child(button)
+    scene._style_gameplay_hud_panel(panel)
+    scene._style_gameplay_hud_button(button)
+    var style := panel.get_theme_stylebox("panel") as StyleBoxFlat
+    check(style != null and style.bg_color == MAIN.HUD_PANEL_COLOR,
+          "HUD panel uses opaque high-contrast background")
+    check(button.get_theme_font_size("font_size") >= 19,
+          "HUD controls must have legible minimum font size")
     scene.free()
 
 func guide_copy_within_budget(copy: String) -> bool:
