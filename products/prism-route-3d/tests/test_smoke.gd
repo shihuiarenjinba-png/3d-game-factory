@@ -16,6 +16,7 @@ func _initialize() -> void:
     test_save()
     test_focus_pause()
     test_ui_state_priority()
+    test_failure_reason_guidance()
     test_tower_order_discoverability()
     test_board_visibility_contract()
     test_hud_readability_contract()
@@ -157,11 +158,97 @@ func test_ui_state_priority() -> void:
     scene._refresh_ui()
     check(scene.hint_label.text.begins_with("Route complete!"), "English win outranks stale trap")
     scene.game.status = "failed"
+    scene.game.failure_reason = "timeout"
     scene._refresh_ui()
     check(scene.hint_label.text.begins_with("Time up."), "English failure outranks stale trap")
     scene.language = "ja"
     scene._refresh_ui()
     check(scene.hint_label.text.begins_with("時間切れ"), "Japanese failure outranks stale trap")
+    scene.free()
+
+
+func test_failure_reason_guidance() -> void:
+    # Source/headless UI assertions. Real exported PCK screenshots are a
+    # separate gate; this is not physical Windows or human play evidence.
+    var scene = MAIN.new()
+    scene.status_label = Label.new()
+    scene.scan_label = Label.new()
+    scene.hint_label = Label.new()
+    scene.restart_button = Button.new()
+    scene.pause_button = Button.new()
+    scene.language_button = Button.new()
+    for control in [scene.status_label, scene.scan_label, scene.hint_label,
+                    scene.restart_button, scene.pause_button, scene.language_button]:
+        scene.add_child(control)
+
+    # No trap was hit: stale trap telemetry must not turn timeout into trap advice.
+    scene.game.last_event = "time_trap"
+    scene.game.tick(91.0)
+    check(scene.game.status == "failed" and scene.game.failure_reason == "timeout",
+          "natural timeout is terminally classified, even with stale trap event")
+    scene.language = "en"
+    scene._refresh_ui()
+    check(scene.hint_label.text.contains("Time up.") and scene.hint_label.text.contains("1→2→3")
+          and not scene.hint_label.text.contains("Trap"),
+          "English pure timeout advises tower order, never trap")
+    scene.language = "ja"
+    scene._refresh_ui()
+    check(scene.hint_label.text.contains("時間切れ") and scene.hint_label.text.contains("塔1→2→3")
+          and not scene.hint_label.text.contains("罠"),
+          "Japanese pure timeout advises tower order, never trap")
+
+    # A trap itself exhausts the clock: show specific trap advice in both locales.
+    scene.game.reset()
+    check(scene.game.failure_reason.is_empty(), "restart clears terminal cause")
+    scene.game.remaining = 10.0
+    check(scene.game.move(Vector2i(0, -1)) and scene.game.move(Vector2i(0, -1)),
+          "reach orange time trap")
+    check(scene.game.status == "failed" and scene.game.failure_reason == "trap",
+          "trap exhaustion is terminally classified")
+    scene.language = "ja"
+    scene._refresh_ui()
+    check(scene.hint_label.text.contains("罠") and scene.hint_label.text.contains("橙"),
+          "Japanese trap defeat identifies dangerous tile")
+    scene.language = "en"
+    scene._refresh_ui()
+    check(scene.hint_label.text.contains("Trap") and scene.hint_label.text.contains("orange"),
+          "English trap defeat identifies dangerous tile")
+
+    # Sentinel scan can also exhaust the clock; do not falsely blame a trap.
+    scene.game.reset()
+    scene.game.remaining = 5.0
+    check(scene.game.move(Vector2i(0, -1)), "enter north scan lane")
+    scene.game.tick(4.1)
+    check(scene.game.status == "failed" and scene.game.failure_reason == "sentinel",
+          "Sentinel exhaustion has its own terminal cause")
+    scene.language = "ja"
+    scene._refresh_ui()
+    check(scene.hint_label.text.contains("Sentinel") and scene.hint_label.text.contains("予告帯"),
+          "Japanese Sentinel failure identifies warning lane")
+    scene.language = "en"
+    scene._refresh_ui()
+    check(scene.hint_label.text.contains("Sentinel") and scene.hint_label.text.contains("warning"),
+          "English Sentinel failure identifies warning lane")
+
+    # A malformed/unknown terminal state cannot invent a trap or timeout.
+    scene.game.reset()
+    scene.game.status = "failed"
+    scene.language = "en"
+    scene._refresh_ui()
+    check(scene.hint_label.text.begins_with("Run ended."),
+          "unknown English cause stays neutral")
+    scene.language = "ja"
+    scene._refresh_ui()
+    check(scene.hint_label.text.begins_with("失敗しました"),
+          "unknown Japanese cause stays neutral")
+    # The headless test has no 3D scene; provide the minimal player mesh that
+    # _restart uses when synchronizing world state.
+    scene.player_mesh = MeshInstance3D.new()
+    scene.add_child(scene.player_mesh)
+    scene._restart()
+    check(scene.game.status == "playing" and scene.game.failure_reason.is_empty()
+          and scene.game.remaining == 90.0,
+          "retry restores full clock and clears cause")
     scene.free()
 
 

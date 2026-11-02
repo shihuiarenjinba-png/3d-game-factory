@@ -23,6 +23,8 @@ var status: String = "playing"
 var paused: bool = false
 var trap_hits: int = 0
 var last_event: String = ""
+# Set only on terminal failure; last_event can be stale after a trap.
+var failure_reason: String = ""
 var triggered_time_traps: Array[Vector2i] = []
 var scan_elapsed: float = 0.0
 var scan_hits: int = 0
@@ -36,6 +38,7 @@ func reset() -> void:
     paused = false
     trap_hits = 0
     last_event = ""
+    failure_reason = ""
     triggered_time_traps.clear()
     scan_elapsed = 0.0
     scan_hits = 0
@@ -74,6 +77,7 @@ func _apply_trap() -> void:
 
     if remaining <= 0.0:
         status = "failed"
+        failure_reason = "trap"
 
 func scan_direction() -> int:
     return int(floor(scan_elapsed / SCAN_CYCLE_SECONDS)) % 4
@@ -105,6 +109,7 @@ func tick(seconds: float) -> void:
     remaining = maxf(0.0, remaining - seconds)
     if remaining <= 0.0:
         status = "failed"
+        failure_reason = "timeout"
         return
     # A stalled frame can cross an entire two-second scan. Check every
     # active interval intersected by the tick, not only the ending phase.
@@ -126,6 +131,7 @@ func tick(seconds: float) -> void:
         last_event = "sentinel_scan"
         if remaining <= 0.0:
             status = "failed"
+            failure_reason = "sentinel"
             break
 
 func toggle_pause() -> void:
