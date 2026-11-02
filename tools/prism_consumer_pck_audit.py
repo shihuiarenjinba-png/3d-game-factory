@@ -53,11 +53,11 @@ def parse_pck(data: bytes) -> list[str]:
         pos += 4
         require(0 < size <= MAX_PATH and pos + size + 36 <= base, "PCK path bounds invalid")
         try:
-            name = data[pos:pos + size].rstrip(b"\\0").decode("utf-8", "strict")
+            name = data[pos:pos + size].rstrip(b"\0").decode("utf-8", "strict")
         except UnicodeError as exc:
             raise PckAuditError("PCK path encoding invalid") from exc
         pos += size
-        require(name.startswith("res://") and "\\\\" not in name and
+        require(name.startswith("res://") and "\\" not in name and
                 not any(part in ("", ".", "..") for part in name[6:].split("/")) and
                 name not in seen, "PCK path unsafe or duplicate")
         seen.add(name)
