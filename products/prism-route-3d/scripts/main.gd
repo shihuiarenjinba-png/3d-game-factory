@@ -22,6 +22,12 @@ var recorded_win: bool = false
 var scan_markers: Array[MeshInstance3D] = []
 var scan_marker_directions: Array[int] = []
 var scan_label: Label
+# The 90-second clock starts only after the player has read the first-run guide.
+var onboarding_active: bool = true
+var onboarding_panel: PanelContainer
+var onboarding_title: Label
+var onboarding_details: Label
+var start_button: Button
 
 func _ready() -> void:
     var saved: Dictionary = SAVE.load_data(SAVE_PATH)
@@ -34,7 +40,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
     var hits_before: int = game.scan_hits
-    game.tick(delta)
+    if not onboarding_active:
+        game.tick(delta)
     if game.scan_hits != hits_before:
         _sync_world()
     _sync_scan_world()
@@ -55,6 +62,13 @@ func _notification(what: int) -> void:
 
 func _unhandled_key_input(event: InputEvent) -> void:
     if not (event is InputEventKey) or not event.pressed or event.echo:
+        return
+    if onboarding_active:
+        if event.keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE]:
+            _start_run()
+        elif event.keycode == KEY_L:
+            _toggle_language()
+        get_viewport().set_input_as_handled()
         return
     var step := Vector2i.ZERO
     match event.keycode:
@@ -222,6 +236,32 @@ func _build_ui() -> void:
     hint_label.add_theme_font_size_override("font_size", 17)
     bottom.add_child(hint_label)
 
+    # Deliberate, bilingual first-30-second orientation: no clock pressure
+    # until Start. It is a product UI, not a debug panel or tutorial fixture.
+    onboarding_panel = PanelContainer.new()
+    onboarding_panel.name = "FirstRunGuide"
+    onboarding_panel.set_anchors_preset(Control.PRESET_CENTER)
+    onboarding_panel.offset_left = -310
+    onboarding_panel.offset_top = -165
+    onboarding_panel.offset_right = 310
+    onboarding_panel.offset_bottom = 165
+    layer.add_child(onboarding_panel)
+    var guide_stack := VBoxContainer.new()
+    guide_stack.add_theme_constant_override("separation", 15)
+    onboarding_panel.add_child(guide_stack)
+    onboarding_title = Label.new()
+    onboarding_title.add_theme_font_size_override("font_size", 24)
+    onboarding_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    guide_stack.add_child(onboarding_title)
+    onboarding_details = Label.new()
+    onboarding_details.add_theme_font_size_override("font_size", 18)
+    onboarding_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    guide_stack.add_child(onboarding_details)
+    start_button = Button.new()
+    start_button.custom_minimum_size = Vector2(220, 48)
+    start_button.pressed.connect(_start_run)
+    guide_stack.add_child(start_button)
+
     # Font bytes and OFL notice are pinned and embedded at export time.
     # No font download or system-installed Japanese font is needed at runtime.
     var consumer_font := load("res://assets/fonts/NotoSansJP.ttf") as Font
@@ -232,8 +272,31 @@ func _build_ui() -> void:
         consumer_theme.default_font = consumer_font
         top.theme = consumer_theme
         bottom.theme = consumer_theme
+        onboarding_panel.theme = consumer_theme
+    _refresh_onboarding()
+
+func _refresh_onboarding() -> void:
+    if onboarding_title == null:
+        return
+    if language == "ja":
+        onboarding_title.text = "90秒で3つの塔を起動！"
+        onboarding_details.text = "目的：塔の番号 1 → 2 → 3 の順に到達。\n操作：WASD / 矢印キーで移動。\nSentinel：黄色は予告、赤は照射（被弾で6秒減）。\n罠：橙は15秒減、紫は8秒減＋中央へ転送。\n準備ができたら開始。時計は開始まで止まります。"
+        start_button.text = "ゲーム開始 (Enter)"
+    else:
+        onboarding_title.text = "Activate 3 towers in 90 seconds!"
+        onboarding_details.text = "GOAL: Reach towers 1 → 2 → 3 in order.\nMOVE: WASD or arrow keys.\nSENTINEL: Yellow warns; red scans (hit costs 6s).\nTRAPS: Orange costs 15s; purple costs 8s + warp.\nPress Start when ready. The clock waits for you."
+        start_button.text = "Start Game (Enter)"
+
+func _start_run() -> void:
+    if not onboarding_active:
+        return
+    onboarding_active = false
+    if onboarding_panel != null:
+        onboarding_panel.hide()
+    _refresh_ui()
 
 func _refresh_ui() -> void:
+    _refresh_onboarding()
     if status_label == null:
         return
     var progress: String = "%d/3" % game.next_target
