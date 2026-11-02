@@ -19,6 +19,7 @@ func _initialize() -> void:
     test_tower_order_discoverability()
     test_board_visibility_contract()
     test_hud_readability_contract()
+    test_bottom_hint_single_line()
     test_first_run_orientation()
     print("PASS: Prism Route 3D gameplay, visible traps, telegraphed Sentinel, pause, win, timeout, restart, corrupt/empty save, focus-loss pause, EN/JA")
     quit(0)
@@ -309,4 +310,34 @@ func test_first_run_orientation() -> void:
           "90s clock and scan resume only after Start")
     scene._start_run()
     check(not scene.onboarding_active, "duplicate Start is idempotent")
+    scene.free()
+
+func test_bottom_hint_single_line() -> void:
+    # Actual Noto JP font metrics at the minimum 1024px viewport, not
+    # character counts: avoid the observed Japanese orphan "う。" and
+    # the short English second line. Physical Windows DPI is a separate gate.
+    var font := load("res://assets/fonts/NotoSansJP.ttf") as Font
+    check(font != null, "consumer JP font is available for hint width QA")
+    var scene = MAIN.new()
+    scene.status_label = Label.new()
+    scene.scan_label = Label.new()
+    scene.hint_label = Label.new()
+    scene.restart_button = Button.new()
+    scene.pause_button = Button.new()
+    scene.language_button = Button.new()
+    for control in [scene.status_label, scene.scan_label, scene.hint_label,
+                    scene.restart_button, scene.pause_button, scene.language_button]:
+        scene.add_child(control)
+    # 1024 viewport - 16px left/right panel offsets - safety margin.
+    # The live hint uses 20px type and smart autowrap.
+    var safe_width := 960.0
+    for locale in ["ja", "en"]:
+        scene.language = locale
+        scene._refresh_ui()
+        var actual_width := font.get_string_size(scene.hint_label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x
+        check(actual_width <= safe_width,
+              "%s initial HUD hint must fit on one line at 1024px (%.1f > %.1f)" % [locale, actual_width, safe_width])
+    var old_orphan_copy := "頭上の番号 1→2→3 の順に塔へ。WASD/矢印で移動。橙=-15秒、紫=-8秒+転送。光るSentinel予告帯を避けよう。"
+    check(font.get_string_size(old_orphan_copy, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x > safe_width,
+          "negative fixture: old Japanese hint must fail the width gate")
     scene.free()
