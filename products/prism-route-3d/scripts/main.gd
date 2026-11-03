@@ -146,7 +146,10 @@ func _build_world() -> void:
         var order_label := Label3D.new()
         order_label.name = "TowerOrder%d" % (i + 1)
         order_label.text = str(i + 1)
-        # Keep the number close to its tower: the previous 0.93m lift projected\n        # Tower 1 into the top gameplay HUD at the 720px workarea.\n        # Do not alter target coordinates, collision, or route logic.\n        order_label.position = pos + Vector3(0, 0.38, 0)
+        # Keep the number close to its tower: the previous 0.93m lift projected
+        # Tower 1 into the top gameplay HUD at the 720px workarea.
+        # Do not alter target coordinates, collision, or route logic.
+        order_label.position = pos + Vector3(0, 0.38, 0)
         order_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
         order_label.no_depth_test = true
         order_label.font_size = 70
