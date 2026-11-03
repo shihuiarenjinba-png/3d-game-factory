@@ -32,6 +32,9 @@ var onboarding_panel: PanelContainer
 var onboarding_title: Label
 var onboarding_details: Label
 var start_button: Button
+var onboarding_language_button: Button
+var gameplay_hud_top: PanelContainer
+var gameplay_hud_bottom: PanelContainer
 
 func _ready() -> void:
     var saved: Dictionary = SAVE.load_data(SAVE_PATH)
@@ -216,6 +219,7 @@ func _build_ui() -> void:
     var layer := CanvasLayer.new()
     add_child(layer)
     var top := PanelContainer.new()
+    gameplay_hud_top = top
     top.anchor_right = 1.0
     top.offset_left = 16
     top.offset_top = 12
@@ -253,6 +257,7 @@ func _build_ui() -> void:
     _style_gameplay_hud_button(language_button)
     buttons.add_child(language_button)
     var bottom := PanelContainer.new()
+    gameplay_hud_bottom = bottom
     bottom.anchor_top = 1.0
     bottom.anchor_right = 1.0
     bottom.anchor_bottom = 1.0
@@ -317,6 +322,18 @@ func _build_ui() -> void:
     start_button.add_theme_stylebox_override("pressed", hover_style)
     start_button.pressed.connect(_start_run)
     guide_stack.add_child(start_button)
+    # The gameplay HUD must not peek through or obstruct the modal guide at
+    # 125/150% modeled UI scale. Keep a click-accessible locale switch here.
+    onboarding_language_button = Button.new()
+    onboarding_language_button.custom_minimum_size = Vector2(180, 40)
+    onboarding_language_button.add_theme_font_size_override("font_size", 18)
+    onboarding_language_button.add_theme_color_override("font_color", HUD_TEXT_COLOR)
+    var language_style := start_style.duplicate() as StyleBoxFlat
+    language_style.bg_color = Color(0.16, 0.27, 0.35)
+    onboarding_language_button.add_theme_stylebox_override("normal", language_style)
+    onboarding_language_button.add_theme_stylebox_override("hover", hover_style)
+    onboarding_language_button.pressed.connect(_toggle_language)
+    guide_stack.add_child(onboarding_language_button)
 
     # Font bytes and OFL notice are pinned and embedded at export time.
     # No font download or system-installed Japanese font is needed at runtime.
@@ -330,6 +347,32 @@ func _build_ui() -> void:
         bottom.theme = consumer_theme
         onboarding_panel.theme = consumer_theme
     _refresh_onboarding()
+    _update_onboarding_layout()
+    if get_viewport() != null:
+        get_viewport().size_changed.connect(_update_onboarding_layout)
+    _sync_onboarding_hud()
+
+func _update_onboarding_layout() -> void:
+    if onboarding_panel == null or get_viewport() == null:
+        return
+    # Fixed 670x370 was almost edge-to-edge at 150% (682 logical pixels wide).
+    # Preserve at least 16 logical px on all sides, even at a 720px workarea.
+    var viewport_size: Vector2 = get_viewport().get_visible_rect().size
+    var half_width: float = minf(335.0, maxf(140.0, (viewport_size.x - 32.0) / 2.0))
+    var half_height: float = minf(185.0, maxf(150.0, (viewport_size.y - 32.0) / 2.0))
+    onboarding_panel.set_anchors_preset(Control.PRESET_CENTER)
+    onboarding_panel.offset_left = -half_width
+    onboarding_panel.offset_right = half_width
+    onboarding_panel.offset_top = -half_height
+    onboarding_panel.offset_bottom = half_height
+
+func _sync_onboarding_hud() -> void:
+    # The guide is modal; do not show partly covered Restart/Pause/Language
+    # buttons or half-visible bottom hints behind it.
+    if gameplay_hud_top != null:
+        gameplay_hud_top.visible = not onboarding_active
+    if gameplay_hud_bottom != null:
+        gameplay_hud_bottom.visible = not onboarding_active
 
 func _refresh_onboarding() -> void:
     if onboarding_title == null:
@@ -344,6 +387,8 @@ func _refresh_onboarding() -> void:
         onboarding_title.text = "Activate towers 1 → 2 → 3"
         onboarding_details.text = "MOVE: WASD / arrows. Reach towers in number order.\nYELLOW warns; RED scans. Avoid the glowing lane.\nORANGE / PURPLE tiles are traps. Choose a safe route.\nYour 90-second clock starts only when you press Start."
         start_button.text = "Start Game (Enter)"
+    if onboarding_language_button != null:
+        onboarding_language_button.text = "English (L)" if language == "ja" else "日本語 (L)"
 
 func _start_run() -> void:
     if not onboarding_active:
@@ -351,6 +396,7 @@ func _start_run() -> void:
     onboarding_active = false
     if onboarding_panel != null:
         onboarding_panel.hide()
+    _sync_onboarding_hud()
     _refresh_ui()
 
 func _failure_hint(locale: String) -> String:
