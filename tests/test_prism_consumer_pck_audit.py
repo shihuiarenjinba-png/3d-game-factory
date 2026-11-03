@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.prism_consumer_pck_audit import PckAuditError, audit, parse_pck
 
 SHA = "a" * 40
-BRANCH = "codex/prism-failure-cause-20261103"
+BRANCH = "codex/prism-first-run-modal-dpi-layout-20261103"
 EXE = b"MZ" + b"x" * 2048
 
 
@@ -60,7 +60,7 @@ class PckGateTests(unittest.TestCase):
     def test_previous_revision_branch_is_not_this_product(self):
         pck = pack(CLEAN)
         with self.assertRaisesRegex(PckAuditError, "unexpected consumer revision branch"):
-            audit(EXE, pck, evidence(pck), SHA, "codex/prism-bottom-hint-wrap-20261103")
+            audit(EXE, pck, evidence(pck), SHA, "codex/prism-failure-cause-20261103")
 
     def test_font_and_license_missing_must_hold(self):
         for missing in ("res://assets/fonts/NotoSansJP.ttf.remap",
