@@ -22,6 +22,7 @@ func _initialize() -> void:
     test_hud_readability_contract()
     test_bottom_hint_single_line()
     test_first_run_orientation()
+    test_first_run_modal_hud()
     print("PASS: Prism Route 3D gameplay, visible traps, telegraphed Sentinel, pause, win, timeout, restart, corrupt/empty save, focus-loss pause, EN/JA")
     quit(0)
 
@@ -427,4 +428,33 @@ func test_bottom_hint_single_line() -> void:
     var old_orphan_copy := "頭上の番号 1→2→3 の順に塔へ。WASD/矢印で移動。橙=-15秒、紫=-8秒+転送。光るSentinel予告帯を避けよう。"
     check(font.get_string_size(old_orphan_copy, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x > safe_width,
           "negative fixture: old Japanese hint must fail the width gate")
+    scene.free()
+
+func modal_hud_safe(scene) -> bool:
+    return not scene.onboarding_active or (
+        not scene.gameplay_hud_top.visible and not scene.gameplay_hud_bottom.visible)
+
+func test_first_run_modal_hud() -> void:
+    # The old fixed guide partially covered the top buttons and bottom hint at
+    # 125/150% modeled DPI. The modal must hide gameplay HUD until Start.
+    var scene = MAIN.new()
+    scene._build_ui()
+    check(scene.onboarding_panel.visible and scene.start_button.visible,
+          "first-run guide and Start visible")
+    check(scene.onboarding_language_button != null
+          and scene.onboarding_language_button.visible,
+          "language switch must be clickable inside modal guide")
+    check(modal_hud_safe(scene), "no HUD controls may peek behind first-run guide")
+    scene.gameplay_hud_top.show()
+    check(not modal_hud_safe(scene),
+          "negative fixture: legacy visible HUD behind guide must be rejected")
+    scene.gameplay_hud_top.hide()
+    scene._toggle_language()
+    check(scene.language == "ja" and scene.onboarding_language_button.text.contains("English"),
+          "Japanese guide provides click switch back to English")
+    scene._start_run()
+    check(not scene.onboarding_active and not scene.onboarding_panel.visible,
+          "Start dismisses modal")
+    check(scene.gameplay_hud_top.visible and scene.gameplay_hud_bottom.visible,
+          "both gameplay HUD panels become visible after Start")
     scene.free()
