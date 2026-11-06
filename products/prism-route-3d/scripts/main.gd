@@ -450,7 +450,7 @@ func _refresh_ui() -> void:
     else:
         status_label.text = "Prism Route 3D | NEXT Tower %s | Done %s | %ds left | Best %s" % [next_tower, progress, remaining, best]
         scan_label.text = "Sentinel %s | %s %.1fs | Hits %d" % [scan_direction_name, "SCAN ends in" if game.scan_active() else "warning, fires in", scan_countdown, game.scan_hits]
-        hint_label.text = "1→2→3 | WASD/arrows | Orange -15s | Purple -8s/warp | Avoid scan."
+        hint_label.text = "1→2→3 | WASD/arrows | Orange/Purple = traps | Avoid scan."
         if game.status == "won":
             hint_label.text = "Route complete! Press R or Restart to play again."
         elif game.status == "failed":
