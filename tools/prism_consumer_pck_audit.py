@@ -90,7 +90,7 @@ def forbidden(name: str) -> bool:
 def audit(exe: bytes, pck: bytes, evidence: dict, source: str, branch: str) -> dict:
     require(len(source) == 40 and all(c in "0123456789abcdef" for c in source),
             "source SHA invalid")
-    require(branch == "codex/prism-first-run-modal-dpi-layout-20261103",
+    require(branch == "codex/prism-tower1-hud-clearance-fix-20261103",
             "unexpected consumer revision branch")
     request = "3d-prism-route-3d-" + source[:12]
     require(evidence.get("source_sha") == source and

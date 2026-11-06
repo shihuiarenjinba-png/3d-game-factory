@@ -146,7 +146,10 @@ func _build_world() -> void:
         var order_label := Label3D.new()
         order_label.name = "TowerOrder%d" % (i + 1)
         order_label.text = str(i + 1)
-        # Keep the number close to its tower: the previous 0.93m lift projected\n        # Tower 1 into the top gameplay HUD at the 720px workarea.\n        # Do not alter target coordinates, collision, or route logic.\n        order_label.position = pos + Vector3(0, 0.38, 0)
+        # Keep the number close to its tower: the previous 0.93m lift projected
+        # Tower 1 into the top gameplay HUD at the 720px workarea.
+        # Do not alter target coordinates, collision, or route logic.
+        order_label.position = pos + Vector3(0, 0.38, 0)
         order_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
         order_label.no_depth_test = true
         order_label.font_size = 70
@@ -447,7 +450,7 @@ func _refresh_ui() -> void:
     else:
         status_label.text = "Prism Route 3D | NEXT Tower %s | Done %s | %ds left | Best %s" % [next_tower, progress, remaining, best]
         scan_label.text = "Sentinel %s | %s %.1fs | Hits %d" % [scan_direction_name, "SCAN ends in" if game.scan_active() else "warning, fires in", scan_countdown, game.scan_hits]
-        hint_label.text = "Towers 1→2→3. Move: WASD/arrows. Orange -15s; purple -8s + warp. Avoid Sentinel's glow."
+        hint_label.text = "1→2→3 | WASD/arrows | Orange/Purple = traps | Avoid scan."
         if game.status == "won":
             hint_label.text = "Route complete! Press R or Restart to play again."
         elif game.status == "failed":
