@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.prism_consumer_pck_audit import PckAuditError, audit, parse_pck
 
 SHA = "a" * 40
-BRANCH = "codex/prism-first-run-modal-dpi-layout-20261103"
+BRANCH = "codex/prism-tower1-hud-clearance-fix-20261103"
 EXE = b"MZ" + b"x" * 2048
 
 
